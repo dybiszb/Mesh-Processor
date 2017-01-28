@@ -10,7 +10,7 @@
 
 #define MAIN_WINDOW_WIDTH  800
 #define MAIN_WINDOW_HEIGHT 600
-#define MAIN_WINDOW_TITLE  "Parallel Interactive Mesh Processor"
+#define MAIN_WINDOW_TITLE  "Simple Mesh Processor"
 
 wxIMPLEMENT_APP(MainApp);
 

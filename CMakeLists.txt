@@ -4,8 +4,9 @@
 # author: dybisz
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.4)
-project(PIMP)
+project(MeshProcessor)
 set(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_MODULE_PATH  "${CMAKE_SOURCE_DIR}/cmake-modules" )
 
 #===============================================================================
 # Find wxWidgets
@@ -47,6 +48,18 @@ else (GLEW_FOUND)
 endif (GLEW_FOUND)
 
 #===============================================================================
+# Find Assimp
+#-------------------------------------------------------------------------------
+FIND_PACKAGE(assimp REQUIRED)
+if (assimp_FOUND)
+    MESSAGE("GLEW Found!")
+    INCLUDE_DIRECTORIES(${assimp_INCLUDE_DIRS})
+    LINK_LIBRARIES(${assimp_LIBRARIES})
+else (assimp_FOUND)
+    MESSAGE(FATAL_ERROR "assimp NOT Found")
+endif (assimp_FOUND)
+
+#===============================================================================
 # Include Sources
 #-------------------------------------------------------------------------------
 include_directories(include)
@@ -60,8 +73,8 @@ set(SOURCE_FILES
 #===============================================================================
 # Compile & Link
 #-------------------------------------------------------------------------------
-add_executable(PIMP ${SOURCE_FILES})
-target_link_libraries(PIMP
+add_executable(MeshProcessor ${SOURCE_FILES})
+target_link_libraries(MeshProcessor
         ${wxWidgets_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${GLEW_LIBRARIES}
@@ -71,7 +84,7 @@ target_link_libraries(PIMP
 # Copy Resources
 #-------------------------------------------------------------------------------
 add_custom_command(
-        TARGET PIMP PRE_BUILD
+        TARGET MeshProcessor PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory   # Copy resources
-        ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:PIMP>/res
+        ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:MeshProcessor>/res
 )

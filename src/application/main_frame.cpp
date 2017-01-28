@@ -10,7 +10,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     glPane = new GLPlane((wxFrame *) this, args);
 
     /* ----- Initialize Left Panel ----- */
-    loadMeshButton = new wxButton(this, ID_BUTTON_LOAD_MESH, wxT("Load Mesh"));
+    loadMeshButton = new wxButton(this, ID_BUTTON_LOAD_MESH,
+                                  wxT("      Load Mesh      "));
 
     /* ----- Initialize Layout ----- */
     sizer = new wxBoxSizer(wxHORIZONTAL);
