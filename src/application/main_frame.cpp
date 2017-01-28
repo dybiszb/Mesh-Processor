@@ -1,5 +1,6 @@
-#include "main_frame.h"
+#include "application/main_frame.h"
 
+//------------------------------------------------------------------------------
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
                      const wxSize &size)
         : wxFrame(NULL, wxID_ANY, title, pos, size) {
@@ -19,7 +20,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     this->SetAutoLayout(true);
 }
 
-void MainFrame::OnLoadMesh(wxCommandEvent &event) {
+//------------------------------------------------------------------------------
+void
+MainFrame::OnLoadMesh(wxCommandEvent &event) {
     wxFileDialog *OpenDialog = new wxFileDialog(this,
                                                 _("Choose a file to open"),
                                                 wxEmptyString, wxEmptyString,
@@ -32,7 +35,7 @@ void MainFrame::OnLoadMesh(wxCommandEvent &event) {
     }
 }
 
-
+//------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
 wxEND_EVENT_TABLE()

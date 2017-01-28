@@ -1,8 +1,13 @@
+//==============================================================================
+//
+//==============================================================================
+// author: dybisz
+//------------------------------------------------------------------------------
+
 #ifndef MAIN_FRAME_H
 #define MAIN_FRAME_H
 
 #include <wx/wx.h>
-#include "main_app_config.h"
 #include "gl_plane.h"
 #include <iostream>
 
@@ -15,6 +20,11 @@ private:
     GLPlane* glPane;
     wxBoxSizer* sizer;
 
+    /**
+     * Opens file dialog in order to pick a mesh that should be loaded.
+     *
+     * @param event wxWidgets event.
+     */
     void OnLoadMesh(wxCommandEvent &event);
 
     wxDECLARE_EVENT_TABLE();

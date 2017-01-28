@@ -4,8 +4,12 @@
 // author: dybisz
 //------------------------------------------------------------------------------
 
-#include "main_app.h"
-#include "main_frame.h"
+#include "application/main_app.h"
+#include "application/main_frame.h"
+
+#define MAIN_WINDOW_WIDTH  800
+#define MAIN_WINDOW_HEIGHT 600
+#define MAIN_WINDOW_TITLE  "Parallel Interactive Mesh Processor"
 
 wxIMPLEMENT_APP(MainApp);
 
