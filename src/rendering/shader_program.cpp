@@ -5,9 +5,8 @@
 //------------------------------------------------------------------------------
 ShaderProgram::ShaderProgram(const GLchar *vertexPath,
                              const GLchar *fragmentPath) {
-
-    const GLchar *vertexCode = loadShaderSourceCode(vertexPath, "VERTEX");
-    const GLchar *fragmentCode = loadShaderSourceCode(fragmentPath, "FRAGMENT");
+    string vertexCode = loadShaderSourceCode(vertexPath, "VERTEX");
+    string fragmentCode = loadShaderSourceCode(fragmentPath, "FRAGMENT");
 
     GLuint vertexID = compileShader(vertexCode, GL_VERTEX_SHADER);
     GLuint fragmentID = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
@@ -25,11 +24,12 @@ ShaderProgram::ShaderProgram(const GLchar *vertexPath,
 
 //------------------------------------------------------------------------------
 ShaderProgram::~ShaderProgram() {
-
+    this->unuse();
+    glDeleteProgram(this->id);
 }
 
 //------------------------------------------------------------------------------
-const GLchar *
+string
 ShaderProgram::loadShaderSourceCode(string path, string type) {
     string shaderCode;
     std::ifstream shaderFile;
@@ -47,14 +47,15 @@ ShaderProgram::loadShaderSourceCode(string path, string type) {
                   << std::endl;
     }
 
-    return shaderCode.c_str();
+    return shaderCode;
 }
 
 //------------------------------------------------------------------------------
 GLuint
-ShaderProgram::compileShader(const GLchar *shaderCode, GLenum shaderType) {
+ShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
     GLuint shaderId = glCreateShader(shaderType);
-    glShaderSource(shaderId, 1, &shaderCode, NULL);
+    const char* temp = shaderCode.c_str();
+    glShaderSource(shaderId, 1, &(temp), NULL);
     glCompileShader(shaderId);
 
     switch (shaderType) {
@@ -82,4 +83,16 @@ ShaderProgram::getIdStatusInfo(GLuint id, GLenum status, string idType) {
         glGetShaderInfoLog(id, 512, NULL, infoLog);
         cout << "::TYPE::" << status << "\n" << infoLog << endl;
     }
+}
+
+//------------------------------------------------------------------------------
+void
+ShaderProgram::use() {
+    glUseProgram(this->id);
+}
+
+//------------------------------------------------------------------------------
+void
+ShaderProgram::unuse() {
+    glUseProgram(0);
 }

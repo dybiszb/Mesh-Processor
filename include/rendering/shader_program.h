@@ -14,8 +14,13 @@
 #include <iostream>
 
 #include <GL/glew.h>
+#include "GL/gl.h"
 
 using namespace std;
+
+namespace rendering {
+
+}
 
 class ShaderProgram {
 public:
@@ -29,8 +34,6 @@ public:
 
     ~ShaderProgram();
 
-
-
 private:
     GLuint id;
 
@@ -43,7 +46,7 @@ private:
      *
      * @return     Parsed shader code.
      */
-    const GLchar* loadShaderSourceCode(string path, string type="");
+    string loadShaderSourceCode(string path, string type="");
 
     /**
      * Compile shaders according to provided code and and type;
@@ -55,7 +58,7 @@ private:
      *
      * @return           An ID of compiled shader.
      */
-    GLuint compileShader(const GLchar* shaderCode, GLenum shaderType);
+    GLuint compileShader(string shaderCode, GLenum shaderType);
 
     /**
      * The procedure basically introduces ease interface for calling
@@ -68,6 +71,16 @@ private:
      *                "FRAGMENT_SHADER" or "PROGRAM".
      */
     void getIdStatusInfo(GLuint id, GLenum status, string idType);
+
+    /**
+     * Start using the program within OpenGL context;
+     */
+    void use();
+
+    /**
+     * Stop using the program within OpenGL context;
+     */
+    void unuse();
 };
 
 #endif

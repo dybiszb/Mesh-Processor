@@ -1,10 +1,15 @@
-cmake_minimum_required(VERSION 3.6)
+#===============================================================================
+# Parallel Interactive Mesh Processor (PIMP)
+#==============================================================================
+# author: dybisz
+#-------------------------------------------------------------------------------
+cmake_minimum_required(VERSION 3.4)
 project(PIMP)
 set(CMAKE_CXX_STANDARD 11)
 
-# --------------------- #
-# ----- wxWidgets ----- #
-# --------------------- #
+#===============================================================================
+# Find wxWidgets
+#-------------------------------------------------------------------------------
 FIND_PACKAGE(wxWidgets REQUIRED html adv core base net aui xrc qa richtext gl)
 if (wxWidgets_FOUND)
     MESSAGE("wxWidgets Found!")
@@ -15,9 +20,9 @@ else (wxWidgets_FOUND)
 endif (wxWidgets_FOUND)
 
 
-# ------------------ #
-# ----- OpenGL ----- #
-# ------------------ #
+#===============================================================================
+# Find OpenGL
+#-------------------------------------------------------------------------------
 FIND_PACKAGE(OpenGL REQUIRED)
 if (OPENGL_FOUND)
     MESSAGE("OpenGL Found!")
@@ -28,9 +33,9 @@ else (OPENGL_FOUND)
 endif (OPENGL_FOUND)
 
 
-# ---------------- #
-# ----- GLEW ----- #
-# ---------------- #
+#===============================================================================
+# Find GLEW
+#-------------------------------------------------------------------------------
 FIND_PACKAGE(GLEW REQUIRED)
 if (GLEW_FOUND)
     MESSAGE("GLEW Found!")
@@ -41,6 +46,9 @@ else (GLEW_FOUND)
     MESSAGE(FATAL_ERROR "GLEW NOT Found")
 endif (GLEW_FOUND)
 
+#===============================================================================
+# Include Sources
+#-------------------------------------------------------------------------------
 include_directories(include)
 set(SOURCE_FILES
         src/main.cpp
@@ -49,5 +57,21 @@ set(SOURCE_FILES
         src/rendering/shader_program.cpp
         )
 
+#===============================================================================
+# Compile & Link
+#-------------------------------------------------------------------------------
 add_executable(PIMP ${SOURCE_FILES})
-target_link_libraries(PIMP ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(PIMP
+        ${wxWidgets_LIBRARIES}
+        ${OPENGL_LIBRARIES}
+        ${GLEW_LIBRARIES}
+        )
+
+#===============================================================================
+# Copy Resources
+#-------------------------------------------------------------------------------
+add_custom_command(
+        TARGET PIMP PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory   # Copy resources
+        ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:PIMP>/res
+)

@@ -4,7 +4,10 @@
 GLPlane::GLPlane(wxFrame *parent, int *args) :
         wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize,
                    wxFULL_REPAINT_ON_RESIZE) {
-    m_context = new wxGLContext(this);
+    wxGLContextAttrs ctxAttrs;
+    ctxAttrs.PlatformDefaults().CoreProfile().OGLVersion(3, 3).EndList();
+    m_context = new wxGLContext(this, NULL, &ctxAttrs);
+
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -12,6 +15,23 @@ GLPlane::GLPlane(wxFrame *parent, int *args) :
 //------------------------------------------------------------------------------
 GLPlane::~GLPlane() {
     delete m_context;
+    delete mainShader;
+}
+
+//------------------------------------------------------------------------------
+void
+GLPlane::initializeGLEW() {
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        wxMessageBox(
+                wxString("GLEW Error: ") +
+                wxString(glewGetErrorString(err)),
+                _("OpenGl ERROR"),
+                wxOK | wxICON_EXCLAMATION
+        );
+        exit(4001);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -50,8 +70,23 @@ void
 GLPlane::render(wxPaintEvent &evt) {
     if (!IsShown()) return;
 
+    // Temporally in this form
+    if(!glReady) {
+
+        wxGLCanvas::SetCurrent(*m_context);
+        initializeGLEW();
+
+        mainShader = new ShaderProgram
+                ("./res/shaders/default_shader.vert",
+                 "./res/shaders/default_shader.frag");
+
+        glReady = true;
+    }
+
     prepare3DViewport(getWidth() / 2, 0, getWidth(), getHeight());
-    wxGLCanvas::SetCurrent(*m_context);
+
+
+
     wxPaintDC(
             this); // only to be used in paint events. use wxClientDC to paint outside the paint event
 
