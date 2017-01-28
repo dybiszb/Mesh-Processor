@@ -3,19 +3,28 @@
 
 #include <wx/wx.h>
 #include "main_app_config.h"
+#include "gl_plane.h"
 
 class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
 private:
-    void OnHello(wxCommandEvent &event);
+    wxButton *loadMeshButton;
+    GLPlane * glPane;
+    wxBoxSizer* sizer;
 
-    void OnExit(wxCommandEvent &event);
-
-    void OnAbout(wxCommandEvent &event);
+    void OnLoadMesh(wxCommandEvent &event);
 
     wxDECLARE_EVENT_TABLE();
 };
+
+enum
+{
+    ID_BUTTON_LOAD_MESH = wxID_HIGHEST + 1
+};
+
+
+
 
 #endif
