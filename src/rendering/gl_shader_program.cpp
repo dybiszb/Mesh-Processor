@@ -1,9 +1,9 @@
 // author: dybisz
 
-#include "rendering/shader_program.h"
+#include "rendering/gl_shader_program.h"
 
 //------------------------------------------------------------------------------
-ShaderProgram::ShaderProgram(const GLchar *vertexPath,
+glShaderProgram::glShaderProgram(const GLchar *vertexPath,
                              const GLchar *fragmentPath) {
     string vertexCode = loadShaderSourceCode(vertexPath, "VERTEX");
     string fragmentCode = loadShaderSourceCode(fragmentPath, "FRAGMENT");
@@ -23,14 +23,14 @@ ShaderProgram::ShaderProgram(const GLchar *vertexPath,
 }
 
 //------------------------------------------------------------------------------
-ShaderProgram::~ShaderProgram() {
+glShaderProgram::~glShaderProgram() {
     this->unuse();
     glDeleteProgram(this->id);
 }
 
 //------------------------------------------------------------------------------
 string
-ShaderProgram::loadShaderSourceCode(string path, string type) {
+glShaderProgram::loadShaderSourceCode(string path, string type) {
     string shaderCode;
     std::ifstream shaderFile;
     shaderFile.exceptions(std::ifstream::badbit);
@@ -52,7 +52,7 @@ ShaderProgram::loadShaderSourceCode(string path, string type) {
 
 //------------------------------------------------------------------------------
 GLuint
-ShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
+glShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
     GLuint shaderId = glCreateShader(shaderType);
     const char* temp = shaderCode.c_str();
     glShaderSource(shaderId, 1, &(temp), NULL);
@@ -74,7 +74,7 @@ ShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
 
 //------------------------------------------------------------------------------
 void
-ShaderProgram::getIdStatusInfo(GLuint id, GLenum status, string idType) {
+glShaderProgram::getIdStatusInfo(GLuint id, GLenum status, string idType) {
     GLint success;
     GLchar infoLog[512];
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
@@ -87,12 +87,12 @@ ShaderProgram::getIdStatusInfo(GLuint id, GLenum status, string idType) {
 
 //------------------------------------------------------------------------------
 void
-ShaderProgram::use() {
+glShaderProgram::use() {
     glUseProgram(this->id);
 }
 
 //------------------------------------------------------------------------------
 void
-ShaderProgram::unuse() {
+glShaderProgram::unuse() {
     glUseProgram(0);
 }

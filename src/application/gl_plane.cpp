@@ -1,7 +1,7 @@
 #include "application/gl_plane.h"
 
 //------------------------------------------------------------------------------
-GLPlane::GLPlane(wxFrame *parent, int *args) :
+glPlane::glPlane(wxFrame *parent, int *args) :
         wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize,
                    wxFULL_REPAINT_ON_RESIZE) {
     wxGLContextAttrs ctxAttrs;
@@ -13,14 +13,15 @@ GLPlane::GLPlane(wxFrame *parent, int *args) :
 }
 
 //------------------------------------------------------------------------------
-GLPlane::~GLPlane() {
+glPlane::~glPlane() {
     delete m_context;
+    delete box;
     delete mainShader;
 }
 
 //------------------------------------------------------------------------------
 void
-GLPlane::initializeGLEW() {
+glPlane::initializeGLEW() {
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (err != GLEW_OK) {
@@ -36,7 +37,24 @@ GLPlane::initializeGLEW() {
 
 //------------------------------------------------------------------------------
 void
-GLPlane::resized(wxSizeEvent &evt) {
+glPlane::initializeGLContextIfNotReady() {
+    if (!glReady) {
+        wxGLCanvas::SetCurrent(*m_context);
+        initializeGLEW();
+
+        mainShader = new glShaderProgram
+                ("./res/shaders/default_shader.vert",
+                 "./res/shaders/default_shader.frag");
+
+        box = new glBox();
+
+        glReady = true;
+    }
+};
+
+//------------------------------------------------------------------------------
+void
+glPlane::resized(wxSizeEvent &evt) {
 //	wxGLCanvas::OnSize(evt);
 
     Refresh();
@@ -44,7 +62,7 @@ GLPlane::resized(wxSizeEvent &evt) {
 
 //------------------------------------------------------------------------------
 void
-GLPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
+glPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
                            int bottomrigth_y) {
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -55,33 +73,21 @@ GLPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
 
 //------------------------------------------------------------------------------
 int
-GLPlane::getWidth() {
+glPlane::getWidth() {
     return GetSize().x;
 }
 
 //------------------------------------------------------------------------------
 int
-GLPlane::getHeight() {
+glPlane::getHeight() {
     return GetSize().y;
 }
 
 //------------------------------------------------------------------------------
 void
-GLPlane::render(wxPaintEvent &evt) {
+glPlane::render(wxPaintEvent &evt) {
     if (!IsShown()) return;
-
-    // Temporally in this form
-    if(!glReady) {
-
-        wxGLCanvas::SetCurrent(*m_context);
-        initializeGLEW();
-
-        mainShader = new ShaderProgram
-                ("./res/shaders/default_shader.vert",
-                 "./res/shaders/default_shader.frag");
-
-        glReady = true;
-    }
+    initializeGLContextIfNotReady();
 
     prepare3DViewport(getWidth() / 2, 0, getWidth(), getHeight());
 
@@ -91,52 +97,55 @@ GLPlane::render(wxPaintEvent &evt) {
             this); // only to be used in paint events. use wxClientDC to paint outside the paint event
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    box->render(*mainShader);
+
     glFlush();
     SwapBuffers();
 }
 
 //------------------------------------------------------------------------------
 void
-GLPlane::mouseMoved(wxMouseEvent &event) {}
+glPlane::mouseMoved(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::mouseDown(wxMouseEvent &event) {}
+glPlane::mouseDown(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::mouseWheelMoved(wxMouseEvent &event) {}
+glPlane::mouseWheelMoved(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::mouseReleased(wxMouseEvent &event) {}
+glPlane::mouseReleased(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::rightClick(wxMouseEvent &event) {}
+glPlane::rightClick(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::mouseLeftWindow(wxMouseEvent &event) {}
+glPlane::mouseLeftWindow(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::keyPressed(wxKeyEvent &event) {}
+glPlane::keyPressed(wxKeyEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-GLPlane::keyReleased(wxKeyEvent &event) {}
+glPlane::keyReleased(wxKeyEvent &event) {}
 
 //------------------------------------------------------------------------------
-BEGIN_EVENT_TABLE(GLPlane, wxGLCanvas)
-                EVT_MOTION(GLPlane::mouseMoved)
-                EVT_LEFT_DOWN(GLPlane::mouseDown)
-                EVT_LEFT_UP(GLPlane::mouseReleased)
-                EVT_RIGHT_DOWN(GLPlane::rightClick)
-                EVT_LEAVE_WINDOW(GLPlane::mouseLeftWindow)
-                EVT_SIZE(GLPlane::resized)
-                EVT_KEY_DOWN(GLPlane::keyPressed)
-                EVT_KEY_UP(GLPlane::keyReleased)
-                EVT_MOUSEWHEEL(GLPlane::mouseWheelMoved)
-                EVT_PAINT(GLPlane::render)
+BEGIN_EVENT_TABLE(glPlane, wxGLCanvas)
+                EVT_MOTION(glPlane::mouseMoved)
+                EVT_LEFT_DOWN(glPlane::mouseDown)
+                EVT_LEFT_UP(glPlane::mouseReleased)
+                EVT_RIGHT_DOWN(glPlane::rightClick)
+                EVT_LEAVE_WINDOW(glPlane::mouseLeftWindow)
+                EVT_SIZE(glPlane::resized)
+                EVT_KEY_DOWN(glPlane::keyPressed)
+                EVT_KEY_UP(glPlane::keyReleased)
+                EVT_MOUSEWHEEL(glPlane::mouseWheelMoved)
+                EVT_PAINT(glPlane::render)
 END_EVENT_TABLE()

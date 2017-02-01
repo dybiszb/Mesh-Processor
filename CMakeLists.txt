@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.4)
 project(MeshProcessor)
 set(CMAKE_CXX_STANDARD 11)
-SET(CMAKE_MODULE_PATH  "${CMAKE_SOURCE_DIR}/cmake-modules" )
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
 #===============================================================================
 # Find wxWidgets
@@ -67,7 +67,8 @@ set(SOURCE_FILES
         src/main.cpp
         src/application/main_frame.cpp
         src/application/gl_plane.cpp
-        src/rendering/shader_program.cpp
+        src/rendering/gl_shader_program.cpp
+        src/rendering/gl_box.cpp
         )
 
 #===============================================================================

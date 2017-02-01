@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include "application/main_app.h"
 #include "application/main_frame.h"
-#include "rendering/shader_program.h"
+#include "rendering/gl_shader_program.h"
 
 #define MAIN_WINDOW_WIDTH  800
 #define MAIN_WINDOW_HEIGHT 600

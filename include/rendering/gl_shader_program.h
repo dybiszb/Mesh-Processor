@@ -22,7 +22,7 @@ namespace rendering {
 
 }
 
-class ShaderProgram {
+class glShaderProgram {
 public:
     /**
      * Main constructor.
@@ -30,9 +30,19 @@ public:
      * @param vertexPath   Path to vertex shader file.
      * @param fragmentPath Path to fragment shader file.
      */
-    ShaderProgram(const GLchar* vertexPath, const GLchar* fragmentPath);
+    glShaderProgram(const GLchar* vertexPath, const GLchar* fragmentPath);
 
-    ~ShaderProgram();
+    ~glShaderProgram();
+
+    /**
+     * Start using the program within OpenGL context;
+     */
+    void use();
+
+    /**
+     * Stop using the program within OpenGL context;
+     */
+    void unuse();
 
 private:
     GLuint id;
@@ -72,15 +82,7 @@ private:
      */
     void getIdStatusInfo(GLuint id, GLenum status, string idType);
 
-    /**
-     * Start using the program within OpenGL context;
-     */
-    void use();
 
-    /**
-     * Stop using the program within OpenGL context;
-     */
-    void unuse();
 };
 
 #endif

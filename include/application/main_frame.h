@@ -17,7 +17,7 @@ public:
 
 private:
     wxButton* loadMeshButton;
-    GLPlane* glPane;
+    glPlane* glPane;
     wxBoxSizer* sizer;
 
     /**

@@ -10,21 +10,21 @@
 #include <GL/glew.h>
 #include "wx/wx.h"
 #include "wx/glcanvas.h"
-#include <GL/glu.h>
 #include <GL/gl.h>
+#include "rendering/gl_box.h"
+#include "rendering/gl_shader_program.h"
 
-#include "rendering/shader_program.h"
-
-class GLPlane : public wxGLCanvas {
+class glPlane : public wxGLCanvas {
     wxGLContext *m_context;
 
 public:
     bool glReady;
-    ShaderProgram* mainShader;
+    glShaderProgram *mainShader;
+    glBox *box;
 
-    GLPlane(wxFrame *parent, int *args);
+    glPlane(wxFrame *parent, int *args);
 
-    virtual ~GLPlane();
+    virtual ~glPlane();
 
     /**
      * Initialize OpenGL context.
@@ -36,6 +36,8 @@ public:
     int getWidth();
 
     int getHeight();
+
+    void initializeGLContextIfNotReady();
 
     void render(wxPaintEvent &evt);
 
