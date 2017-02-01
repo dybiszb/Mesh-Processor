@@ -11,6 +11,13 @@
 #include <GL/gl.h>
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_utils.h"
+#ifdef Success
+#undef Success
+#endif
+
+#include <eigen3/Eigen/Core>
+
+using namespace Eigen;
 
 class glBox {
 public:
@@ -18,10 +25,11 @@ public:
 
     ~glBox();
 
-    void render(glShaderProgram &shader);
+    void render(glShaderProgram &shader, Matrix4f& view, Matrix4f& projection);
 
 private:
     GLuint vbo, vao, ebo;
+    Matrix4f model = Matrix4f::Identity();
 
     GLfloat vertices[32] = {
             // Positions          // Colors           // Texture Coords

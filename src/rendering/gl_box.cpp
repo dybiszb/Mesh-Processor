@@ -38,14 +38,19 @@ glBox::~glBox() {
     glDeleteBuffers(1, &ebo);
 }
 
-void glBox::render(glShaderProgram &shader) {
+void glBox::render(glShaderProgram &shader, Matrix4f& view, Matrix4f &
+projection) {
     shader.use();
 
-    // Bind Buffers Data
     glBindVertexArray(vao);
 
-    // Draw container
-    glBindVertexArray(vao);
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(),"model"), 1,
+                       GL_FALSE, model.data());
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(),"view"), 1,
+                      GL_FALSE, view.data());
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(),"projection"), 1,
+                       GL_FALSE, projection.data());
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 

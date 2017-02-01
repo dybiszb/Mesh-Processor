@@ -34,6 +34,8 @@ public:
 
     ~glShaderProgram();
 
+    GLuint getId();
+
     /**
      * Start using the program within OpenGL context;
      */

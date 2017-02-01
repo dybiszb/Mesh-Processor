@@ -4,7 +4,9 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-inline void glCheckForErrors() {
+//------------------------------------------------------------------------------
+inline void
+glCheckForErrors() {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         cerr << "OpenGL error: " << err << endl;

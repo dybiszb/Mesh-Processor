@@ -11,8 +11,13 @@
 #include "wx/wx.h"
 #include "wx/glcanvas.h"
 #include <GL/gl.h>
+#include <iostream>
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
+#include "rendering/gl_camera.h"
+
+using namespace Eigen;
+using namespace std;
 
 class glPlane : public wxGLCanvas {
     wxGLContext *m_context;
@@ -21,6 +26,8 @@ public:
     bool glReady;
     glShaderProgram *mainShader;
     glBox *box;
+    Matrix4f view;
+    Matrix4f projection;
 
     glPlane(wxFrame *parent, int *args);
 

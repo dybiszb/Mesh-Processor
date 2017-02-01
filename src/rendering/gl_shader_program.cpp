@@ -29,6 +29,12 @@ glShaderProgram::~glShaderProgram() {
 }
 
 //------------------------------------------------------------------------------
+GLuint
+glShaderProgram::getId() {
+    return id;
+}
+
+//------------------------------------------------------------------------------
 string
 glShaderProgram::loadShaderSourceCode(string path, string type) {
     string shaderCode;
