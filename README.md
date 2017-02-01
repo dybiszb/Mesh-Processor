@@ -6,5 +6,4 @@ only Linux build supported
 
 GLEW required
 
-ASSIMP:
-sudo apt-get install assimp-utils libassimp-dev
+Eigen3 required

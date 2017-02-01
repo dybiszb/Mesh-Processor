@@ -48,16 +48,19 @@ else (GLEW_FOUND)
 endif (GLEW_FOUND)
 
 #===============================================================================
-# Find Assimp
+# Find Eigen3
 #-------------------------------------------------------------------------------
-FIND_PACKAGE(assimp REQUIRED)
-if (assimp_FOUND)
-    MESSAGE("GLEW Found!")
-    INCLUDE_DIRECTORIES(${assimp_INCLUDE_DIRS})
-    LINK_LIBRARIES(${assimp_LIBRARIES})
-else (assimp_FOUND)
-    MESSAGE(FATAL_ERROR "assimp NOT Found")
-endif (assimp_FOUND)
+find_package(Eigen3 REQUIRED)
+if (EIGEN3_FOUND)
+    MESSAGE("Eigen3 Found!")
+    INCLUDE_DIRECTORIES(EIGEN3_INCLUDE_DIR)
+else (EIGEN3_FOUND)
+    MESSAGE(FATAL_ERROR "Eigen3 NOT Found")
+endif (EIGEN3_FOUND)
+
+find_package(Eigen3 REQUIRED)
+
+include_directories(EIGEN3_INCLUDE_DIR)
 
 #===============================================================================
 # Include Sources
