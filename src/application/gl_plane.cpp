@@ -17,6 +17,7 @@ glPlane::~glPlane() {
     delete m_context;
     delete box;
     delete mainShader;
+    delete camera;
 }
 
 //------------------------------------------------------------------------------
@@ -49,15 +50,17 @@ glPlane::initializeGLContextIfNotReady() {
         box = new glBox();
 
         // LookAt Matrix
-        Vector3f position(0.0f, 3.0f, 3.0f);
-        Vector3f target(0.0f, 0.0f, 0.0f);
-        Vector3f up(0.0f, 1.0f, 0.0f);
-        lookAt(position, target, up, view);
+//        Vector3f position(0.0f, 3.0f, 3.0f);
+//        Vector3f target(0.0f, 0.0f, 0.0f);
+//        Vector3f up(0.0f, 1.0f, 0.0f);
+//        lookAt(position, target, up, view);
+
+        camera = new glOrbitCamera();
 
         // Perspective Matrix
         float fovY = 45.0f;
-        float aspect = 3.0f/4.0f;
-        float near= 0.0f;
+        float aspect = 3.0f / 4.0f;
+        float near = 0.0f;
         float far = 1000.0f;
         setPerspective(fovY, aspect, near, far, projection);
 
@@ -103,18 +106,15 @@ glPlane::render(wxPaintEvent &evt) {
     initializeGLContextIfNotReady();
 
     prepare3DViewport(getWidth() / 2, 0, getWidth(), getHeight());
-
-
-
-    wxPaintDC(
-            this); // only to be used in paint events. use wxClientDC to paint outside the paint event
+    wxPaintDC(this);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    box->render(*mainShader, view, projection);
+    camera->rotateX(1.0f);
+    box->render(*mainShader, camera->getViewMatrix(), projection);
 
     glFlush();
     SwapBuffers();
+    Refresh();
 }
 
 //------------------------------------------------------------------------------

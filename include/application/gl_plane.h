@@ -15,6 +15,7 @@
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
+#include "rendering/gl_eigen.h"
 
 using namespace Eigen;
 using namespace std;
@@ -26,8 +27,8 @@ public:
     bool glReady;
     glShaderProgram *mainShader;
     glBox *box;
-    Matrix4f view;
     Matrix4f projection;
+    glOrbitCamera* camera;
 
     glPlane(wxFrame *parent, int *args);
 
