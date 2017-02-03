@@ -12,10 +12,13 @@
 #include "wx/glcanvas.h"
 #include <GL/gl.h>
 #include <iostream>
+#include <ctime>
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
 #include "rendering/gl_eigen.h"
+#include "application/input.h"
+#include "rendering/gl_ply_model.h"
 
 using namespace Eigen;
 using namespace std;
@@ -27,8 +30,20 @@ public:
     bool glReady;
     glShaderProgram *mainShader;
     glBox *box;
+    glPlyModel* mesh;
+
     Matrix4f projection;
-    glOrbitCamera* camera;
+
+    // Camera Stuff
+    glOrbitCamera *camera;
+    Input input;
+    clock_t start;
+
+    bool dragging = false;
+    GLfloat dragXOrigin, dragYOrigin;
+    GLfloat deltaTime = 0.0f;
+    GLfloat lastFrame = 0.0f;
+
 
     glPlane(wxFrame *parent, int *args);
 
@@ -53,11 +68,13 @@ public:
                            int bottomrigth_y);
 
     // events
-    void mouseMoved(wxMouseEvent &event);
+
 
     void mouseDown(wxMouseEvent &event);
 
     void mouseWheelMoved(wxMouseEvent &event);
+
+    void mouseMoved(wxMouseEvent &event);
 
     void mouseReleased(wxMouseEvent &event);
 

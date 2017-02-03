@@ -21,13 +21,21 @@ glOrbitCamera::getViewMatrix() {
 //------------------------------------------------------------------------------
 void
 glOrbitCamera::rotateX(float angle) {
-    phi += 0.0174533 * angle;
+    theta += 0.0174533 * angle;
 }
 
 //------------------------------------------------------------------------------
 void
 glOrbitCamera::rotateY(float angle) {
-    theta += 0.0174533 * angle;
+    phi += 0.0174533 * angle;
+    if(phi >= 3.14f/2.0) phi = 3.14f/2.0f;
+    if(phi <= -3.14f/2.0) phi = -3.14f/2.0f;
+}
+
+//------------------------------------------------------------------------------
+void
+glOrbitCamera::changeRadiusBy(float delta) {
+    radius += delta;
 }
 
 //------------------------------------------------------------------------------
@@ -49,5 +57,4 @@ glOrbitCamera::updateViewMatrix() {
     position(2) = z;
 
     lookAt(position, target, up, viewMatrix);
-    cout << viewMatrix << endl;
 }

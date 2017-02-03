@@ -15,6 +15,7 @@ glPlane::glPlane(wxFrame *parent, int *args) :
 //------------------------------------------------------------------------------
 glPlane::~glPlane() {
     delete m_context;
+    delete mesh;
     delete box;
     delete mainShader;
     delete camera;
@@ -48,7 +49,7 @@ glPlane::initializeGLContextIfNotReady() {
                  "./res/shaders/default_shader.frag");
 
         box = new glBox();
-
+        mesh = new glPlyModel("./res/models/bunny/data/bun000.ply");
         // LookAt Matrix
 //        Vector3f position(0.0f, 3.0f, 3.0f);
 //        Vector3f target(0.0f, 0.0f, 0.0f);
@@ -109,7 +110,7 @@ glPlane::render(wxPaintEvent &evt) {
     wxPaintDC(this);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    camera->rotateX(1.0f);
+
     box->render(*mainShader, camera->getViewMatrix(), projection);
 
     glFlush();
@@ -119,23 +120,45 @@ glPlane::render(wxPaintEvent &evt) {
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseMoved(wxMouseEvent &event) {}
+glPlane::mouseDown(wxMouseEvent &event) {
+    dragging = true;
+    dragXOrigin = event.GetX();
+    dragYOrigin = event.GetY();
+}
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseDown(wxMouseEvent &event) {}
+glPlane::mouseReleased(wxMouseEvent &event) {
+    dragging = false;
+}
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseWheelMoved(wxMouseEvent &event) {}
+glPlane::mouseWheelMoved(wxMouseEvent &event) {
+    float sign = event.GetWheelRotation() / abs(event.GetWheelRotation());
+    camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.01f);
+}
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseReleased(wxMouseEvent &event) {}
+glPlane::mouseMoved(wxMouseEvent &event) {
+    if(dragging) {
+        float eventX = event.GetX();
+        float eventY = event.GetY();
+        float rotationAngleX = (eventX - dragXOrigin) * 0.3f;
+        float rotationAngleY = (dragYOrigin - eventY) * 0.3f;
+        camera->rotateX(rotationAngleX);
+        camera->rotateY(rotationAngleY);
+        dragXOrigin = eventX;
+        dragYOrigin = eventY;
+    }
+}
 
 //------------------------------------------------------------------------------
 void
-glPlane::rightClick(wxMouseEvent &event) {}
+glPlane::rightClick(wxMouseEvent &event) {
+
+}
 
 //------------------------------------------------------------------------------
 void

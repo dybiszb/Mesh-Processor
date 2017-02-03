@@ -22,6 +22,8 @@ public:
 
     void rotateY(float angle);
 
+    void changeRadiusBy(float delta);
+
     void setTarget(const Vector3f& newTarget);
 
 private:
