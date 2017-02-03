@@ -7,6 +7,16 @@
 glPlyModel::glPlyModel(string path) : path(path), modelLoaded(false) {
     this->loadModel(path);
     this->loadOpenGLData();
+
+    // display vertices data gl
+//    for(int i = 0; i < 3 * numberOfVertices; i+=3) {
+//        cout << glVertices[i] << glVertices[i+1] << glVertices[i+2]<< endl;
+//    }
+
+    // display faces data gl
+//    for(int i = 0; i < 3 * numberOfFaces; i+=3) {
+//        cout << glFaces[i] << " " << glFaces[i+1] << " " <<glFaces[i+2]<< endl;
+//    }
 }
 
 //-----------------------------------------------------------------------------
@@ -22,6 +32,7 @@ glPlyModel::~glPlyModel() {
 void
 glPlyModel::render(glShaderProgram &shader, Matrix4f& view,
                    Matrix4f & projection) {
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     shader.use();
 
     glBindVertexArray(vao);
@@ -103,7 +114,6 @@ glPlyModel::loadModel(string &path) {
                 vertices.push_back(vertex);
 
                 // Load gl data
-                cout << index << endl;
                 glVertices[3 * index] = x;
                 glVertices[3 * index + 1] = y;
                 glVertices[3 * index + 2] = z;
@@ -111,18 +121,18 @@ glPlyModel::loadModel(string &path) {
             } else if (facesCount > 0) {
                 // Load Faces
                 stringstream lineStream(line);
-                int index = numberOfVertices - verticesCount;
+                int index = numberOfFaces - facesCount;
                 facesCount--;
-                int _, i1, i2, i3;
+                unsigned int _, i1, i2, i3;
                 lineStream >> _ >> i1 >> i2 >> i3;
                 Vector3f face(i1, i2, i3);
                 faces.push_back(face);
 
                 // Load gl data
 
-                glFaces[3 * index] = (GLuint) i1;
-                glFaces[3 * index + 1] = (GLuint) i2;
-                glFaces[3 * index + 2] = (GLuint) i3;
+                glFaces[3 * index] =  i1;
+                glFaces[3 * index + 1] =  i2;
+                glFaces[3 * index + 2] =  i3;
             } else break;
 
         }
@@ -142,29 +152,27 @@ glPlyModel::loadOpenGLData() {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ebo);
+    glCheckForErrors();
 
     // Init Vertices/Indices
     glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glVertices), glVertices, GL_STATIC_DRAW);
-
-
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glFaces), glFaces,
-                 GL_STATIC_DRAW);
-
-    // Position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-//    // Color
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-//    glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, numberOfVertices * 3  *sizeof
+                     (GLfloat), glVertices,
+                     GL_STATIC_DRAW);
+        glCheckForErrors();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, numberOfFaces * 3 * sizeof
+    (GLuint), glFaces,
+                     GL_STATIC_DRAW);
+        glCheckForErrors();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                              (GLvoid *) 0);
+        glEnableVertexAttribArray(0);
+        glCheckForErrors();
+    glBindVertexArray(0);
 
     glCheckForErrors();
-    glBindVertexArray(0); // Unbind VAO
 }
 
 //-----------------------------------------------------------------------------

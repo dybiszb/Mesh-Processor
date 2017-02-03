@@ -28,14 +28,19 @@ glOrbitCamera::rotateX(float angle) {
 void
 glOrbitCamera::rotateY(float angle) {
     phi += 0.0174533 * angle;
-    if(phi >= 3.14f/2.0) phi = 3.14f/2.0f;
-    if(phi <= -3.14f/2.0) phi = -3.14f/2.0f;
+    if(phi >= 3.14f) phi = 3.14f;
+    if(phi <= 0.0f) phi = 0.0001f;
 }
 
 //------------------------------------------------------------------------------
 void
 glOrbitCamera::changeRadiusBy(float delta) {
     radius += delta;
+}
+
+void
+glOrbitCamera::translate(float x, float y, float z) {
+
 }
 
 //------------------------------------------------------------------------------

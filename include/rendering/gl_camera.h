@@ -26,6 +26,8 @@ public:
 
     void setTarget(const Vector3f& newTarget);
 
+    void translate(float x, float y, float z);
+
 private:
     float phi, theta, radius;
     Vector3f position, target, up;

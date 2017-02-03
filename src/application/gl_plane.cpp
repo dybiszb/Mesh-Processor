@@ -106,7 +106,7 @@ glPlane::render(wxPaintEvent &evt) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    box->render(*mainShader, camera->getViewMatrix(), projection);
+//    box->render(*mainShader, camera->getViewMatrix(), projection);
     mesh->render(*mainShader, camera->getViewMatrix(), projection);
     glFlush();
     SwapBuffers();
@@ -131,7 +131,7 @@ glPlane::mouseReleased(wxMouseEvent &event) {
 void
 glPlane::mouseWheelMoved(wxMouseEvent &event) {
     float sign = event.GetWheelRotation() / abs(event.GetWheelRotation());
-    camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.01f);
+    camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.001f);
 }
 
 //------------------------------------------------------------------------------
