@@ -6,7 +6,7 @@
 glOrbitCamera::glOrbitCamera()
         : phi(3.14f/2.0f),
           theta(3.14f/2.0f),
-          radius(5.0f),
+          radius(1.0f),
           position(0.0f, 0.0f, 3.0f),
           target(0.0f, 0.0f, 0.0f),
           up(0.0f, 1.0f, 0.0f) { updateViewMatrix(); }

@@ -50,13 +50,7 @@ glPlane::initializeGLContextIfNotReady() {
 
         box = new glBox();
         mesh = new glPlyModel("./res/models/bunny/reconstruction/bun_zipper_res4.ply");
-        mesh->printInformation(true);
-        // LookAt Matrix
-//        Vector3f position(0.0f, 3.0f, 3.0f);
-//        Vector3f target(0.0f, 0.0f, 0.0f);
-//        Vector3f up(0.0f, 1.0f, 0.0f);
-//        lookAt(position, target, up, view);
-
+        mesh->printInformation(false);
         camera = new glOrbitCamera();
 
         // Perspective Matrix
@@ -113,7 +107,7 @@ glPlane::render(wxPaintEvent &evt) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     box->render(*mainShader, camera->getViewMatrix(), projection);
-
+    mesh->render(*mainShader, camera->getViewMatrix(), projection);
     glFlush();
     SwapBuffers();
     Refresh();
