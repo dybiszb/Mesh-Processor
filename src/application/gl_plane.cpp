@@ -49,7 +49,8 @@ glPlane::initializeGLContextIfNotReady() {
                  "./res/shaders/default_shader.frag");
 
         box = new glBox();
-        mesh = new glPlyModel("./res/models/bunny/data/bun000.ply");
+        mesh = new glPlyModel("./res/models/bunny/reconstruction/bun_zipper_res4.ply");
+        mesh->printInformation(true);
         // LookAt Matrix
 //        Vector3f position(0.0f, 3.0f, 3.0f);
 //        Vector3f target(0.0f, 0.0f, 0.0f);
