@@ -8,8 +8,8 @@
 #include "application/main_frame.h"
 #include "rendering/gl_shader_program.h"
 
-#define MAIN_WINDOW_WIDTH  800
-#define MAIN_WINDOW_HEIGHT 600
+#define MAIN_WINDOW_WIDTH  1024
+#define MAIN_WINDOW_HEIGHT 768
 #define MAIN_WINDOW_TITLE  "Simple Mesh Processor"
 
 wxIMPLEMENT_APP(MainApp);

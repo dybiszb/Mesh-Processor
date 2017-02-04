@@ -10,18 +10,13 @@ using namespace std;
 //------------------------------------------------------------------------------
 inline void
 glCheckForErrors() {
-//    GLenum err;
-//    while ((err = glGetError()) != GL_NO_ERROR) {
-//        cerr << "OpenGL error: " << err << endl;
-//    }
-
     GLenum errCode;
     string errString;
     if ((errCode = glGetError()) !=
         GL_NO_ERROR)
     {
         errString = (const char*)gluErrorString(errCode);
-        cout << "error:" <<  errString << endl;
+        cout << "OpenGL Error:" <<  errString << endl;
     }
 
 

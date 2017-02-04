@@ -25,9 +25,7 @@ glBox::glBox() {
     glEnableVertexAttribArray(0);
     // Color
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
 
-//    glCheckForErrors();
     glBindVertexArray(0); // Unbind VAO
 
 }

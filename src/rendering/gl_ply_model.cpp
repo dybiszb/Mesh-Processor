@@ -7,16 +7,6 @@
 glPlyModel::glPlyModel(string path) : path(path), modelLoaded(false) {
     this->loadModel(path);
     this->loadOpenGLData();
-
-    // display vertices data gl
-//    for(int i = 0; i < 3 * numberOfVertices; i+=3) {
-//        cout << glVertices[i] << glVertices[i+1] << glVertices[i+2]<< endl;
-//    }
-
-    // display faces data gl
-//    for(int i = 0; i < 3 * numberOfFaces; i+=3) {
-//        cout << glFaces[i] << " " << glFaces[i+1] << " " <<glFaces[i+2]<< endl;
-//    }
 }
 
 //-----------------------------------------------------------------------------

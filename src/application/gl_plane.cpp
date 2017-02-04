@@ -14,11 +14,20 @@ glPlane::glPlane(wxFrame *parent, int *args) :
 
 //------------------------------------------------------------------------------
 glPlane::~glPlane() {
-    delete m_context;
     delete mesh;
-    delete box;
     delete mainShader;
     delete camera;
+    delete m_context;
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::loadMesh(string path, wxTreeItemId id) {
+    if (meshes.find(id) == meshes.end()) {
+        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path));
+    } else {
+        cout << "Warning: mesh assignment to existing id." << endl;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -48,9 +57,6 @@ glPlane::initializeGLContextIfNotReady() {
                 ("./res/shaders/default_shader.vert",
                  "./res/shaders/default_shader.frag");
 
-        box = new glBox();
-        mesh = new glPlyModel("./res/models/bunny/reconstruction/bun_zipper_res4.ply");
-        mesh->printInformation(false);
         camera = new glOrbitCamera();
 
         // Perspective Matrix
@@ -68,7 +74,7 @@ glPlane::initializeGLContextIfNotReady() {
 void
 glPlane::resized(wxSizeEvent &evt) {
 //	wxGLCanvas::OnSize(evt);
-
+    prepare3DViewport(0, 0, getWidth(), getHeight() / 2);
     Refresh();
 }
 
@@ -81,6 +87,8 @@ glPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    glViewport(topleft_x, topleft_y, bottomrigth_x - topleft_x,
+               bottomrigth_y - topleft_y);
 }
 
 //------------------------------------------------------------------------------
@@ -101,13 +109,15 @@ glPlane::render(wxPaintEvent &evt) {
     if (!IsShown()) return;
     initializeGLContextIfNotReady();
 
-    prepare3DViewport(getWidth() / 2, 0, getWidth(), getHeight());
+    prepare3DViewport(0, 0, getWidth(), getHeight());
     wxPaintDC(this);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    box->render(*mainShader, camera->getViewMatrix(), projection);
-    mesh->render(*mainShader, camera->getViewMatrix(), projection);
+    // Render Meshes
+    for(auto const& mesh : meshes) {
+        (mesh.second)->render(*mainShader, camera->getViewMatrix(), projection);
+    }
     glFlush();
     SwapBuffers();
     Refresh();
@@ -137,7 +147,7 @@ glPlane::mouseWheelMoved(wxMouseEvent &event) {
 //------------------------------------------------------------------------------
 void
 glPlane::mouseMoved(wxMouseEvent &event) {
-    if(dragging) {
+    if (dragging) {
         float eventX = event.GetX();
         float eventY = event.GetY();
         float rotationAngleX = (eventX - dragXOrigin) * 0.3f;

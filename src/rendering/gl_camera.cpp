@@ -4,11 +4,11 @@
 
 //------------------------------------------------------------------------------
 glOrbitCamera::glOrbitCamera()
-        : phi(3.14f/2.0f),
-          theta(3.14f/2.0f),
-          radius(1.0f),
+        : phi(0.899793),
+          theta(2.33445),
+          radius(0.4f),
           position(0.0f, 0.0f, 3.0f),
-          target(0.0f, 0.0f, 0.0f),
+          target(0.0f, 0.05f, 0.0f),
           up(0.0f, 1.0f, 0.0f) { updateViewMatrix(); }
 
 //------------------------------------------------------------------------------
@@ -36,11 +36,16 @@ glOrbitCamera::rotateY(float angle) {
 void
 glOrbitCamera::changeRadiusBy(float delta) {
     radius += delta;
+    if(radius <= 0.1) radius = 0.1;
 }
 
 void
 glOrbitCamera::translate(float x, float y, float z) {
+    target(0) += x;
+    target(1) += y;
+    target(2) += z;
 
+    updateViewMatrix();
 }
 
 //------------------------------------------------------------------------------
