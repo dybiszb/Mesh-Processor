@@ -53,7 +53,7 @@ public:
     virtual ~glPlane();
 
     void loadMesh(string path, wxTreeItemId id);
-
+    void deleteMesh(const wxTreeItemId& item);
     /**
      * Initialize OpenGL context.
      */

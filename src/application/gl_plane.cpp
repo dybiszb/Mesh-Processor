@@ -32,6 +32,12 @@ glPlane::loadMesh(string path, wxTreeItemId id) {
 
 //------------------------------------------------------------------------------
 void
+glPlane::deleteMesh(const wxTreeItemId& item) {
+    meshes.erase(item);
+}
+
+//------------------------------------------------------------------------------
+void
 glPlane::initializeGLEW() {
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();

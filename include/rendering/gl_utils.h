@@ -19,8 +19,6 @@ glCheckForErrors() {
         cout << "OpenGL Error:" <<  errString << endl;
     }
 
-
-
 }
 
 #endif

@@ -9,23 +9,34 @@
 
 #include <wx/wx.h>
 #include <wx/treectrl.h>
+#include <memory>
 #include "gl_plane.h"
 #include <iostream>
 
 class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
-    ~MainFrame();
+
     void loadDefaultMesh();
+
     void OnShow(wxShowEvent &event);
+
 private:
+    unique_ptr<wxButton> loadMeshButton;
+    unique_ptr<wxButton> deleteMeshButton;
+    unique_ptr<glPlane> glPane;
+    unique_ptr<wxBoxSizer> sizer;
+    unique_ptr<wxBoxSizer> leftPanel;
+    unique_ptr<wxBoxSizer> loadDeletebuttonsSizer;
+    unique_ptr<wxTreeCtrl> treeCtrl;
+
+    /**
+     *
+     * @param path
+     * @return
+     */
     wxTreeItemId appendMeshToTree(string path);
-    int lastMeshId = 1;
-    wxButton* loadMeshButton;
-    glPlane* glPane;
-    wxBoxSizer* sizer;
-    wxBoxSizer* leftPanel;
-    wxTreeCtrl* treeCtrl;
+
     /**
      * Opens file dialog in order to pick a mesh that should be loaded.
      *
@@ -33,14 +44,19 @@ private:
      */
     void OnLoadMesh(wxCommandEvent &event);
 
-    wxDECLARE_EVENT_TABLE();
+    /**
+     *
+     * @param event
+     */
+    void OnDeleteMesh(wxCommandEvent &event);
+
+wxDECLARE_EVENT_TABLE();
 };
 
-enum
-{
-    ID_BUTTON_LOAD_MESH = wxID_HIGHEST + 1
+enum {
+    ID_BUTTON_LOAD_MESH = wxID_HIGHEST + 1,
+    ID_BUTTON_DELETE_MESH = wxID_HIGHEST + 2
 };
-
 
 
 #endif
