@@ -16,6 +16,7 @@ glPlane::glPlane(wxFrame *parent, int *args) :
 glPlane::~glPlane() {
     delete mesh;
     delete mainShader;
+    delete coordinates;
     delete camera;
     delete m_context;
 }
@@ -27,6 +28,16 @@ glPlane::loadMesh(string path, wxTreeItemId id) {
         meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::runICP() {
+    // Print Matrices
+    for(auto const& mesh : meshes) {
+        cout << (mesh.second)->getMatrixOfPoints() << endl;
+        cout << "---------------\n";
     }
 }
 
@@ -64,7 +75,7 @@ glPlane::initializeGLContextIfNotReady() {
                  "./res/shaders/default_shader.frag");
 
         camera = new glOrbitCamera();
-
+        coordinates = new glCoordinatesFrame();
         // Perspective Matrix
         float fovY = 45.0f;
         float aspect = 3.0f / 4.0f;
@@ -124,6 +135,10 @@ glPlane::render(wxPaintEvent &evt) {
     for(auto const& mesh : meshes) {
         (mesh.second)->render(*mainShader, camera->getViewMatrix(), projection);
     }
+
+    // Render Coordinates
+    coordinates->render(*mainShader, camera->getViewMatrix(), projection);
+
     glFlush();
     SwapBuffers();
     Refresh();

@@ -13,12 +13,18 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     leftPanel = unique_ptr<wxBoxSizer>(new wxBoxSizer(wxVERTICAL));
     loadDeletebuttonsSizer = unique_ptr<wxBoxSizer>(new wxBoxSizer
                                                             (wxHORIZONTAL));
+    runStopICPSizer = unique_ptr<wxBoxSizer>(new wxBoxSizer
+                                                            (wxHORIZONTAL));
     loadMeshButton = unique_ptr<wxButton>(
             new wxButton(this, ID_BUTTON_LOAD_MESH,
                          wxT("      Load Mesh      ")));
     deleteMeshButton = unique_ptr<wxButton>(
             new wxButton(this, ID_BUTTON_DELETE_MESH,
                          wxT("      Delete Mesh      ")));
+    runICPButton = unique_ptr<wxButton>(
+            new wxButton(this, ID_BUTTON_RUN_ICP,
+                         wxT("      Run ICP     ")));
+
     treeCtrl = unique_ptr<wxTreeCtrl>(new wxTreeCtrl(this, wxID_ANY,
                                                      wxDefaultPosition,
                                                      wxSize(250, 200)));
@@ -29,7 +35,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     leftPanel->Add(treeCtrl.get(), 1, wxALIGN_TOP);
     loadDeletebuttonsSizer->Add(loadMeshButton.get(), 0, wxEXPAND);
     loadDeletebuttonsSizer->Add(deleteMeshButton.get(), 0, wxEXPAND);
+    runStopICPSizer->Add(runICPButton.get(), 0, wxEXPAND);
     leftPanel->Add(loadDeletebuttonsSizer.get(), 0, wxALIGN_TOP);
+    leftPanel->Add(runStopICPSizer.get(), 0, wxALIGN_TOP);
     /* ----- Initialize Layout ----- */
 
     sizer = unique_ptr<wxBoxSizer>(new wxBoxSizer(wxHORIZONTAL));
@@ -94,6 +102,12 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
+MainFrame::OnRunICP(wxCommandEvent &event) {
+    glPane->runICP();
+}
+
+//------------------------------------------------------------------------------
+void
 MainFrame::OnShow(wxShowEvent &event) {
     loadDefaultMesh();
 }
@@ -102,5 +116,6 @@ MainFrame::OnShow(wxShowEvent &event) {
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
+                EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
                 EVT_SHOW(MainFrame::OnShow)
 wxEND_EVENT_TABLE()

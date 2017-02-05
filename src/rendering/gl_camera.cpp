@@ -39,6 +39,7 @@ glOrbitCamera::changeRadiusBy(float delta) {
     if(radius <= 0.1) radius = 0.1;
 }
 
+//------------------------------------------------------------------------------
 void
 glOrbitCamera::translate(float x, float y, float z) {
     target(0) += x;

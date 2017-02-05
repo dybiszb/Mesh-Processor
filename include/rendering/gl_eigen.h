@@ -38,4 +38,39 @@ setPerspective(float fovY, float aspect, float near, float far,
     mProjectionMatrix(3, 3) = 0;
 }
 
+inline Affine3d
+createRotationMatrix(const Vector3f& perAxisAngles){
+    Affine3d rx =
+            Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(0), Eigen::Vector3d
+                                                                      (1, 0, 0)));
+    Affine3d ry =
+            Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(1),
+                                              Eigen::Vector3d(0, 1, 0)));
+    Affine3d rz =
+            Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(2),
+                                              Eigen::Vector3d(0, 0, 1)));
+    return rz * ry * rx;
+}
+
+//// TODO: check bandwidth issues regarding the copy
+////------------------------------------------------------------------------------
+//inline Matrix3f
+//rotationMatrix(float roll, float yaw, float pitch) {
+//    AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitZ());
+//    AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitY());
+//    AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitX());
+//
+//    Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
+//
+//    Matrix3f rotationMatrix = q.matrix();
+//    return rotationMatrix;
+//}
+//
+//// TODO: check bandwidth issues regarding the copy
+////------------------------------------------------------------------------------
+//inline Matrix3f
+//translationMatrix(float x, float y, float z) {
+//
+//}
+
 #endif

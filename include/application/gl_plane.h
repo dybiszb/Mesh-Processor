@@ -22,6 +22,7 @@
 #include "rendering/gl_eigen.h"
 #include "application/input.h"
 #include "rendering/gl_ply_model.h"
+#include "rendering/gl_coordinates_frame.h"
 
 using namespace Eigen;
 using namespace std;
@@ -36,7 +37,7 @@ public:
     glPlyModel* mesh;
 
     Matrix4f projection;
-
+    glCoordinatesFrame* coordinates;
     // Camera Stuff
     glOrbitCamera *camera;
     Input input;
@@ -54,6 +55,8 @@ public:
 
     void loadMesh(string path, wxTreeItemId id);
     void deleteMesh(const wxTreeItemId& item);
+    void runICP();
+
     /**
      * Initialize OpenGL context.
      */

@@ -72,7 +72,7 @@ set(SOURCE_FILES
         src/application/gl_plane.cpp
         src/rendering/gl_shader_program.cpp
         src/rendering/gl_box.cpp
-        src/rendering/gl_camera.cpp include/rendering/gl_eigen.h src/application/input.cpp src/rendering/gl_ply_model.cpp)
+        src/rendering/gl_camera.cpp include/rendering/gl_eigen.h src/application/input.cpp src/rendering/gl_ply_model.cpp src/rendering/gl_coordinates_frame.cpp)
 
 #===============================================================================
 # Compile & Link

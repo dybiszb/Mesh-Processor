@@ -26,6 +26,7 @@ public:
 
     void setTarget(const Vector3f& newTarget);
 
+    // TODO: check if needed
     void translate(float x, float y, float z);
 
 private:

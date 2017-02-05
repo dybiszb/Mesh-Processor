@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include "rendering/gl_shader_program.h"
+#include "rendering/gl_eigen.h"
 
 using namespace std;
 using namespace Eigen;
@@ -28,15 +29,25 @@ public:
 
     void render(glShaderProgram &shader, Matrix4f &view, Matrix4f & projection);
 
+    void setRotation(float roll, float yaw, float pitch);
+    void setTranslation(float x, float y, float z);
+    void setScale(float scale);
+
     void loadModel(string &path);
 
-    void printInformation(bool listData = false);
+    void printInformation();
 
+    MatrixXd getMatrixOfPoints();
 private:
     vector<Vector3f> vertices;
-    vector<Vector3f> faces;
-    GLfloat *glVertices = NULL;
-    GLuint *glFaces = NULL;
+    vector<GLfloat> glVertices2;
+    vector<GLuint> glFaces2;
+
+    // Transforms
+    Vector3f rotation;
+    Vector3f translation;
+    float scale;
+
     string path;
     int numberOfVertices = -1;
     int numberOfFaces = -1;
@@ -44,9 +55,10 @@ private:
     bool numberOfFacesFound = false;
     bool modelLoaded;
     GLuint vbo, vao, ebo;
-    Matrix4f model = Matrix4f::Identity();
+//    Matrix4f model = Matrix4f::Identity();
 
     void loadOpenGLData();
+    Matrix4f computeModelMatrix();
 };
 
 #endif
