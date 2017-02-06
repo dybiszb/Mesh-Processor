@@ -6,7 +6,11 @@
 
 #ifndef MAIN_FRAME_H
 #define MAIN_FRAME_H
-
+#ifdef Success
+#undef Success
+#endif
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 #include <wx/wx.h>
 #include <wx/treectrl.h>
 #include <memory>

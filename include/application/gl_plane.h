@@ -7,6 +7,12 @@
 #ifndef PIMP_GL_PLANE_H
 #define PIMP_GL_PLANE_H
 
+#ifdef Success
+#undef Success
+#endif
+#include <eigen3/Eigen/Eigen>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 #include <GL/glew.h>
 #include "wx/wx.h"
 #include "wx/glcanvas.h"
@@ -16,6 +22,7 @@
 #include <ctime>
 #include <map>
 #include <memory>
+#include <vector>
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
@@ -34,10 +41,10 @@ public:
     map<wxTreeItemId, unique_ptr<glPlyModel>> meshes;
     bool glReady;
     glShaderProgram *mainShader;
-    glPlyModel* mesh;
-
+    glPlyModel *mesh;
+    vector<wxTreeItemId> tempModelsIndices;
     Matrix4f projection;
-    glCoordinatesFrame* coordinates;
+    glCoordinatesFrame *coordinates;
     // Camera Stuff
     glOrbitCamera *camera;
     Input input;
@@ -53,8 +60,11 @@ public:
 
     virtual ~glPlane();
 
-    void loadMesh(string path, wxTreeItemId id);
-    void deleteMesh(const wxTreeItemId& item);
+    void loadMesh(string path, wxTreeItemId id,
+                  const Vector3f &translation = Vector3f(0.0, 0.0, 0.0));
+
+    void deleteMesh(const wxTreeItemId &item);
+
     void runICP();
 
     /**

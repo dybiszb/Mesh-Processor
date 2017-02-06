@@ -23,7 +23,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
                          wxT("      Delete Mesh      ")));
     runICPButton = unique_ptr<wxButton>(
             new wxButton(this, ID_BUTTON_RUN_ICP,
-                         wxT("      Run ICP     ")));
+                         wxT("           Run ICP        ")));
 
     treeCtrl = unique_ptr<wxTreeCtrl>(new wxTreeCtrl(this, wxID_ANY,
                                                      wxDefaultPosition,
@@ -51,8 +51,13 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
 void
 MainFrame::loadDefaultMesh() {
     string path = "./res/models/bunny/reconstruction/bun_zipper_res4.ply";
-    wxTreeItemId id = appendMeshToTree(path);
-    glPane->loadMesh(path, id);
+
+    wxTreeItemId id1 = appendMeshToTree(path);
+    glPane->loadMesh(path, id1);
+    wxTreeItemId id2 = appendMeshToTree(path);
+    glPane->loadMesh(path, id2, Vector3f(0.0, 0.0, -0.05f));
+
+    // Prepare Tree Entries
     treeCtrl->ExpandAll();
     treeCtrl->UnselectAll();
     treeCtrl->ClearFocusedItem();

@@ -4,11 +4,12 @@
 #include "rendering/gl_ply_model.h"
 
 //-----------------------------------------------------------------------------
-glPlyModel::glPlyModel(string path) : path(path),
-                                      modelLoaded(false),
-                                      rotation(0.0, 0.0, 0.0),
-                                      translation(0.0, 0.0, 0.0),
-                                      scale(1.0){
+glPlyModel::glPlyModel(string path, const Vector3f &translation)
+        : path(path),
+          modelLoaded(false),
+          rotation(0.0, 0.0, 0.0),
+          translation(translation),
+          scale(1.0) {
     this->loadModel(path);
     this->printInformation();
     this->loadOpenGLData();
@@ -215,15 +216,13 @@ glPlyModel::computeModelMatrix() {
     // Create Rotation Matrix
     Affine3d rotation = createRotationMatrix(this->rotation);
 
-    // Create Scaling Matrix
+    // Translation
+    Matrix4f model = Matrix4f::Identity();
+    model(0, 3) = translation(0);
+    model(1, 3) = translation(1);
+    model(2, 3) = translation(2);
 
-    // Create Translation Matrix
-//    Affine3d translation(Translation3d(this->translation));
-
-
-//    return (translation * rotation).matrix();
-    Matrix4f mat = Matrix4f::Identity();
-    return  mat;
+    return model;
 }
 
 
@@ -243,16 +242,75 @@ glPlyModel::printInformation() {
         cout << "# faces     " << "Not Found" << endl;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 MatrixXd
 glPlyModel::getMatrixOfPoints() {
+//    Vector3f barCoords = getBarycentricCoordinate();
+//    cout << "bar lol: " << barCoords << endl;
     MatrixXd pointsMatrix(numberOfVertices, 3);
+    Matrix4f modelMatrix = computeModelMatrix();
     for (int i = 0; i < numberOfVertices; ++i) {
-        pointsMatrix(i, 0) = vertices[i](0);
-        pointsMatrix(i, 1) = vertices[i](1);
-        pointsMatrix(i, 2) = vertices[i](2);
+        // Extend dimensions to homogeneous in order to include translation
+        // from model matrix
+        Vector4f homoVector(vertices[i](0),
+                            vertices[i](1),
+                            vertices[i](2),
+                            1.0);
+        Vector4f transformedVertex = modelMatrix * homoVector;
+        pointsMatrix(i, 0) = transformedVertex(0);
+        pointsMatrix(i, 1) = transformedVertex(1);
+        pointsMatrix(i, 2) = transformedVertex(2);
     }
-    cout << pointsMatrix << endl;
-
     return pointsMatrix;
+}
+
+//------------------------------------------------------------------------------
+MatrixXd
+glPlyModel::getMatrixOfTyldaCoordinates() {
+    Vector3f barCoords = getBarycentricCoordinate();
+    Matrix4f modelMatrix = computeModelMatrix();
+    MatrixXd pointsMatrix(numberOfVertices, 3);
+
+    for (int i = 0; i < numberOfVertices; ++i) {
+        // Extend dimensions to homogeneous in order to include translation
+        // from model matrix
+        Vector4f homoVector(vertices[i](0),
+                            vertices[i](1),
+                            vertices[i](2),
+                            1.0);
+        Vector4f transformedVertex = modelMatrix * homoVector;
+
+        pointsMatrix(i, 0) = transformedVertex(0) - barCoords(0);
+        pointsMatrix(i, 1) = transformedVertex(1) - barCoords(1);
+        pointsMatrix(i, 2) = transformedVertex(2) - barCoords(2);
+    }
+    return pointsMatrix;
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+glPlyModel::getBarycentricCoordinate() {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    Matrix4f modelMatrix = computeModelMatrix();
+
+    for (int i = 0; i < numberOfVertices; ++i) {
+        // Extend dimensions to homogeneous in order to include translation
+        // from model matrix
+        Vector4f homoVector(vertices[i](0),
+                            vertices[i](1),
+                            vertices[i](2),
+                            1.0);
+        Vector4f transformedVertex = modelMatrix * homoVector;
+
+        x += transformedVertex(0);
+        y += transformedVertex(1);
+        z += transformedVertex(2);
+
+    }
+    Vector3f barycentricCoordinates(x, y, z);
+    barycentricCoordinates /= numberOfVertices;
+
+    return barycentricCoordinates;
 }

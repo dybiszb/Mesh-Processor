@@ -23,9 +23,10 @@ glPlane::~glPlane() {
 
 //------------------------------------------------------------------------------
 void
-glPlane::loadMesh(string path, wxTreeItemId id) {
+glPlane::loadMesh(string path, wxTreeItemId id, const Vector3f& translation) {
     if (meshes.find(id) == meshes.end()) {
-        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path));
+        tempModelsIndices.push_back(id);
+        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path, translation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
     }
@@ -34,11 +35,18 @@ glPlane::loadMesh(string path, wxTreeItemId id) {
 //------------------------------------------------------------------------------
 void
 glPlane::runICP() {
-    // Print Matrices
-    for(auto const& mesh : meshes) {
-        cout << (mesh.second)->getMatrixOfPoints() << endl;
-        cout << "---------------\n";
-    }
+    wxTreeItemId m1ID = tempModelsIndices[0];
+    wxTreeItemId m2ID = tempModelsIndices[1];
+    MatrixXd mesh1 = (meshes[m1ID])->getMatrixOfTyldaCoordinates();
+    MatrixXd mesh2 = (meshes[m2ID])->getMatrixOfTyldaCoordinates();
+
+    mesh2 = mesh2.transpose();
+
+
+//    MatrixXd A = (mesh1 * mesh2);
+//    JacobiSVD<MatrixXd> svdOfA(A, ComputeThinU | ComputeThinV);
+//    MatrixXd R = svdOfA.matrixV() * svdOfA.matrixU().transpose();
+//    cout << R << endl;
 }
 
 //------------------------------------------------------------------------------

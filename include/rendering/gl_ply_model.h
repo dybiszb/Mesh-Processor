@@ -23,21 +23,44 @@ using namespace Eigen;
 
 class glPlyModel {
 public:
-    glPlyModel(string path);
+    glPlyModel(string path,
+               const Vector3f &translation = Vector3f(0.0, 0.0, 0.0));
 
     ~glPlyModel();
 
-    void render(glShaderProgram &shader, Matrix4f &view, Matrix4f & projection);
+    void render(glShaderProgram &shader, Matrix4f &view, Matrix4f &projection);
 
     void setRotation(float roll, float yaw, float pitch);
+
     void setTranslation(float x, float y, float z);
+
     void setScale(float scale);
 
     void loadModel(string &path);
 
     void printInformation();
 
+    /**
+     * NOTE: translation and rotation are applied to all points
+     *
+     * @return
+     */
     MatrixXd getMatrixOfPoints();
+
+    /**
+     * NOTE: translation and rotation are applied to all points
+     *
+     * @return
+     */
+    MatrixXd getMatrixOfTyldaCoordinates();
+
+    /**
+     * NOTE: translation and rotation are applied to all points
+     *
+     * @return
+     */
+    Vector3f getBarycentricCoordinate();
+
 private:
     vector<Vector3f> vertices;
     vector<GLfloat> glVertices2;
@@ -58,6 +81,7 @@ private:
 //    Matrix4f model = Matrix4f::Identity();
 
     void loadOpenGLData();
+
     Matrix4f computeModelMatrix();
 };
 
