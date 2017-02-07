@@ -33,20 +33,45 @@ glPlane::loadMesh(string path, wxTreeItemId id, const Vector3f& translation) {
 }
 
 //------------------------------------------------------------------------------
-void
+void // TODO: move this to main frame and from gl plane take only meshes points
 glPlane::runICP() {
+    // Align M2 -> M1
     wxTreeItemId m1ID = tempModelsIndices[0];
     wxTreeItemId m2ID = tempModelsIndices[1];
-    MatrixXd mesh1 = (meshes[m1ID])->getMatrixOfTyldaCoordinates();
-    MatrixXd mesh2 = (meshes[m2ID])->getMatrixOfTyldaCoordinates();
 
-    mesh2 = mesh2.transpose();
+    vector<Vector3f> mesh1Points = (meshes[m1ID])->getVertices();
+    vector<Vector3f> mesh2Points = (meshes[m2ID])->getVertices();
+
+    ICPAlgorithm icp(mesh1Points, mesh2Points);
+    vector<ICPResults> results = icp.pointToPointsICP();
 
 
-//    MatrixXd A = (mesh1 * mesh2);
+
+
+//
+//    vector<Vector3f> m1_vertices = (meshes[m1ID])->getVertices();
+//    vector<Vector3f> m2_vertices = (meshes[m2ID])->getVertices();
+//
+//    Vector3f test1 = m1_vertices[0];
+//    Vector3f test2 = m2_vertices[0];
+//
+//    Matrix3f testM = Matrix3f::Zero();
+//
+//    for(int i = 0; i < m1_vertices.size(); ++i) {
+//
+//        Vector3f v1 = m1_vertices[i];
+//        Vector3f v2 = m2_vertices[i];
+//        testM += v1 * v2.transpose();
+//
+//    }
+//
+//    cout << testM << endl;
+
 //    JacobiSVD<MatrixXd> svdOfA(A, ComputeThinU | ComputeThinV);
-//    MatrixXd R = svdOfA.matrixV() * svdOfA.matrixU().transpose();
-//    cout << R << endl;
+//    Matrix3d R = svdOfA.matrixV() * svdOfA.matrixU().transpose();
+//    cout << "New rotation:\n" << R << endl;
+
+//    VectorXd t = bar_mesh1 - R *
 }
 
 //------------------------------------------------------------------------------

@@ -61,6 +61,8 @@ public:
      */
     Vector3f getBarycentricCoordinate();
 
+    vector<Vector3f> getVertices();
+
 private:
     vector<Vector3f> vertices;
     vector<GLfloat> glVertices2;

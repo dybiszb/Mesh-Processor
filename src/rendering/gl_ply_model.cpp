@@ -264,12 +264,14 @@ glPlyModel::getMatrixOfPoints() {
     return pointsMatrix;
 }
 
+
 //------------------------------------------------------------------------------
 MatrixXd
 glPlyModel::getMatrixOfTyldaCoordinates() {
     Vector3f barCoords = getBarycentricCoordinate();
     Matrix4f modelMatrix = computeModelMatrix();
     MatrixXd pointsMatrix(numberOfVertices, 3);
+
 
     for (int i = 0; i < numberOfVertices; ++i) {
         // Extend dimensions to homogeneous in order to include translation
@@ -313,4 +315,30 @@ glPlyModel::getBarycentricCoordinate() {
     barycentricCoordinates /= numberOfVertices;
 
     return barycentricCoordinates;
+}
+
+//------------------------------------------------------------------------------
+vector<Vector3f>
+glPlyModel::getVertices() {
+    vector<Vector3f> transformedVertices;
+    Matrix4f modelMatrix = computeModelMatrix();
+
+    for (int i = 0; i < numberOfVertices; ++i) {
+        // Extend dimensions to homogeneous in order to include translation
+        // from model matrix
+        Vector4f homoVector(vertices[i](0),
+                            vertices[i](1),
+                            vertices[i](2),
+                            1.0);
+
+        Vector4f transformedVertex = modelMatrix * homoVector;
+
+        Vector3f outputVertex(transformedVertex(0),
+                              transformedVertex(1),
+                              transformedVertex(2));
+
+        transformedVertices.push_back(outputVertex);
+    }
+
+    return transformedVertices;
 }

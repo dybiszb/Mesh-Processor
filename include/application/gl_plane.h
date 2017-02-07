@@ -30,6 +30,7 @@
 #include "application/input.h"
 #include "rendering/gl_ply_model.h"
 #include "rendering/gl_coordinates_frame.h"
+#include "logic/icp_algoriithm.h"
 
 using namespace Eigen;
 using namespace std;
