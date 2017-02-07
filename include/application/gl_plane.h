@@ -31,13 +31,14 @@
 #include "rendering/gl_ply_model.h"
 #include "rendering/gl_coordinates_frame.h"
 #include "logic/icp_algoriithm.h"
+#include <algorithm>
 
 using namespace Eigen;
 using namespace std;
 
 class glPlane : public wxGLCanvas {
     wxGLContext *m_context;
-
+    vector<ICPResults> m_results;
 public:
     map<wxTreeItemId, unique_ptr<glPlyModel>> meshes;
     bool glReady;
@@ -61,8 +62,11 @@ public:
 
     virtual ~glPlane();
 
+    void loadNextICPResult();
+
     void loadMesh(string path, wxTreeItemId id,
-                  const Vector3f &translation = Vector3f(0.0, 0.0, 0.0));
+                  const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
+                  const Matrix3f &rotation = Matrix3f::Identity());
 
     void deleteMesh(const wxTreeItemId &item);
 

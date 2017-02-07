@@ -32,6 +32,7 @@ private:
 //    auto m_deleteMeshButton;
 //    auto m_runICPButton;
     glPlane* m_glPanel;
+    wxButton* m_nextICPFrame;
 //    auto m_sizer;
 //    auto m_leftPanel;
 //    auto m_loadDeletebuttonsSizer;
@@ -73,6 +74,12 @@ private:
      */
     void OnRunICP(wxCommandEvent &event);
 
+    /**
+     *
+     * @param event
+     */
+    void OnNextFrame(wxCommandEvent &event);
+
 wxDECLARE_EVENT_TABLE();
 };
 
@@ -80,6 +87,7 @@ enum {
     ID_BUTTON_LOAD_MESH = wxID_HIGHEST + 1,
     ID_BUTTON_DELETE_MESH = wxID_HIGHEST + 2,
     ID_BUTTON_RUN_ICP = wxID_HIGHEST + 3,
+    ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
     ID_TEXT_TRANSLATION_X = wxID_HIGHEST + 7,
     ID_TEXT_TRANSLATION_Y = wxID_HIGHEST + 8,
     ID_TEXT_TRANSLATION_Z = wxID_HIGHEST + 9,

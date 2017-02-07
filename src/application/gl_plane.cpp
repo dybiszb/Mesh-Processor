@@ -23,13 +23,31 @@ glPlane::~glPlane() {
 
 //------------------------------------------------------------------------------
 void
-glPlane::loadMesh(string path, wxTreeItemId id, const Vector3f& translation) {
+glPlane::loadMesh(string path,
+                  wxTreeItemId id,
+                  const Vector3f& translation,
+                  const Matrix3f& rotation) {
     if (meshes.find(id) == meshes.end()) {
         tempModelsIndices.push_back(id);
-        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path, translation));
+        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path,
+                                                            translation,
+                                                            rotation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
     }
+}
+// TODO: DELETE
+void glPlane::loadNextICPResult() {
+    if(m_results.size() < 1) {
+        cout << "out of frames\n";
+        return;
+    }
+    ICPResults res = m_results.back();
+    wxTreeItemId m2ID = tempModelsIndices[1];
+    (meshes[m2ID])->accumulateRotation(res.m_R);
+    (meshes[m2ID])->accumulateTranslation(res.m_t);
+
+    m_results.pop_back();
 }
 
 //------------------------------------------------------------------------------
@@ -45,33 +63,8 @@ glPlane::runICP() {
     ICPAlgorithm icp(mesh1Points, mesh2Points);
     vector<ICPResults> results = icp.pointToPointsICP();
 
-
-
-
-//
-//    vector<Vector3f> m1_vertices = (meshes[m1ID])->getVertices();
-//    vector<Vector3f> m2_vertices = (meshes[m2ID])->getVertices();
-//
-//    Vector3f test1 = m1_vertices[0];
-//    Vector3f test2 = m2_vertices[0];
-//
-//    Matrix3f testM = Matrix3f::Zero();
-//
-//    for(int i = 0; i < m1_vertices.size(); ++i) {
-//
-//        Vector3f v1 = m1_vertices[i];
-//        Vector3f v2 = m2_vertices[i];
-//        testM += v1 * v2.transpose();
-//
-//    }
-//
-//    cout << testM << endl;
-
-//    JacobiSVD<MatrixXd> svdOfA(A, ComputeThinU | ComputeThinV);
-//    Matrix3d R = svdOfA.matrixV() * svdOfA.matrixU().transpose();
-//    cout << "New rotation:\n" << R << endl;
-
-//    VectorXd t = bar_mesh1 - R *
+    std::reverse(results.begin(), results.end());
+    m_results = results;
 }
 
 //------------------------------------------------------------------------------

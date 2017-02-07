@@ -44,10 +44,13 @@ MainFrame::initializeMeshOperationButton(wxBoxSizer *parent) {
                                          wxT("      Delete Mesh      "));
     auto runICPButton = new wxButton(this, ID_BUTTON_RUN_ICP,
                                      wxT("           Run ICP        "));
-
+    m_nextICPFrame = new wxButton(this, ID_BUTTON_NEXT_FRAME,
+                                     wxT("        Next Frame      "));
+    m_nextICPFrame->Enable(false);
     hBox1->Add(loadMeshButton, 0, wxEXPAND);
     hBox1->Add(deleteMeshButton, 0, wxEXPAND);
     hBox2->Add(runICPButton, 0, wxEXPAND);
+    hBox2->Add(m_nextICPFrame, 0, wxEXPAND);
 
     parent->Add(hBox1, 0, wxALIGN_TOP);
     parent->Add(hBox2, 0, wxALIGN_TOP);
@@ -115,7 +118,20 @@ MainFrame::loadDefaultMesh() {
     wxTreeItemId id1 = appendMeshToTree(path);
     m_glPanel->loadMesh(path, id1);
     wxTreeItemId id2 = appendMeshToTree(path);
-    m_glPanel->loadMesh(path, id2, Vector3f(0.0, 0.0, -0.05f));
+
+    // -----------------------------------------------------------------------
+    // TEMP
+    Eigen::AngleAxisd rollAngle(3.14/36.0, Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd yawAngle(0, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd pitchAngle(0, Eigen::Vector3d::UnitX());
+
+    Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
+
+    Eigen::Matrix3d rotationMatrix = q.matrix();
+    Matrix3f r = rotationMatrix.cast<float>();
+    m_glPanel->loadMesh(path, id2, Vector3f(-0.03f, 0.02, -0.05f));
+    // -----------------------------------------------------------------------
+
 
     // Prepare Tree Entries
     m_treeCtrl->ExpandAll();
@@ -153,6 +169,13 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 void
 MainFrame::OnRunICP(wxCommandEvent &event) {
     m_glPanel->runICP();
+    m_nextICPFrame->Enable(true);
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnNextFrame(wxCommandEvent &event) {
+    m_glPanel->loadNextICPResult();
 }
 
 //------------------------------------------------------------------------------
@@ -166,5 +189,6 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
                 EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
+                EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnNextFrame)
                 EVT_SHOW(MainFrame::OnShow)
 wxEND_EVENT_TABLE()
