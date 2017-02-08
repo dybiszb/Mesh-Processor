@@ -68,6 +68,8 @@ public:
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                   const Matrix3f &rotation = Matrix3f::Identity());
 
+    void setSelected(wxTreeItemId id, bool isSelected);
+
     void deleteMesh(const wxTreeItemId &item);
 
     void runICP();

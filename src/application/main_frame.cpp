@@ -121,7 +121,7 @@ MainFrame::loadDefaultMesh() {
 
     // -----------------------------------------------------------------------
     // TEMP
-    Eigen::AngleAxisd rollAngle(3.14/36.0, Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd rollAngle(3.14/4.0, Eigen::Vector3d::UnitZ());
     Eigen::AngleAxisd yawAngle(0, Eigen::Vector3d::UnitY());
     Eigen::AngleAxisd pitchAngle(0, Eigen::Vector3d::UnitX());
 
@@ -129,7 +129,8 @@ MainFrame::loadDefaultMesh() {
 
     Eigen::Matrix3d rotationMatrix = q.matrix();
     Matrix3f r = rotationMatrix.cast<float>();
-    m_glPanel->loadMesh(path, id2, Vector3f(-0.03f, 0.02, -0.05f));
+    m_glPanel->loadMesh(path, id2, Vector3f(-0.08f, 0.09, -0.05f), r);
+    m_glPanel->setSelected(id2, true);
     // -----------------------------------------------------------------------
 
 
@@ -169,7 +170,7 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 void
 MainFrame::OnRunICP(wxCommandEvent &event) {
     m_glPanel->runICP();
-    m_nextICPFrame->Enable(true);
+//    m_nextICPFrame->Enable(true);
 }
 
 //------------------------------------------------------------------------------

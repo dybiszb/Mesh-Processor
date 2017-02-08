@@ -15,7 +15,6 @@ glPlyModel::glPlyModel(string path,
     this->loadModel(path);
     this->printInformation();
     this->loadOpenGLData();
-    cout << "loaded rotation:\n" << m_rotation << endl;
 
 }
 
@@ -37,6 +36,8 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
 
     Matrix4f modelMatrix = computeModelMatrix();
 
+    glUniform1i(glGetUniformLocation(shader.getId(), "isSelected"),
+                                     m_isSelected);
     glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1,
                        GL_FALSE, modelMatrix.data());
     glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), 1,
@@ -58,8 +59,6 @@ void
 glPlyModel::accumulateRotation(const Matrix3f& rotation) {
     Matrix3f temp = m_rotation;
     m_rotation = m_rotation * rotation;
-
-    cout << endl << m_rotation - temp << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -244,6 +243,11 @@ glPlyModel::printInformation() {
         cout << "# faces     " << this->numberOfFaces << endl;
     else
         cout << "# faces     " << "Not Found" << endl;
+}
+
+void
+glPlyModel::setSelected(bool isSelected) {
+    m_isSelected = (isSelected) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------

@@ -27,15 +27,29 @@ glPlane::loadMesh(string path,
                   wxTreeItemId id,
                   const Vector3f& translation,
                   const Matrix3f& rotation) {
-    if (meshes.find(id) == meshes.end()) {
-        tempModelsIndices.push_back(id);
-        meshes[id] = unique_ptr<glPlyModel> (new glPlyModel(path,
+    cout << "get ID: " << id.GetID() << endl;
+    if (meshes.find(id.GetID()) == meshes.end()) {
+        tempModelsIndices.push_back(id.GetID());
+        meshes[id.GetID()] = unique_ptr<glPlyModel> (new glPlyModel(path,
                                                             translation,
                                                             rotation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
     }
 }
+
+//------------------------------------------------------------------------------
+void
+glPlane::setSelected(wxTreeItemId id, bool isSelected) {
+//    cout << "get ID: " << id.GetID() << endl;
+    (meshes[id.GetID()])->setSelected(isSelected);
+//    if (meshes.find(id.GetID()) == meshes.end()) {
+//        (meshes[id.GetID()])->setSelected(isSelected);
+//    } else {
+//        cout << "Warning: Cannot find mesh id." << endl;
+//    }
+}
+
 // TODO: DELETE
 void glPlane::loadNextICPResult() {
     if(m_results.size() < 1) {
@@ -47,6 +61,10 @@ void glPlane::loadNextICPResult() {
     (meshes[m2ID])->accumulateRotation(res.m_R);
     (meshes[m2ID])->accumulateTranslation(res.m_t);
 
+    cout << "\n--------- ICP Results ----------" << endl;
+    cout << "R:\n" << res.m_R << endl;
+    cout << "t:\n" << res.m_t.transpose() << endl;
+    cout << "--------------------------------" << endl;
     m_results.pop_back();
 }
 
@@ -61,10 +79,11 @@ glPlane::runICP() {
     vector<Vector3f> mesh2Points = (meshes[m2ID])->getVertices();
 
     ICPAlgorithm icp(mesh1Points, mesh2Points);
-    vector<ICPResults> results = icp.pointToPointsICP();
+    m_results.push_back(icp.pointToPointsICPStep());
+    loadNextICPResult();
 
-    std::reverse(results.begin(), results.end());
-    m_results = results;
+//    std::reverse(results.begin(), results.end());
+//    m_results = results;
 }
 
 //------------------------------------------------------------------------------
@@ -237,3 +256,21 @@ BEGIN_EVENT_TABLE(glPlane, wxGLCanvas)
                 EVT_MOUSEWHEEL(glPlane::mouseWheelMoved)
                 EVT_PAINT(glPlane::render)
 END_EVENT_TABLE()
+
+//
+//
+////------------------------------------------------------------------------------
+//pair<Vector3f, Vector3f>
+//ICPAlgorithm::getCentroids(const vector<pair<Vector3f, Vector3f>> &pairs) {
+//    Vector3f cenP(0.0, 0.0, 0.0);
+//    Vector3f cenQ(0.0, 0.0, 0.0);
+//
+//    for (auto const &pair: pairs) {
+//        cenP += pair.first;
+//        cenQ += pair.second;
+//    }
+//    cenP /= (double) pairs.size();
+//    cenQ /= (double) pairs.size();
+//
+//    return std::pair<Vector3f, Vector3f>(cenP, cenQ);
+//}

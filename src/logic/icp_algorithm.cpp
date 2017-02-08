@@ -19,17 +19,7 @@ ICPAlgorithm::pointToPointsICP() {
     for (int i = 0; i < 40; ++i) {
         auto pairs = getPairs(pointsP, pointsQ);
         auto centroids = getCentroids(pointsP, pointsQ);
-//        auto centroids = getCentroids(pairs);
-
-        Vector3f cenDiff = centroids.first - centroids.second;
-//        if (cenDiff.norm() < 1.5e-08) break;
-        cout << "centr - centr" << cenDiff.norm() << endl;
-//        cout << "\ncentroid 1:\n" << centroids.first << "\ncentroid 2:\n" <<
-//             centroids.second << endl;
-
-        // assume it works xD
         auto tyldaPairs = getTyldaPairs(pairs, centroids);
-
         auto A = calculateMatrixA(tyldaPairs);
 
         // Calculate New Transformations
@@ -41,20 +31,46 @@ ICPAlgorithm::pointToPointsICP() {
         ICPResults result(R, t, centroids.first, centroids.second);
         results.push_back(result);
 
-        updateVertices(pointsQ, R, t);
+        pointsQ = updateVertices(pointsQ, R, t);
     }
 
     return results;
 }
 
-void
+//------------------------------------------------------------------------------
+ICPResults
+ICPAlgorithm::pointToPointsICPStep() {
+    vector<Vector3f> pointsP = m_mesh1Points;
+    vector<Vector3f> pointsQ = m_mesh2Points;
+
+    auto pairs = getPairs(pointsP, pointsQ);
+    auto centroids = getCentroids(pointsP, pointsQ);
+    auto tyldaPairs = getTyldaPairs(pairs, centroids);
+    auto A = calculateMatrixA(tyldaPairs);
+
+    // Calculate New Transformations
+    JacobiSVD<Matrix3f> svdOfA(A, ComputeThinU | ComputeThinV);
+    Matrix3f R = svdOfA.matrixV() * svdOfA.matrixU().transpose();
+    Vector3f t = centroids.first - R * centroids.second;
+
+    // Return Result:
+    ICPResults result(R, t, centroids.first, centroids.second);
+    return result;
+
+}
+
+//------------------------------------------------------------------------------
+vector<Vector3f>
 ICPAlgorithm::updateVertices(vector<Vector3f> &vertices,
                              const Matrix3f &R,
                              const Vector3f t) {
+    vector<Vector3f> updated;
     for (auto &q_i : vertices) {
-        q_i = R * q_i;
-        q_i += t;
+        Vector3f v = R * q_i;
+        v += t;
+        updated.push_back(v);
     }
+    return updated;
 }
 
 //------------------------------------------------------------------------------
@@ -87,23 +103,6 @@ ICPAlgorithm::getCentroids(const vector<Vector3f> &pointsP,
 }
 
 //------------------------------------------------------------------------------
-pair<Vector3f, Vector3f>
-ICPAlgorithm::getCentroids(const vector<pair<Vector3f, Vector3f>> &pairs) {
-    Vector3f cenP(0.0, 0.0, 0.0);
-    Vector3f cenQ(0.0, 0.0, 0.0);
-
-    for (auto const &pair: pairs) {
-        cenP += pair.first;
-        cenQ += pair.second;
-    }
-    cenP /= (double) pairs.size();
-    cenQ /= (double) pairs.size();
-
-    return std::pair<Vector3f, Vector3f>(cenP, cenQ);
-}
-
-
-//------------------------------------------------------------------------------
 float
 ICPAlgorithm::euclideanDistance(const Vector3f &v1, const Vector3f &v2) {
     Vector3f diff = v1 - v2;
@@ -129,23 +128,23 @@ ICPAlgorithm::getTyldaPairs(const vector<pair<Vector3f, Vector3f>> &pairs,
 
 //------------------------------------------------------------------------------
 vector<pair<Vector3f, Vector3f>>
-ICPAlgorithm::getPairs(const vector<Vector3f>& mesh1points,
+ICPAlgorithm::getPairs(const vector<Vector3f>& mesh1Points,
                        const vector<Vector3f> & mesh2Points) {
     vector<pair<Vector3f, Vector3f>> paired;
 
-    for (int i = 0; i < mesh1points.size(); ++i) {
+    for (int i = 0; i < mesh1Points.size(); ++i) {
         float minVal = INT8_MAX;
         float minInd = -1;
 
         for (int j = 0; j < mesh2Points.size(); ++j) {
-            float dist = euclideanDistance(m_mesh1Points[i], m_mesh2Points[j]);
+            float dist = euclideanDistance(mesh1Points[i], mesh2Points[j]);
             if (dist < minVal) {
                 minVal = dist;
                 minInd = j;
             }
         }
 
-        pair<Vector3f, Vector3f> pair(mesh1points[i], mesh2Points[minInd]);
+        pair<Vector3f, Vector3f> pair(mesh1Points[i], mesh2Points[minInd]);
         paired.push_back(pair);
     }
 

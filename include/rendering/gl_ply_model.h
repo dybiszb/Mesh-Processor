@@ -41,13 +41,15 @@ public:
 
     void printInformation();
 
+    void setSelected(bool isSelected);
+
     vector<Vector3f> getVertices();
 
 private:
     vector<Vector3f> vertices;
     vector<GLfloat> glVertices2;
     vector<GLuint> glFaces2;
-
+    int  m_isSelected;
     // Transforms
     Matrix3f m_rotation;
     Vector3f m_translation;
