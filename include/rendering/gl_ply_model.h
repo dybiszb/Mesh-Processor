@@ -11,10 +11,12 @@
 #include <eigen3/Eigen/Geometry>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <string>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "entities/points_cloud.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_eigen.h"
 
@@ -31,30 +33,17 @@ public:
 
     void render(glShaderProgram &shader, Matrix4f &view, Matrix4f &projection);
 
-    void accumulateRotation(const Matrix3f& rotation);
-
-    void accumulateTranslation(const Vector3f& translation);
-
-    void setScale(float scale);
-
-    void loadModel(string &path);
 
     void printInformation();
 
     void setSelected(bool isSelected);
 
-    vector<Vector3f> getVertices();
-
+    shared_ptr<PointsCloud> m_pointsCloud;
 private:
-    vector<Vector3f> vertices;
+    vector<Vector3f> m_vertices;
     vector<GLfloat> glVertices2;
     vector<GLuint> glFaces2;
-    int  m_isSelected;
-    // Transforms
-    Matrix3f m_rotation;
-    Vector3f m_translation;
-    float scale;
-
+    int m_isSelected = 0;
     string path;
     int numberOfVertices = -1;
     int numberOfFaces = -1;
@@ -62,7 +51,10 @@ private:
     bool numberOfFacesFound = false;
     bool modelLoaded;
     GLuint vbo, vao, ebo;
-//    Matrix4f model = Matrix4f::Identity();
+
+    void loadModel(string &path);
+
+    void loadPointsCloud(const Vector3f &translation, const Matrix3f &rotation);
 
     void loadOpenGLData();
 

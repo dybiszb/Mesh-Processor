@@ -8,11 +8,9 @@ glPlyModel::glPlyModel(string path,
                        const Vector3f &translation,
                        const Matrix3f &rotation)
         : path(path),
-          modelLoaded(false),
-          m_rotation(rotation),
-          m_translation(translation),
-          scale(1.0) {
+          modelLoaded(false) {
     this->loadModel(path);
+    this->loadPointsCloud(translation, rotation);
     this->printInformation();
     this->loadOpenGLData();
 
@@ -54,24 +52,23 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
     shader.unuse();
 }
 
-//------------------------------------------------------------------------------
-void
-glPlyModel::accumulateRotation(const Matrix3f& rotation) {
-    Matrix3f temp = m_rotation;
-    m_rotation = m_rotation * rotation;
-}
+////------------------------------------------------------------------------------
+//void
+//glPlyModel::accumulateRotation(const Matrix3f& rotation) {
+//    m_pointsCloud->accumulateRotation(rotation);
+//}
 
 //------------------------------------------------------------------------------
-void
-glPlyModel::accumulateTranslation(const Vector3f& translation) {
-    m_translation += translation;
-}
+//void
+//glPlyModel::accumulateTranslation(const Vector3f& translation) {
+//    m_pointsCloud->accumulateTranslation(translation);
+//}
 
-//------------------------------------------------------------------------------
-void
-glPlyModel::setScale(float scale) {
-    this->scale = scale;
-}
+////------------------------------------------------------------------------------
+//void
+//glPlyModel::setScale(float scale) {
+//    this->scale = scale;
+//}
 
 //-----------------------------------------------------------------------------
 void
@@ -131,7 +128,7 @@ glPlyModel::loadModel(string &path) {
                 float x, y, z;
                 lineStream >> x >> y >> z;
                 Vector3f vertex(x, y, z);
-                vertices.push_back(vertex);
+                m_vertices.push_back(vertex);
 
                 glVertices2.push_back(x);
                 glVertices2.push_back(y);
@@ -180,6 +177,15 @@ glPlyModel::loadModel(string &path) {
     }
 }
 
+void
+glPlyModel::loadPointsCloud(const Vector3f &translation,
+                            const Matrix3f &rotation) {
+    if(m_vertices.size()) {
+        m_pointsCloud = shared_ptr<PointsCloud>( new PointsCloud(m_vertices,
+                                                 translation, rotation));
+    } else cout << "No vertices loaded to cloud\n";
+}
+
 //-----------------------------------------------------------------------------
 void
 glPlyModel::loadOpenGLData() {
@@ -218,12 +224,13 @@ glPlyModel::computeModelMatrix() {
     Matrix4f model = Matrix4f::Identity();
 
     // Rotation
-    model.block(0,0,3,3) = m_rotation;
+    model.block(0,0,3,3) = m_pointsCloud->getRotation();
 
     // Translation
-    model(0, 3) = m_translation(0);
-    model(1, 3) = m_translation(1);
-    model(2, 3) = m_translation(2);
+    Vector3f t = m_pointsCloud->getTranslation();
+    model(0, 3) = t(0);
+    model(1, 3) = t(1);
+    model(2, 3) = t(2);
 
     return model;
 }
@@ -250,28 +257,65 @@ glPlyModel::setSelected(bool isSelected) {
     m_isSelected = (isSelected) ? 1 : 0;
 }
 
+////------------------------------------------------------------------------------
+//Matrix3f
+//glPlyModel::getRotation() {
+//    return m_rotation;
+//}
+//
+////------------------------------------------------------------------------------
+//Vector3f
+//glPlyModel::getTranslation() {
+//    return m_translation;
+//}
+
 //------------------------------------------------------------------------------
-vector<Vector3f>
-glPlyModel::getVertices() {
-    vector<Vector3f> transformedVertices;
-    Matrix4f modelMatrix = computeModelMatrix();
+//vector<Vector3f>
+//glPlyModel::getVertices() {
+//    vector<Vector3f> transformedVertices;
+//    Matrix4f modelMatrix = computeModelMatrix();
+//
+//    for (int i = 0; i < numberOfVertices; ++i) {
+//        // Extend dimensions to homogeneous in order to include translation
+//        // from model matrix
+//        Vector4f homoVector(vertices[i](0),
+//                            vertices[i](1),
+//                            vertices[i](2),
+//                            1.0);
+//
+//        Vector4f transformedVertex = modelMatrix * homoVector;
+//
+//        Vector3f outputVertex(transformedVertex(0),
+//                              transformedVertex(1),
+//                              transformedVertex(2));
+//
+//        transformedVertices.push_back(outputVertex);
+//    }
+//
+//    return transformedVertices;
+//}
 
-    for (int i = 0; i < numberOfVertices; ++i) {
-        // Extend dimensions to homogeneous in order to include translation
-        // from model matrix
-        Vector4f homoVector(vertices[i](0),
-                            vertices[i](1),
-                            vertices[i](2),
-                            1.0);
-
-        Vector4f transformedVertex = modelMatrix * homoVector;
-
-        Vector3f outputVertex(transformedVertex(0),
-                              transformedVertex(1),
-                              transformedVertex(2));
-
-        transformedVertices.push_back(outputVertex);
-    }
-
-    return transformedVertices;
-}
+//void glPlyModel::tempCheckPoints(int howMuch) {
+//    howMuch = (howMuch>numberOfVertices) ? numberOfVertices : howMuch;
+//    Matrix4f modelMatrix = computeModelMatrix();
+//
+//    cout << "POINTS\n" << endl;
+//    for (int i = 0; i < howMuch; ++i) {
+//        // Extend dimensions to homogeneous in order to include translation
+//        // from model matrix
+//        Vector4f homoVector(vertices[i](0),
+//                            vertices[i](1),
+//                            vertices[i](2),
+//                            1.0);
+//
+//        Vector4f transformedVertex = modelMatrix * homoVector;
+//
+//        Vector3f outputVertex(transformedVertex(0),
+//                              transformedVertex(1),
+//                              transformedVertex(2));
+////        outputVertex = outputVertex.transpose();
+//        cout <<"[" << i << "] (" << outputVertex(0) << ", " <<outputVertex(1)
+//             << ", " << outputVertex(2) << endl;
+//    }
+//
+//}

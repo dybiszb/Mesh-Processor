@@ -30,9 +30,8 @@ glPlane::loadMesh(string path,
     cout << "get ID: " << id.GetID() << endl;
     if (meshes.find(id.GetID()) == meshes.end()) {
         tempModelsIndices.push_back(id.GetID());
-        meshes[id.GetID()] = unique_ptr<glPlyModel> (new glPlyModel(path,
-                                                            translation,
-                                                            rotation));
+        meshes[id.GetID()] = unique_ptr
+                <glPlyModel> (new glPlyModel(path, translation, rotation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
     }
@@ -58,13 +57,13 @@ void glPlane::loadNextICPResult() {
     }
     ICPResults res = m_results.back();
     wxTreeItemId m2ID = tempModelsIndices[1];
-    (meshes[m2ID])->accumulateRotation(res.m_R);
-    (meshes[m2ID])->accumulateTranslation(res.m_t);
-
-    cout << "\n--------- ICP Results ----------" << endl;
-    cout << "R:\n" << res.m_R << endl;
-    cout << "t:\n" << res.m_t.transpose() << endl;
-    cout << "--------------------------------" << endl;
+    (meshes[m2ID])->m_pointsCloud->accumulateRotation(res.m_R);
+    (meshes[m2ID])->m_pointsCloud->accumulateTranslation(res.m_t);
+//    (meshes[m2ID])->tempCheckPoints(10);
+//    cout << "\n--------- ICP Results ----------" << endl;
+//    cout << "R:\n" << res.m_R << endl;
+//    cout << "t:\n" << res.m_t.transpose() << endl;
+//    cout << "--------------------------------" << endl;
     m_results.pop_back();
 }
 
@@ -75,15 +74,11 @@ glPlane::runICP() {
     wxTreeItemId m1ID = tempModelsIndices[0];
     wxTreeItemId m2ID = tempModelsIndices[1];
 
-    vector<Vector3f> mesh1Points = (meshes[m1ID])->getVertices();
-    vector<Vector3f> mesh2Points = (meshes[m2ID])->getVertices();
+    PointsCloud m1_pc = *meshes[m1ID]->m_pointsCloud;
+    PointsCloud m2_pc = *meshes[m2ID]->m_pointsCloud;
 
-    ICPAlgorithm icp(mesh1Points, mesh2Points);
-    m_results.push_back(icp.pointToPointsICPStep());
-    loadNextICPResult();
-
-//    std::reverse(results.begin(), results.end());
-//    m_results = results;
+    ICPAlgorithm icp;
+    m_results = icp.pointToPointsICP(m1_pc, m2_pc);
 }
 
 //------------------------------------------------------------------------------

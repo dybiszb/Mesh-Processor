@@ -16,9 +16,12 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include "rendering/gl_ply_model.h"
+#include "entities/points_cloud.h"
 
 using namespace std;
 using namespace Eigen;
+
 
 struct ICPResults {
     ICPResults(const Matrix3f &R,
@@ -36,8 +39,16 @@ struct ICPResults {
 
 class ICPAlgorithm {
 public:
-    ICPAlgorithm(const vector<Vector3f> &mesh1Points,
-                 const vector<Vector3f> &mesh2Points);
+    /**
+     * The procedure calculates ICP based on point-to-point scheme, for
+     * provided points clouds.
+     * NOTE: m2 is mapped on m1; PointClouds objects are assumed to be copies.
+     *
+     * @param m1 PointCloud object of mesh1
+     * @param m2
+     * @return
+     */
+    vector<ICPResults> pointToPointsICP(PointsCloud m1, PointsCloud m2);
 
     /**
      * The procedure calculate ICP based on point-to-point scheme, for meshes
@@ -49,30 +60,7 @@ public:
      */
     vector<ICPResults> pointToPointsICP();
 
-    /**
-     * The procedure calculate one step of ICP algorithm based on
-     * point-to-point scheme, for meshes provided during the initialization.
-     * NOTE: Mesh2 is mapped on Mesh1
-     *
-     * @return An intermediate result (rotations, translation).
-     *
-     */
-    ICPResults pointToPointsICPStep();
-
 private:
-    vector<Vector3f> m_mesh1Points, m_mesh2Points;
-
-    /**
-     * Updates values of provided vertices. Please note that values will be
-     * overriden.
-     *
-     * @param vertices Vector of vertices to update.
-     * @param R        Rotation to be applied to vertices.
-     * @param t        Translation to be applied to vertices.
-     */
-    vector<Vector3f> updateVertices(const vector<Vector3f> &vertices,
-                                    const Matrix3f &R,
-                                    const Vector3f &t);
 
     Matrix3f calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs);
 

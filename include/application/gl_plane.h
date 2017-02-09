@@ -23,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
@@ -31,7 +32,7 @@
 #include "rendering/gl_ply_model.h"
 #include "rendering/gl_coordinates_frame.h"
 #include "logic/icp_algoriithm.h"
-#include <algorithm>
+#include "entities/points_cloud.h"
 
 using namespace Eigen;
 using namespace std;
