@@ -52,25 +52,19 @@ createRotationMatrix(const Vector3f& perAxisAngles){
     return rz * ry * rx;
 }
 
-//// TODO: check bandwidth issues regarding the copy
-////------------------------------------------------------------------------------
-//inline Matrix3f
-//rotationMatrix(float roll, float yaw, float pitch) {
-//    AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitZ());
-//    AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitY());
-//    AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitX());
-//
-//    Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
-//
-//    Matrix3f rotationMatrix = q.matrix();
-//    return rotationMatrix;
-//}
-//
-//// TODO: check bandwidth issues regarding the copy
-////------------------------------------------------------------------------------
-//inline Matrix3f
-//translationMatrix(float x, float y, float z) {
-//
-//}
+//------------------------------------------------------------------------------
+inline Matrix3f
+rotationMatrix(float roll, float yaw, float pitch) {
+    Eigen::AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitX());
+
+    Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
+
+    Eigen::Matrix3d rotationMatrix = q.matrix();
+    Matrix3f r = rotationMatrix.cast<float>();
+
+    return r;
+}
 
 #endif

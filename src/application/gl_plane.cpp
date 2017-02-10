@@ -59,11 +59,7 @@ void glPlane::loadNextICPResult() {
     wxTreeItemId m2ID = tempModelsIndices[1];
     (meshes[m2ID])->m_pointsCloud->accumulateRotation(res.m_R);
     (meshes[m2ID])->m_pointsCloud->accumulateTranslation(res.m_t);
-//    (meshes[m2ID])->tempCheckPoints(10);
-//    cout << "\n--------- ICP Results ----------" << endl;
-//    cout << "R:\n" << res.m_R << endl;
-//    cout << "t:\n" << res.m_t.transpose() << endl;
-//    cout << "--------------------------------" << endl;
+
     m_results.pop_back();
 }
 
@@ -171,13 +167,13 @@ glPlane::render(wxPaintEvent &evt) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Render Coordinates
+    coordinates->render(*mainShader, camera->getViewMatrix(), projection);
+
     // Render Meshes
     for(auto const& mesh : meshes) {
         (mesh.second)->render(*mainShader, camera->getViewMatrix(), projection);
     }
-
-    // Render Coordinates
-    coordinates->render(*mainShader, camera->getViewMatrix(), projection);
 
     glFlush();
     SwapBuffers();

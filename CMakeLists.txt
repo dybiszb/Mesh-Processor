@@ -66,13 +66,19 @@ include_directories(EIGEN3_INCLUDE_DIR)
 # Include Sources
 #-------------------------------------------------------------------------------
 include_directories(include)
+include_directories(3rdParty)
 set(SOURCE_FILES
         src/main.cpp
         src/application/main_frame.cpp
         src/application/gl_plane.cpp
         src/rendering/gl_shader_program.cpp
         src/rendering/gl_box.cpp
-        src/rendering/gl_camera.cpp include/rendering/gl_eigen.h src/application/input.cpp src/rendering/gl_ply_model.cpp src/rendering/gl_coordinates_frame.cpp src/logic/icp_algorithm.cpp src/entities/points_cloud.cpp)
+        src/rendering/gl_camera.cpp
+        src/application/input.cpp
+        src/rendering/gl_ply_model.cpp
+        src/rendering/gl_coordinates_frame.cpp
+        src/logic/icp_algorithm.cpp
+        src/entities/points_cloud.cpp)
 
 #===============================================================================
 # Compile & Link

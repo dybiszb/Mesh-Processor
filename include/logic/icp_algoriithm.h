@@ -18,6 +18,10 @@
 #include <iostream>
 #include "rendering/gl_ply_model.h"
 #include "entities/points_cloud.h"
+//#include "nanoflann/include/nanoflann.hpp"
+//#include "nanoflann/examples/KDTreeVectorOfVectorsAdaptor.h"
+//
+//using namespace nanoflann;
 
 using namespace std;
 using namespace Eigen;

@@ -6,9 +6,11 @@
 //-----------------------------------------------------------------------------
 glPlyModel::glPlyModel(string path,
                        const Vector3f &translation,
-                       const Matrix3f &rotation)
+                       const Matrix3f &rotation,
+                       const Vector4f &color)
         : path(path),
-          modelLoaded(false) {
+          modelLoaded(false),
+          m_color(color) {
     this->loadModel(path);
     this->loadPointsCloud(translation, rotation);
     this->printInformation();
@@ -24,23 +26,36 @@ glPlyModel::~glPlyModel() {
 }
 
 //------------------------------------------------------------------------------
+GLuint
+glPlyModel::getVertexArrayId() {
+    return vbo;
+}
+
+//------------------------------------------------------------------------------
 void
 glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
                    Matrix4f &projection) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if(m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     shader.use();
 
     glBindVertexArray(vao);
 
     Matrix4f modelMatrix = computeModelMatrix();
 
-    glUniform1i(glGetUniformLocation(shader.getId(), "isSelected"),
-                                     m_isSelected);
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1,
+    glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
+                m_isSelected);
+
+    glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
+                 1,
+                 m_color.data());
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
                        GL_FALSE, modelMatrix.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), 1,
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_view"), 1,
                        GL_FALSE, view.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "projection"), 1,
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
                        GL_FALSE, projection.data());
 
     glDrawElements(GL_TRIANGLES,
@@ -51,24 +66,6 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
     glCheckForErrors();
     shader.unuse();
 }
-
-////------------------------------------------------------------------------------
-//void
-//glPlyModel::accumulateRotation(const Matrix3f& rotation) {
-//    m_pointsCloud->accumulateRotation(rotation);
-//}
-
-//------------------------------------------------------------------------------
-//void
-//glPlyModel::accumulateTranslation(const Vector3f& translation) {
-//    m_pointsCloud->accumulateTranslation(translation);
-//}
-
-////------------------------------------------------------------------------------
-//void
-//glPlyModel::setScale(float scale) {
-//    this->scale = scale;
-//}
 
 //-----------------------------------------------------------------------------
 void
@@ -180,9 +177,10 @@ glPlyModel::loadModel(string &path) {
 void
 glPlyModel::loadPointsCloud(const Vector3f &translation,
                             const Matrix3f &rotation) {
-    if(m_vertices.size()) {
-        m_pointsCloud = shared_ptr<PointsCloud>( new PointsCloud(m_vertices,
-                                                 translation, rotation));
+    if (m_vertices.size()) {
+        m_pointsCloud = unique_ptr<PointsCloud>(new PointsCloud(m_vertices,
+                                                                translation,
+                                                                rotation));
     } else cout << "No vertices loaded to cloud\n";
 }
 
@@ -223,8 +221,10 @@ Matrix4f
 glPlyModel::computeModelMatrix() {
     Matrix4f model = Matrix4f::Identity();
 
+    model = model * m_pointsCloud->getScale();
+
     // Rotation
-    model.block(0,0,3,3) = m_pointsCloud->getRotation();
+    model.block(0, 0, 3, 3) = m_pointsCloud->getRotation();
 
     // Translation
     Vector3f t = m_pointsCloud->getTranslation();
@@ -252,70 +252,20 @@ glPlyModel::printInformation() {
         cout << "# faces     " << "Not Found" << endl;
 }
 
+//------------------------------------------------------------------------------
 void
 glPlyModel::setSelected(bool isSelected) {
     m_isSelected = (isSelected) ? 1 : 0;
 }
 
-////------------------------------------------------------------------------------
-//Matrix3f
-//glPlyModel::getRotation() {
-//    return m_rotation;
-//}
-//
-////------------------------------------------------------------------------------
-//Vector3f
-//glPlyModel::getTranslation() {
-//    return m_translation;
-//}
+//------------------------------------------------------------------------------
+void
+glPlyModel::setColor(const Vector4f &color) {
+    m_color = color;
+}
 
 //------------------------------------------------------------------------------
-//vector<Vector3f>
-//glPlyModel::getVertices() {
-//    vector<Vector3f> transformedVertices;
-//    Matrix4f modelMatrix = computeModelMatrix();
-//
-//    for (int i = 0; i < numberOfVertices; ++i) {
-//        // Extend dimensions to homogeneous in order to include translation
-//        // from model matrix
-//        Vector4f homoVector(vertices[i](0),
-//                            vertices[i](1),
-//                            vertices[i](2),
-//                            1.0);
-//
-//        Vector4f transformedVertex = modelMatrix * homoVector;
-//
-//        Vector3f outputVertex(transformedVertex(0),
-//                              transformedVertex(1),
-//                              transformedVertex(2));
-//
-//        transformedVertices.push_back(outputVertex);
-//    }
-//
-//    return transformedVertices;
-//}
-
-//void glPlyModel::tempCheckPoints(int howMuch) {
-//    howMuch = (howMuch>numberOfVertices) ? numberOfVertices : howMuch;
-//    Matrix4f modelMatrix = computeModelMatrix();
-//
-//    cout << "POINTS\n" << endl;
-//    for (int i = 0; i < howMuch; ++i) {
-//        // Extend dimensions to homogeneous in order to include translation
-//        // from model matrix
-//        Vector4f homoVector(vertices[i](0),
-//                            vertices[i](1),
-//                            vertices[i](2),
-//                            1.0);
-//
-//        Vector4f transformedVertex = modelMatrix * homoVector;
-//
-//        Vector3f outputVertex(transformedVertex(0),
-//                              transformedVertex(1),
-//                              transformedVertex(2));
-////        outputVertex = outputVertex.transpose();
-//        cout <<"[" << i << "] (" << outputVertex(0) << ", " <<outputVertex(1)
-//             << ", " << outputVertex(2) << endl;
-//    }
-//
-//}
+void
+glPlyModel::setWireframe(bool isWireframed) {
+    m_isWireframed = isWireframed;
+}
