@@ -24,6 +24,8 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include <string>
 #include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
@@ -57,7 +59,7 @@ public:
     GLfloat dragXOrigin, dragYOrigin;
     GLfloat deltaTime = 0.0f;
     GLfloat lastFrame = 0.0f;
-
+    bool m_selectionChanged;
 
     glPlane(wxFrame *parent, int *args);
 
@@ -69,10 +71,11 @@ public:
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                   const Matrix3f &rotation = Matrix3f::Identity());
 
-    void setSelected(wxTreeItemId id, bool isSelected);
-
+    void setSelected(const wxTreeItemId& id, bool isSelected);
+    void unselectAll();
     void deleteMesh(const wxTreeItemId &item);
-
+    Vector3f getCurrentlySelectedTranslation();
+    bool isAnyModelSelected();
     void runICP();
 
     /**
@@ -81,6 +84,13 @@ public:
     void initializeGLEW();
 
     void resized(wxSizeEvent &evt);
+
+
+    const string getSingleSelection();
+    bool selectionChanged();
+
+private:
+    wxTreeItemId m_currentlySelectedId = NULL;
 
     int getWidth();
 

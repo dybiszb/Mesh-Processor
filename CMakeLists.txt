@@ -78,7 +78,8 @@ set(SOURCE_FILES
         src/rendering/gl_ply_model.cpp
         src/rendering/gl_coordinates_frame.cpp
         src/logic/icp_algorithm.cpp
-        src/entities/points_cloud.cpp)
+        src/entities/points_cloud.cpp
+        src/application/model_panel.cpp)
 
 #===============================================================================
 # Compile & Link

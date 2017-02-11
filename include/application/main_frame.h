@@ -18,6 +18,8 @@
 #include <memory>
 #include "gl_plane.h"
 #include <iostream>
+#include "application/model_panel.h"
+#include "rendering/gl_eigen.h"
 
 class MainFrame : public wxFrame {
 public:
@@ -28,25 +30,15 @@ public:
     void OnShow(wxShowEvent &event);
 
 private:
-//    auto m_loadMeshButton;
-//    auto m_deleteMeshButton;
-//    auto m_runICPButton;
     glPlane* m_glPanel;
     wxButton* m_nextICPFrame;
-//    auto m_sizer;
-//    auto m_leftPanel;
-//    auto m_loadDeletebuttonsSizer;
-//    auto m_runStopICPSizer;
+    wxTreeItemId m_meshesRoot;
     wxTreeCtrl* m_treeCtrl;
-//    glPlane* m_plyPanel;
+    ModelPanel* m_modelPanel;
+
     void initializeMeshTree(wxBoxSizer* parent);
 
     void initializeMeshOperationButton(wxBoxSizer* parent);
-
-    /**
-     * Initializes m_plyPanel box and its members.
-     */
-    void initializePlyPanel(wxBoxSizer* parent);
 
     /**
      *
@@ -78,7 +70,19 @@ private:
      *
      * @param event
      */
+    void OnMeshesTreeItemClicked(wxTreeEvent& event);
+
+    /**
+     *
+     * @param event
+     */
     void OnNextFrame(wxCommandEvent &event);
+
+    /**
+     *
+     * @param event
+     */
+    void OnIdleWindow(wxIdleEvent& event);
 
 wxDECLARE_EVENT_TABLE();
 };
@@ -88,6 +92,7 @@ enum {
     ID_BUTTON_DELETE_MESH = wxID_HIGHEST + 2,
     ID_BUTTON_RUN_ICP = wxID_HIGHEST + 3,
     ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
+    ID_MESHES_TREE_CTRL  = wxID_HIGHEST + 5,
     ID_TEXT_TRANSLATION_X = wxID_HIGHEST + 7,
     ID_TEXT_TRANSLATION_Y = wxID_HIGHEST + 8,
     ID_TEXT_TRANSLATION_Z = wxID_HIGHEST + 9,

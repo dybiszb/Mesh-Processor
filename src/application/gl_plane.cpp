@@ -1,7 +1,7 @@
 #include "application/gl_plane.h"
 
 //------------------------------------------------------------------------------
-glPlane::glPlane(wxFrame *parent, int *args) :
+glPlane::glPlane(wxFrame *parent, int *args) : m_selectionChanged(true),
         wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize,
                    wxFULL_REPAINT_ON_RESIZE) {
     wxGLContextAttrs ctxAttrs;
@@ -39,14 +39,27 @@ glPlane::loadMesh(string path,
 
 //------------------------------------------------------------------------------
 void
-glPlane::setSelected(wxTreeItemId id, bool isSelected) {
-//    cout << "get ID: " << id.GetID() << endl;
-    (meshes[id.GetID()])->setSelected(isSelected);
-//    if (meshes.find(id.GetID()) == meshes.end()) {
-//        (meshes[id.GetID()])->setSelected(isSelected);
-//    } else {
-//        cout << "Warning: Cannot find mesh id." << endl;
-//    }
+glPlane::setSelected(const wxTreeItemId& id, bool isSelected) {
+    if (meshes.count(id.GetID()) != 0){
+        if(m_currentlySelectedId != NULL) {
+            (meshes[m_currentlySelectedId.GetID()])->setSelected(!isSelected);
+        }
+        (meshes[id.GetID()])->setSelected(isSelected);
+        m_currentlySelectedId = id;
+        m_selectionChanged = true;
+    } else {
+        cout << "Warning: Cannot find mesh id." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::unselectAll() {
+    if(m_currentlySelectedId != NULL) {
+        (meshes[m_currentlySelectedId.GetID()])->setSelected(false);
+    }
+    m_currentlySelectedId = NULL;
+    m_selectionChanged = true;
 }
 
 // TODO: DELETE
@@ -81,6 +94,22 @@ glPlane::runICP() {
 void
 glPlane::deleteMesh(const wxTreeItemId& item) {
     meshes.erase(item);
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+glPlane::getCurrentlySelectedTranslation() {
+    const glPlyModel* selectedModel;
+    if(m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return Vector3f(0.0, 0.0, 0.0);
+    return selectedModel->m_pointsCloud->getTranslation();
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlane::isAnyModelSelected() {
+    return (m_currentlySelectedId != NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -129,6 +158,19 @@ glPlane::resized(wxSizeEvent &evt) {
 //	wxGLCanvas::OnSize(evt);
     prepare3DViewport(0, 0, getWidth(), getHeight() / 2);
     Refresh();
+}
+
+//------------------------------------------------------------------------------
+const string
+glPlane::getSingleSelection() {
+    m_selectionChanged = false;
+    return "test";
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlane::selectionChanged() {
+    return m_selectionChanged;
 }
 
 //------------------------------------------------------------------------------
