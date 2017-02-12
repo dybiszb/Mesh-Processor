@@ -35,10 +35,13 @@ private:
     wxTreeItemId m_meshesRoot;
     wxTreeCtrl* m_treeCtrl;
     ModelPanel* m_modelPanel;
+    wxSlider* m_icpSlider;
 
     void initializeMeshTree(wxBoxSizer* parent);
 
     void initializeMeshOperationButton(wxBoxSizer* parent);
+
+    void initializeICPPanel(wxBoxSizer* parent);
 
     /**
      *
@@ -93,6 +96,7 @@ enum {
     ID_BUTTON_RUN_ICP = wxID_HIGHEST + 3,
     ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
     ID_MESHES_TREE_CTRL  = wxID_HIGHEST + 5,
+    ID_ICP_SLIDER  = wxID_HIGHEST + 6,
     ID_TEXT_TRANSLATION_X = wxID_HIGHEST + 7,
     ID_TEXT_TRANSLATION_Y = wxID_HIGHEST + 8,
     ID_TEXT_TRANSLATION_Z = wxID_HIGHEST + 9,

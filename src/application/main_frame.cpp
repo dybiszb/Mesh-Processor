@@ -13,6 +13,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     auto leftPanel = new wxBoxSizer(wxVERTICAL);
     initializeMeshTree(leftPanel);
     initializeMeshOperationButton(leftPanel);
+    initializeICPPanel(leftPanel);
     m_modelPanel = new ModelPanel(this, wxPoint(-1, -1));
     leftPanel->Add(m_modelPanel, 0, wxALL, 4);
 
@@ -55,6 +56,14 @@ MainFrame::initializeMeshOperationButton(wxBoxSizer *parent) {
 
     parent->Add(hBox1, 0, wxALIGN_TOP);
     parent->Add(hBox2, 0, wxALIGN_TOP);
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::initializeICPPanel(wxBoxSizer* parent) {
+    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
+                               wxPoint(10, 30), wxSize(140, -1));
+    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
 }
 
 //------------------------------------------------------------------------------

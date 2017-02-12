@@ -9,13 +9,16 @@
 #include <GL/gl.h>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
+#include <eigen3/Eigen/Eigenvalues>
 #include <iostream>
 #include <vector>
 #include <memory>
 #include <string>
-#include <string>
+#include <set>
 #include <iostream>
 #include <fstream>
+#include "rendering/gl_utils.h"
+
 #include "entities/points_cloud.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_eigen.h"
@@ -41,7 +44,7 @@ public:
 
     void setSelected(bool isSelected);
 
-    void setColor(const Vector4f& color);
+    void setColor(const Vector4f &color);
 
     void setWireframe(bool isWireframed);
 
@@ -53,9 +56,16 @@ public:
 
 private:
     Vector4f m_color;
+    Vector4f m_colorNormal;
     vector<Vector3f> m_vertices;
     vector<GLfloat> glVertices2;
     vector<GLuint> glFaces2;
+    // each entry corresponds to one vertex in m_vertices
+    // in each entry indices of neighbors are stored
+    vector<std::set<int>> m_neighbors;
+    vector<Vector3f> m_normals;
+    vector<GLfloat> m_glNormals;
+    vector<GLfloat> m_glNormalsLinesData;
     int m_isSelected = 0;
     string path;
     int numberOfVertices = -1;
@@ -65,11 +75,15 @@ private:
     bool modelLoaded;
     bool m_isWireframed = true;
     float m_scale = 1.0;
-    GLuint vbo, vao, ebo;
+    GLuint vbo, vao, ebo, vbo_normals, vao_normals;
 
     void loadModel(string &path);
 
+    void approximateNormals();
+
     void loadPointsCloud(const Vector3f &translation, const Matrix3f &rotation);
+
+    void assignNeighbors(int n1, int n2, int n3);
 
     void loadOpenGLData();
 

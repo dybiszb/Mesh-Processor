@@ -87,6 +87,7 @@ public:
 
 protected:
     vector<Vector3f> m_vertices;
+    vector<Vector3f> m_normals;
     Matrix3f m_rotation;
     Vector3f m_translation;
     Vector3f m_scale;

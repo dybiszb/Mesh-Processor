@@ -1,6 +1,6 @@
 // author: dybisz
 
-#include <rendering/gl_utils.h>
+
 #include "rendering/gl_ply_model.h"
 
 //-----------------------------------------------------------------------------
@@ -12,9 +12,10 @@ glPlyModel::glPlyModel(string path,
           modelLoaded(false),
           m_color(color) {
     this->loadModel(path);
+    this->approximateNormals();
     this->loadPointsCloud(translation, rotation);
     this->loadOpenGLData();
-
+    m_colorNormal = Vector4f(1.0f, 0.0f, 151.0f / 256.0f, 1.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -61,15 +62,54 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
                    (GLsizei) (glFaces2.size()) /*3*numberOfFaces*/,
                    GL_UNSIGNED_INT,
                    0);
+    //Clean
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
     glCheckForErrors();
     shader.unuse();
+
+    //////////////////////////////////////////////////
+    // Render Normals
+    //////////////////////////////////////////////////
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    shader.use();
+    glBindVertexArray(vao_normals);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+    glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
+                false);
+//
+    glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
+                 1,
+                 m_colorNormal.data());
+
+//    m_pointsCloud->setScale(Vector3f(0.1f, 0.1f, 0.1f));
+    Matrix4f modelMatrixNormal = computeModelMatrix();
+
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
+                       GL_FALSE, modelMatrixNormal.data());
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_view"), 1,
+                       GL_FALSE, view.data());
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
+                       GL_FALSE, projection.data());
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_LINES, 0, (GLsizei) m_glNormalsLinesData.size());
+
+    //Clean
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
+    glCheckForErrors();
+    shader.unuse();
+//    m_pointsCloud->setScale(Vector3f(1.0, 1.0, 1.0));
 }
 
 //-----------------------------------------------------------------------------
 void
 glPlyModel::loadModel(string &path) {
     if (!modelLoaded) {
+
 
         // Open File
         ifstream file(path, std::ifstream::in);
@@ -139,12 +179,13 @@ glPlyModel::loadModel(string &path) {
 
                 if (type == 3) {
                     //
-                    // Standard Triangle
+                    // Triangle
                     //
                     lineStream >> i1 >> i2 >> i3;
                     glFaces2.push_back(i1);
                     glFaces2.push_back(i2);
                     glFaces2.push_back(i3);
+                    assignNeighbors(i1, i2, i3);
 
                 } else if (type == 4) {
                     //
@@ -154,10 +195,12 @@ glPlyModel::loadModel(string &path) {
                     glFaces2.push_back(i1);
                     glFaces2.push_back(i2);
                     glFaces2.push_back(i3);
+                    assignNeighbors(i1, i2, i3);
 
                     glFaces2.push_back(i4);
                     glFaces2.push_back(i1);
                     glFaces2.push_back(i3);
+                    assignNeighbors(i4, i1, i3);
                 }
 
 
@@ -173,6 +216,78 @@ glPlyModel::loadModel(string &path) {
     }
 }
 
+//------------------------------------------------------------------------------
+void
+glPlyModel::approximateNormals() {
+    if(m_neighbors.size() <= 0) {
+        cout << "Vector m_niegbors empty\n";
+        return;
+    }
+
+    if(m_normals.size() != 0 || m_glNormals.size() != 0) {
+        cout << "Vector m_normals or m_glNormals not empty\n";
+        return;
+    }
+
+    for(int i = 0; i < m_vertices.size(); ++i) {
+        // Calculate covariance matrix
+        Matrix3f cov(Matrix3f::Zero());
+        const set<int>& neigh = m_neighbors[i];
+
+        for(const auto neighbor : neigh) {
+            if(i == neighbor) continue;
+
+            Vector3f const toNeighbor = m_vertices[neighbor] - m_vertices[i];
+            cov += toNeighbor * toNeighbor.transpose();
+        }
+
+        // Get normal from Eigens
+        SelfAdjointEigenSolver<Matrix3f> es(cov);
+
+        int const smallestEigenValueId = // 0, 1 2
+                static_cast<int>(
+                        std::distance(
+                                es.eigenvalues().data(),
+                                std::min_element(
+                                        es.eigenvalues().data(),
+                                        es.eigenvalues().data() + 3
+                                )
+                        )
+                );
+        Matrix3f temp = es.eigenvectors();
+        Vector3f normal = temp.col(smallestEigenValueId).normalized();
+        // Save normal in m_ and m_gl array
+        m_normals.push_back(normal);
+        float x = normal(0);
+        float y = normal(1);
+        float z = normal(2);
+        m_glNormals.push_back(x);
+        m_glNormals.push_back(y);
+        m_glNormals.push_back(z);
+    }
+
+    // TODO: I hope this is a temp array
+    for(int i = 0; i < m_vertices.size(); ++i) {
+        float ver_x = m_vertices[i](0);
+        float ver_y = m_vertices[i](1);
+        float ver_z = m_vertices[i](2);
+
+        m_glNormalsLinesData.push_back(ver_x);
+        m_glNormalsLinesData.push_back(ver_y);
+        m_glNormalsLinesData.push_back(ver_z);
+
+        float norm_x = ver_x + m_normals[i](0) / 100.0f;
+        float norm_y = ver_y + m_normals[i](1) / 100.0f;
+        float norm_z = ver_z + m_normals[i](2) / 100.0f;
+
+        m_glNormalsLinesData.push_back(norm_x);
+        m_glNormalsLinesData.push_back(norm_y);
+        m_glNormalsLinesData.push_back(norm_z);
+    }
+
+}
+
+//------------------------------------------------------------------------------
 void
 glPlyModel::loadPointsCloud(const Vector3f &translation,
                             const Matrix3f &rotation) {
@@ -183,7 +298,44 @@ glPlyModel::loadPointsCloud(const Vector3f &translation,
     } else cout << "No vertices loaded to cloud\n";
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void
+glPlyModel::assignNeighbors(int n1, int n2, int n3) {
+    // Check if vector has enough entries to store n1
+    if(m_neighbors.size() <= n1) {
+        for(int i = (int) m_neighbors.size(); i < n1+1; ++i) {
+            set<int> temp;
+            m_neighbors.push_back(temp);
+        }
+    }
+    // Assign n1 with n2, n3
+    m_neighbors[n1].insert(n2);
+    m_neighbors[n1].insert(n3);
+
+    // Check if vector has enough entries to store n2
+    if(m_neighbors.size() <= n2) {
+        for(int i = (int) m_neighbors.size(); i < n2+1; ++i) {
+            set<int> temp;
+            m_neighbors.push_back(temp);
+        }
+    }
+    // Assign n2 with n1, n3
+    m_neighbors[n2].insert(n1);
+    m_neighbors[n2].insert(n3);
+
+    // Check if vector has enough entries to store n3
+    if(m_neighbors.size() <= n3) {
+        for(int i = (int) m_neighbors.size(); i < n3+1; ++i) {
+            set<int> temp;
+            m_neighbors.push_back(temp);
+        }
+    }
+    // Assign n3 with n1, n2
+    m_neighbors[n3].insert(n1);
+    m_neighbors[n3].insert(n2);
+}
+
+//------------------------------------------------------------------------------
 void
 glPlyModel::loadOpenGLData() {
     // Init Buffers
@@ -208,11 +360,32 @@ glPlyModel::loadOpenGLData() {
     glCheckForErrors();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
                           (GLvoid *) 0);
+    //Clean
     glEnableVertexAttribArray(0);
-    glCheckForErrors();
+    glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
     glCheckForErrors();
+
+    /////////////////////////////////////////
+    // Normals
+    glGenVertexArrays(1, &vao_normals);
+    glGenBuffers(1, &vbo_normals);
+
+    glBindVertexArray(vao_normals);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_glNormalsLinesData.size() * sizeof(GLfloat),
+                 &m_glNormalsLinesData[0],
+                 GL_STATIC_DRAW);
+    glCheckForErrors();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          (GLvoid *) 0);
+    //Clean
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
 }
 
 //------------------------------------------------------------------------------
