@@ -27,7 +27,6 @@ glPlane::loadMesh(string path,
                   wxTreeItemId id,
                   const Vector3f& translation,
                   const Matrix3f& rotation) {
-    cout << "get ID: " << id.GetID() << endl;
     if (meshes.find(id.GetID()) == meshes.end()) {
         tempModelsIndices.push_back(id.GetID());
         meshes[id.GetID()] = unique_ptr
@@ -104,6 +103,26 @@ glPlane::getCurrentlySelectedTranslation() {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getTranslation();
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+glPlane::getCurrentlySelectedRotation() {
+    const glPlyModel* selectedModel;
+    if(m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return Vector3f(0.0, 0.0, 0.0);
+    return selectedModel->m_pointsCloud->getRotationAngles();
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+glPlane::getCurrentlySelectedScaling() {
+    const glPlyModel* selectedModel;
+    if(m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return Vector3f(0.0, 0.0, 0.0);
+    return selectedModel->m_pointsCloud->getScale();
 }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,6 @@ glPlyModel::glPlyModel(string path,
           m_color(color) {
     this->loadModel(path);
     this->loadPointsCloud(translation, rotation);
-    this->printInformation();
     this->loadOpenGLData();
 
 }
@@ -219,20 +218,24 @@ glPlyModel::loadOpenGLData() {
 //------------------------------------------------------------------------------
 Matrix4f
 glPlyModel::computeModelMatrix() {
-    Matrix4f model = Matrix4f::Identity();
+    Matrix4f scaleTranslation = Matrix4f::Identity();
+    Matrix4f rotation = Matrix4f::Identity();
 
-    model = model * m_pointsCloud->getScale();
+    /* ----- Scale + Translate ----- */
+    Vector3f scale = m_pointsCloud->getScale();
+    scaleTranslation(0, 0) = scale(0);
+    scaleTranslation(1, 1) = scale(1);
+    scaleTranslation(2, 2) = scale(2);
 
-    // Rotation
-    model.block(0, 0, 3, 3) = m_pointsCloud->getRotation();
-
-    // Translation
     Vector3f t = m_pointsCloud->getTranslation();
-    model(0, 3) = t(0);
-    model(1, 3) = t(1);
-    model(2, 3) = t(2);
+    scaleTranslation(0, 3) = t(0);
+    scaleTranslation(1, 3) = t(1);
+    scaleTranslation(2, 3) = t(2);
 
-    return model;
+    /* ----- Rotation ------ */
+    rotation.block(0, 0, 3, 3) = m_pointsCloud->getRotation();
+
+    return scaleTranslation * rotation;
 }
 
 

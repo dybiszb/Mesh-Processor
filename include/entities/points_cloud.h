@@ -26,7 +26,7 @@ public:
     PointsCloud(const vector<Vector3f> &vertices,
                 const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                 const Matrix3f &rotation = Matrix3f::Identity(),
-                const float scale = 1.0f);
+                const Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f));
 
     /**
      * Multiplies current rotation with provided one.
@@ -56,7 +56,7 @@ public:
      *
      * @param scale
      */
-    void setScale(const float scale);
+    void setScale(const Vector3f& scale);
 
     /**
      *
@@ -70,6 +70,12 @@ public:
     Matrix3f getRotation();
 
     /**
+     *
+     * @return
+     */
+    Vector3f getRotationAngles();
+
+    /**
      * @return Translation vector of the cloud.
      */
     Vector3f getTranslation();
@@ -77,13 +83,13 @@ public:
     /**
      * @return Scaling factor of the cloud.
      */
-    float getScale();
+    Vector3f getScale();
 
 protected:
     vector<Vector3f> m_vertices;
     Matrix3f m_rotation;
     Vector3f m_translation;
-    float m_scale;
+    Vector3f m_scale;
 
 };
 

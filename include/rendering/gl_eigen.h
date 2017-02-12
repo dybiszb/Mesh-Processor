@@ -4,6 +4,7 @@
 #ifdef Success
 #undef Success
 #endif
+
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
@@ -17,7 +18,7 @@ lookAt(Vector3f &position, Vector3f &target,
     R.col(2) = (position - target).normalized();
     R.col(0) = up.cross(R.col(2)).normalized();
     R.col(1) = R.col(2).cross(R.col(0));
-    mViewMatrix.topLeftCorner<3, 3 >() = R.transpose();
+    mViewMatrix.topLeftCorner<3, 3>() = R.transpose();
     mViewMatrix.topRightCorner<3, 1>() = -R.transpose() * position;
     mViewMatrix(3, 3) = 1.0f;
 }
@@ -39,10 +40,10 @@ setPerspective(float fovY, float aspect, float near, float far,
 }
 
 inline Affine3d
-createRotationMatrix(const Vector3f& perAxisAngles){
+createRotationMatrix(const Vector3f &perAxisAngles) {
     Affine3d rx =
             Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(0), Eigen::Vector3d
-                                                                      (1, 0, 0)));
+                    (1, 0, 0)));
     Affine3d ry =
             Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(1),
                                               Eigen::Vector3d(0, 1, 0)));
@@ -66,5 +67,13 @@ rotationMatrix(float roll, float yaw, float pitch) {
 
     return r;
 }
+
+//------------------------------------------------------------------------------
+inline float
+degToRad(float deg) { return deg * (180.0f / M_PI); }
+
+//------------------------------------------------------------------------------
+inline float
+radToDeg(float rad) { return rad * (M_PI / 180.0f); }
 
 #endif

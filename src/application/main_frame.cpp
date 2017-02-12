@@ -83,7 +83,7 @@ MainFrame::loadDefaultMesh() {
     wxTreeItemId id2 = appendMeshToTree(path);
 
     /* ----- Initialize shifted and rotated mesh ----- */
-    Matrix3f r = rotationMatrix(3.14f / 4.0f, 0.0f, 0.0);
+    Matrix3f r = rotationMatrix((float) (M_PI / 4.0f), 0.0f, 0.0);
     m_glPanel->loadMesh(path, id2, Vector3f(-0.08f, 0.00, -0.00f), r);
 
     // Prepare Tree Entries
@@ -155,14 +155,27 @@ void
 MainFrame::OnIdleWindow(wxIdleEvent &event) {
     if (m_glPanel->selectionChanged()) {
         if (m_glPanel->isAnyModelSelected()) {
-            m_modelPanel->setSelectedText(m_glPanel->getSingleSelection());
+            m_modelPanel->setActive(true);
+
+            /* ----- Translation ----- */
             Vector3f translation = m_glPanel->getCurrentlySelectedTranslation();
-            cout << "translation: " << translation << endl;
             m_modelPanel->setTranslationText(translation(0),
                                              translation(1),
                                              translation(2));
+
+            /* ----- Rotation ----- */
+            Vector3f rotation = m_glPanel->getCurrentlySelectedRotation();
+            m_modelPanel->setRotation((rotation(0)),
+                                      (rotation(1)),
+                                      (rotation(2)));
+
+
+            /* ----- Scaling ----- */
+            Vector3f scaling = m_glPanel->getCurrentlySelectedScaling();
+            m_modelPanel->setScale(scaling(0), scaling(1), scaling(2));
+
         } else {
-            // Dim the model panel
+            m_modelPanel->setActive(false);
         }
     }
 }

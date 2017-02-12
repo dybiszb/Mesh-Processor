@@ -75,6 +75,8 @@ public:
     void unselectAll();
     void deleteMesh(const wxTreeItemId &item);
     Vector3f getCurrentlySelectedTranslation();
+    Vector3f getCurrentlySelectedRotation();
+    Vector3f getCurrentlySelectedScaling();
     bool isAnyModelSelected();
     void runICP();
 

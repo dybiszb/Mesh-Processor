@@ -12,16 +12,32 @@ class ModelPanel : public wxPanel {
 private:
     wxButton *m_minusButton;
     wxButton *m_plusButton;
-    wxTextCtrl* m_selectedMeshText;
-    wxTextCtrl* m_translationXText;
-    wxTextCtrl* m_translationYText;
-    wxTextCtrl* m_translationZText;
+    wxTextCtrl *m_translationXText;
+    wxTextCtrl *m_translationYText;
+    wxTextCtrl *m_translationZText;
+    wxTextCtrl *m_rotationXText;
+    wxTextCtrl *m_rotationYText;
+    wxTextCtrl *m_rotationZText;
+    wxTextCtrl *m_scalingXText;
+    wxTextCtrl *m_scalingYText;
+    wxTextCtrl *m_scalingZText;
 
-    void initializeMeshName(wxBoxSizer* parent);
+    void initializeTranslationBox(wxBoxSizer *parent);
+
+    void initializeRotationBox(wxBoxSizer *parent);
+
+    void initializeScalingBox(wxBoxSizer *parent);
+
 public:
     ModelPanel(wxWindow *parent, const wxPoint &pos);
-    void setSelectedText(const string& text);
+
+    void setActive(bool isActive);
+
     void setTranslationText(float x, float y, float z);
+
+    void setRotation(float roll, float yaw, float pitch);
+
+    void setScale(float x, float y, float z);
 };
 
 #endif

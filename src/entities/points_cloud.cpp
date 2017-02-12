@@ -5,7 +5,7 @@
 PointsCloud::PointsCloud(const vector<Vector3f> &vertices,
                          const Vector3f &translation,
                          const Matrix3f &rotation,
-                         const float scale)
+                         const Vector3f scale)
         : m_vertices(vertices),
           m_rotation(rotation),
           m_translation(translation),
@@ -29,7 +29,10 @@ PointsCloud::getUpdatedVertices() {
     vector<Vector3f> transformedVertices;
 
     for (const auto &v : m_vertices) {
-        Vector3f transformed = m_scale * v;
+        Vector3f transformed(m_scale(0) * v(0),
+                             m_scale(1) * v(1),
+                             m_scale(2) * v(2));
+
         transformed = m_rotation * transformed;
         transformed += m_translation;
         transformedVertices.push_back(transformed);
@@ -40,7 +43,7 @@ PointsCloud::getUpdatedVertices() {
 
 //------------------------------------------------------------------------------
 void
-PointsCloud::setScale(const float scale) {
+PointsCloud::setScale(const Vector3f& scale) {
     m_scale = scale;
 }
 
@@ -58,12 +61,18 @@ PointsCloud::getRotation() {
 
 //------------------------------------------------------------------------------
 Vector3f
+PointsCloud::getRotationAngles() {
+    return m_rotation.eulerAngles(0, 1, 2);
+}
+
+//------------------------------------------------------------------------------
+Vector3f
 PointsCloud::getTranslation() {
     return m_translation;
 }
 
 //------------------------------------------------------------------------------
-float
+Vector3f
 PointsCloud::getScale() {
     return m_scale;
 }
