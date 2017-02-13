@@ -93,3 +93,15 @@ Vector3f
 PointsCloud::getScale() {
     return m_scale;
 }
+
+//------------------------------------------------------------------------------
+Vector3f
+PointsCloud::getCentroidFromUpdatedVertices() {
+    Vector3f centroid(0.0, 0.0, 0.0);
+    vector<Vector3f> updVert = getUpdatedVertices();
+
+    for (auto const &vert : updVert) centroid += vert;
+    centroid /= (double) updVert.size();
+
+    return centroid;
+}

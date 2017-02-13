@@ -72,15 +72,17 @@ public:
                   const Matrix3f &rotation = Matrix3f::Identity());
 
     void setSelected(const wxTreeItemId& id, bool isSelected);
+    wxTreeItemId getCurrentlySelected();
     void unselectAll();
     void deleteMesh(const wxTreeItemId &item);
     void setRenderNormals(const wxTreeItemId &item, bool renderNormals);
-
+    void setCurrentlySelectedRenderNormals(bool renderNormals);
     void introduceNoise(const wxTreeItemId &item, const float stdDev);
-
+    void moveCurrentlySelectedCentroidToOrigin();
     Vector3f getCurrentlySelectedTranslation();
     Vector3f getCurrentlySelectedRotation();
     Vector3f getCurrentlySelectedScaling();
+    bool getCurrentlySelectedShowNormals();
     bool isAnyModelSelected();
     void runICP();
 

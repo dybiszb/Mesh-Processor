@@ -93,6 +93,10 @@ private:
 
     void OnIntroduceNoise(wxCommandEvent &event);
 
+    void OnNormalsCheckbox(wxCommandEvent& event);
+
+    void OnMoveCentroidToOrigin(wxCommandEvent &event);
+
 wxDECLARE_EVENT_TABLE();
 };
 

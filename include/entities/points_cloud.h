@@ -97,6 +97,8 @@ public:
      */
     Vector3f getScale();
 
+    Vector3f getCentroidFromUpdatedVertices();
+
 protected:
     vector<Vector3f> m_vertices;
     vector<Vector3f> m_normals;

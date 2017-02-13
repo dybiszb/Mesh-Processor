@@ -8,7 +8,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     /* ----- Initialize OpenGL Plane ----- */
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     m_glPanel = new glPlane((wxFrame *) this, args);
-    this->SetBackgroundColour(wxColour(51,51,51));
+    this->SetBackgroundColour(wxColour(51, 51, 51));
     /* ----- Initialize Left Panel ----- */
     auto leftPanel = new wxBoxSizer(wxVERTICAL);
 
@@ -32,14 +32,14 @@ MainFrame::initializeMeshTree(wxBoxSizer *parent) {
     m_meshesTitleBitmap = new wxStaticBitmap(
             this, wxID_ANY,
             wxBitmap("res/tex/loaded_meshes.png", wxBITMAP_TYPE_PNG),
-            wxPoint(0,0), wxSize(200, 30));
+            wxPoint(0, 0), wxSize(200, 30));
     m_meshesTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
     parent->Add(m_meshesTitleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
 
     // Tree
     m_treeCtrl = new wxTreeCtrl(this, ID_MESHES_TREE_CTRL, wxDefaultPosition,
                                 wxSize(240, 100));
-    m_treeCtrl->SetBackgroundColour(wxColour(255,255,255));
+    m_treeCtrl->SetBackgroundColour(wxColour(255, 255, 255));
     m_meshesRoot = m_treeCtrl->AddRoot("Meshes");
     parent->Add(m_treeCtrl, 1, wxALL, 4);
 
@@ -61,7 +61,7 @@ MainFrame::initializeICPBox(wxBoxSizer *parent) {
     m_icpTitleBitmap = new wxStaticBitmap(
             this, wxID_ANY,
             wxBitmap("res/tex/icp_algorithm.png", wxBITMAP_TYPE_PNG),
-            wxPoint(0,0), wxSize(200, 30));
+            wxPoint(0, 0), wxSize(200, 30));
     m_icpTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
 
 
@@ -85,11 +85,11 @@ MainFrame::initializeICPBox(wxBoxSizer *parent) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::initializeMeshOptionsBox(wxBoxSizer* parent) {
+MainFrame::initializeMeshOptionsBox(wxBoxSizer *parent) {
     m_titleBitmap = new wxStaticBitmap(
             this, wxID_ANY,
             wxBitmap("res/tex/mesh_options.png", wxBITMAP_TYPE_PNG),
-            wxPoint(0,0), wxSize(200, 30));
+            wxPoint(0, 0), wxSize(200, 30));
     m_titleBitmap->SetBackgroundColour(this->GetBackgroundColour());
     parent->Add(m_titleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
 
@@ -120,7 +120,7 @@ MainFrame::loadDefaultMesh() {
 
     wxTreeItemId id1 = appendMeshToTree(path);
     m_glPanel->loadMesh(path, id1);
-    m_glPanel->setRenderNormals(id1, true);
+//    m_glPanel->setRenderNormals(id1, true);
     wxTreeItemId id2 = appendMeshToTree(path);
 
     /* ----- Initialize shifted and rotated mesh ----- */
@@ -150,13 +150,16 @@ MainFrame::appendMeshToTree(string path) {
 //------------------------------------------------------------------------------
 void
 MainFrame::OnDeleteMesh(wxCommandEvent &event) {
-    wxTreeItemId selected = m_treeCtrl->GetSelection();
+    if (m_glPanel->isAnyModelSelected()) {
+        wxTreeItemId glSelected = m_glPanel->getCurrentlySelected();
+        m_glPanel->unselectAll();
 
-    // Delete only if not a root
-    if (!m_treeCtrl->ItemHasChildren(selected)) {
-        m_glPanel->deleteMesh(selected);
-        m_treeCtrl->Delete(selected);
+        if (!m_treeCtrl->ItemHasChildren(glSelected)) {
+            m_glPanel->deleteMesh(glSelected);
+            m_treeCtrl->Delete(glSelected);
+        }
     }
+
 }
 
 //------------------------------------------------------------------------------
@@ -215,6 +218,10 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
             Vector3f scaling = m_glPanel->getCurrentlySelectedScaling();
             m_modelPanel->setScale(scaling(0), scaling(1), scaling(2));
 
+            /* ----- Normals ----- */
+            bool showNormals = m_glPanel->getCurrentlySelectedShowNormals();
+            m_modelPanel->setShowNormals(showNormals);
+
         } else {
             m_modelPanel->setActive(false);
         }
@@ -227,7 +234,21 @@ MainFrame::OnIntroduceNoise(wxCommandEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
     float stdDev = m_modelPanel->getStdDev();
     m_glPanel->introduceNoise(selected, stdDev);
+    // TODO: reset ICP panel
 }
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnNormalsCheckbox(wxCommandEvent &event) {
+    wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
+    m_glPanel->setCurrentlySelectedRenderNormals(source->IsChecked());
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnMoveCentroidToOrigin(wxCommandEvent &event) {
+    m_glPanel->moveCurrentlySelectedCentroidToOrigin();
+};
 
 //------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
@@ -236,6 +257,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
                 EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnNextFrame)
                 EVT_BUTTON (ID_INTRODUCE_NOISE, MainFrame::OnIntroduceNoise)
+                EVT_BUTTON (ID_MOVE_TO_ORIGIN,
+                            MainFrame::OnMoveCentroidToOrigin)
+                EVT_CHECKBOX(ID_CHECKBOX_NORMALS, MainFrame::OnNormalsCheckbox)
                 EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
                                         MainFrame::OnMeshesTreeItemClicked)
                 EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,

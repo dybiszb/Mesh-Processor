@@ -228,6 +228,10 @@ glPlyModel::approximateNormals() {
         cout << "Vector m_normals or m_glNormals not empty\n";
         return;
     }
+    if(m_glNormalsLinesData.size() != 0) {
+        cout << "Vector m_glNormalsLinesData not empty\n";
+        return;
+    }
 
     for(int i = 0; i < m_vertices.size(); ++i) {
         // Calculate covariance matrix
@@ -453,6 +457,12 @@ glPlyModel::setRenderNormals(bool renderNormals) {
 }
 
 //------------------------------------------------------------------------------
+bool
+glPlyModel::getRenderNormals() {
+    return m_renderNormals;
+}
+
+//------------------------------------------------------------------------------
 void
 glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -483,8 +493,17 @@ glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
     // Clear current normals
     m_normals.clear();
     m_glNormals.clear();
+    m_glNormalsLinesData.clear();
 
     // Reload Normals
     this->approximateNormals();
     this->loadOpenGLData();
+}
+
+//------------------------------------------------------------------------------
+void
+glPlyModel:: moveCentroidToOrigin() {
+    Vector3f centroid = m_pointsCloud->getCentroidFromUpdatedVertices();
+    centroid = -centroid;
+    m_pointsCloud->accumulateTranslation(centroid);
 }

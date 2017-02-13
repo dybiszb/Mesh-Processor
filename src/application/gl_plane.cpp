@@ -2,8 +2,11 @@
 
 //------------------------------------------------------------------------------
 glPlane::glPlane(wxFrame *parent, int *args) : m_selectionChanged(true),
-        wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize,
-                   wxFULL_REPAINT_ON_RESIZE) {
+                                               wxGLCanvas(parent, wxID_ANY,
+                                                          args,
+                                                          wxDefaultPosition,
+                                                          wxDefaultSize,
+                                                          wxFULL_REPAINT_ON_RESIZE) {
     wxGLContextAttrs ctxAttrs;
     ctxAttrs.PlatformDefaults().CoreProfile().OGLVersion(3, 3).EndList();
     m_context = new wxGLContext(this, NULL, &ctxAttrs);
@@ -25,12 +28,12 @@ glPlane::~glPlane() {
 void
 glPlane::loadMesh(string path,
                   wxTreeItemId id,
-                  const Vector3f& translation,
-                  const Matrix3f& rotation) {
+                  const Vector3f &translation,
+                  const Matrix3f &rotation) {
     if (meshes.find(id.GetID()) == meshes.end()) {
         tempModelsIndices.push_back(id.GetID());
         meshes[id.GetID()] = unique_ptr
-                <glPlyModel> (new glPlyModel(path, translation, rotation));
+                <glPlyModel>(new glPlyModel(path, translation, rotation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
     }
@@ -38,9 +41,9 @@ glPlane::loadMesh(string path,
 
 //------------------------------------------------------------------------------
 void
-glPlane::setSelected(const wxTreeItemId& id, bool isSelected) {
-    if (meshes.count(id.GetID()) != 0){
-        if(m_currentlySelectedId != NULL) {
+glPlane::setSelected(const wxTreeItemId &id, bool isSelected) {
+    if (meshes.count(id.GetID()) != 0) {
+        if (m_currentlySelectedId != NULL) {
             (meshes[m_currentlySelectedId.GetID()])->setSelected(!isSelected);
         }
         (meshes[id.GetID()])->setSelected(isSelected);
@@ -52,9 +55,15 @@ glPlane::setSelected(const wxTreeItemId& id, bool isSelected) {
 }
 
 //------------------------------------------------------------------------------
+wxTreeItemId
+glPlane::getCurrentlySelected() {
+    return m_currentlySelectedId;
+}
+
+//------------------------------------------------------------------------------
 void
 glPlane::unselectAll() {
-    if(m_currentlySelectedId != NULL) {
+    if (m_currentlySelectedId != NULL) {
         (meshes[m_currentlySelectedId.GetID()])->setSelected(false);
     }
     m_currentlySelectedId = NULL;
@@ -63,7 +72,7 @@ glPlane::unselectAll() {
 
 // TODO: DELETE
 void glPlane::loadNextICPResult() {
-    if(m_results.size() < 1) {
+    if (m_results.size() < 1) {
         cout << "out of frames\n";
         return;
     }
@@ -91,14 +100,14 @@ glPlane::runICP() {
 
 //------------------------------------------------------------------------------
 void
-glPlane::deleteMesh(const wxTreeItemId& item) {
+glPlane::deleteMesh(const wxTreeItemId &item) {
     meshes.erase(item);
 }
 
 //------------------------------------------------------------------------------
 void
 glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
-    if (meshes.count(item.GetID()) != 0){
+    if (meshes.count(item.GetID()) != 0) {
         (meshes[item.GetID()])->setRenderNormals(renderNormals);
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
@@ -107,20 +116,39 @@ glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
 
 //------------------------------------------------------------------------------
 void
+glPlane::setCurrentlySelectedRenderNormals(bool renderNormals) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->setRenderNormals(renderNormals);
+}
+
+//------------------------------------------------------------------------------
+void
 glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
-    if (meshes.count(item.GetID()) != 0){
+    if (meshes.count(item.GetID()) != 0) {
         (meshes[item.GetID()])->introduceGaussianNoise(0.0f, stdDev);
-        cout << "introducing noise with std dev: " << stdDev << endl;
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
     }
 }
 
 //------------------------------------------------------------------------------
+void
+glPlane::moveCurrentlySelectedCentroidToOrigin() {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->moveCentroidToOrigin();
+}
+
+//------------------------------------------------------------------------------
 Vector3f
 glPlane::getCurrentlySelectedTranslation() {
-    const glPlyModel* selectedModel;
-    if(m_currentlySelectedId != NULL) {
+    const glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getTranslation();
@@ -129,8 +157,8 @@ glPlane::getCurrentlySelectedTranslation() {
 //------------------------------------------------------------------------------
 Vector3f
 glPlane::getCurrentlySelectedRotation() {
-    const glPlyModel* selectedModel;
-    if(m_currentlySelectedId != NULL) {
+    const glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getRotationAngles();
@@ -139,11 +167,21 @@ glPlane::getCurrentlySelectedRotation() {
 //------------------------------------------------------------------------------
 Vector3f
 glPlane::getCurrentlySelectedScaling() {
-    const glPlyModel* selectedModel;
-    if(m_currentlySelectedId != NULL) {
+    const glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getScale();
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlane::getCurrentlySelectedShowNormals() {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else false;
+    return selectedModel->getRenderNormals();
 }
 
 //------------------------------------------------------------------------------
@@ -253,7 +291,7 @@ glPlane::render(wxPaintEvent &evt) {
     coordinates->render(*mainShader, camera->getViewMatrix(), projection);
 
     // Render Meshes
-    for(auto const& mesh : meshes) {
+    for (auto const &mesh : meshes) {
         (mesh.second)->render(*mainShader, camera->getViewMatrix(), projection);
     }
 

@@ -8,11 +8,13 @@ ModelPanel::ModelPanel(wxWindow *parent, const wxPoint &pos)
     this->SetBackgroundColour(wxColour(255,255,255));
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-
     initializeTranslationBox(vbox);
     initializeRotationBox(vbox);
     initializeScalingBox(vbox);
     initializeNoiseBox(vbox);
+    initializeMoveCentroidToOrigin(vbox);
+    initializeNormalsBox(vbox);
+
 
     vbox->SetSizeHints(this);
     this->SetSizer(vbox);
@@ -81,7 +83,7 @@ ModelPanel::initializeScalingBox(wxBoxSizer* parent) {
     parent->Add(hboxScaling, 1, wxALL, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void
 ModelPanel::initializeNoiseBox(wxBoxSizer* parent) {
     wxBoxSizer *hboxScaling = new wxBoxSizer(wxHORIZONTAL);
@@ -91,7 +93,7 @@ ModelPanel::initializeNoiseBox(wxBoxSizer* parent) {
 
     auto stdDevText = new wxStaticText(this, wxID_ANY, wxT(" std dev: "),
                                         wxPoint(-10, 10), wxSize(62, 30));
-    m_stddevText = new wxTextCtrl(this, ID_STD_DEV_TEXT, wxString("1.0"),
+    m_stddevText = new wxTextCtrl(this, ID_STD_DEV_TEXT, wxString("0.001"),
                                     wxDefaultPosition, wxSize(45, -1));
 
     hboxScaling->Add(m_introduceNoise, 0, wxALL, 1);
@@ -102,7 +104,26 @@ ModelPanel::initializeNoiseBox(wxBoxSizer* parent) {
     parent->Add(hboxScaling, 1, wxALL, 0);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void
+ModelPanel::initializeMoveCentroidToOrigin(wxBoxSizer * parent) {
+    m_moveCentroidButton = new wxButton(this, ID_MOVE_TO_ORIGIN,
+                                        wxT("Move Centroid to Origin"),wxPoint
+                                                (-10, 10), wxSize
+                                                (230, -1));
+
+    parent->Add(m_moveCentroidButton, 0, wxALIGN_CENTER_HORIZONTAL, 2);
+}
+
+//------------------------------------------------------------------------------
+void
+ModelPanel::initializeNormalsBox(wxBoxSizer *parent) {
+    m_normalsCheckbox = new wxCheckBox(this,ID_CHECKBOX_NORMALS,"Show "
+            "Approximated Normals");
+    parent->Add(m_normalsCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+}
+
+//------------------------------------------------------------------------------
 void
 ModelPanel::setActive(bool isActive) {
     m_translationXText->Enable(isActive);
@@ -138,9 +159,7 @@ ModelPanel::setActive(bool isActive) {
     m_introduceNoise->Enable(isActive);
     m_stddevText->Enable(isActive);
 
-//    if(!isActive) {
-//        m_stddevText->Clear();
-//    }
+    m_normalsCheckbox->Enable(isActive);
 }
 
 
@@ -198,6 +217,14 @@ ModelPanel::setScale(float x, float y, float z) {
     if(m_scalingZText) {
         m_scalingZText->Clear();
         *m_scalingZText << z;
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+ModelPanel::setShowNormals(bool showNormals) {
+    if(m_normalsCheckbox) {
+        m_normalsCheckbox->SetValue(showNormals);
     }
 }
 

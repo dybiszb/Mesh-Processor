@@ -51,7 +51,11 @@ public:
 
     void setRenderNormals(bool renderNormals);
 
+    bool getRenderNormals();
+
     void introduceGaussianNoise(float mean, float stdDev);
+
+    void moveCentroidToOrigin();
 
     unique_ptr<PointsCloud> m_pointsCloud;
 
