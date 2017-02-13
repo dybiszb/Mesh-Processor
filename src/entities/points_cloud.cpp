@@ -60,14 +60,20 @@ PointsCloud::setVertices(const vector<Vector3f>& vertices) {
 
 //------------------------------------------------------------------------------
 void
-PointsCloud::setScale(const Vector3f& scale) {
-    m_scale = scale;
+PointsCloud::setTranslation(const Vector3f& translation) {
+    m_translation = translation;
 }
 
 //------------------------------------------------------------------------------
 void
 PointsCloud::setRotation(const Matrix3f& rotation) {
     m_rotation = rotation;
+}
+
+//------------------------------------------------------------------------------
+void
+PointsCloud::setScale(const Vector3f& scale) {
+    m_scale = scale;
 }
 
 //------------------------------------------------------------------------------

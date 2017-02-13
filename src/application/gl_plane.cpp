@@ -145,6 +145,36 @@ glPlane::moveCurrentlySelectedCentroidToOrigin() {
 }
 
 //------------------------------------------------------------------------------
+void
+glPlane::setCurrentlySelectedTranslation(const Vector3f& translation) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->m_pointsCloud->setTranslation(translation);
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::setCurrentlySelectedRotation(const Matrix3f& rotation) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->m_pointsCloud->setRotation(rotation);
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::setCurrentlySelectedScale(const Vector3f& scale) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->m_pointsCloud->setScale(scale);
+}
+
+//------------------------------------------------------------------------------
 Vector3f
 glPlane::getCurrentlySelectedTranslation() {
     const glPlyModel *selectedModel;
@@ -249,6 +279,12 @@ glPlane::getSingleSelection() {
 bool
 glPlane::selectionChanged() {
     return m_selectionChanged;
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::eatSelectionChangeNotification() {
+    m_selectionChanged = false;
 }
 
 //------------------------------------------------------------------------------
@@ -367,21 +403,3 @@ BEGIN_EVENT_TABLE(glPlane, wxGLCanvas)
                 EVT_MOUSEWHEEL(glPlane::mouseWheelMoved)
                 EVT_PAINT(glPlane::render)
 END_EVENT_TABLE()
-
-//
-//
-////------------------------------------------------------------------------------
-//pair<Vector3f, Vector3f>
-//ICPAlgorithm::getCentroids(const vector<pair<Vector3f, Vector3f>> &pairs) {
-//    Vector3f cenP(0.0, 0.0, 0.0);
-//    Vector3f cenQ(0.0, 0.0, 0.0);
-//
-//    for (auto const &pair: pairs) {
-//        cenP += pair.first;
-//        cenQ += pair.second;
-//    }
-//    cenP /= (double) pairs.size();
-//    cenQ /= (double) pairs.size();
-//
-//    return std::pair<Vector3f, Vector3f>(cenP, cenQ);
-//}

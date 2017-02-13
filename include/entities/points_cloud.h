@@ -64,6 +64,8 @@ public:
 
     void setVertices(const vector<Vector3f>& vertices);
 
+    void setTranslation(const Vector3f& translation);
+
     /**
      *
      * @param scale

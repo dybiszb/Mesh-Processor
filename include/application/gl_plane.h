@@ -10,6 +10,7 @@
 #ifdef Success
 #undef Success
 #endif
+
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
@@ -71,19 +72,36 @@ public:
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                   const Matrix3f &rotation = Matrix3f::Identity());
 
-    void setSelected(const wxTreeItemId& id, bool isSelected);
+    void setSelected(const wxTreeItemId &id, bool isSelected);
+
     wxTreeItemId getCurrentlySelected();
+
     void unselectAll();
+
     void deleteMesh(const wxTreeItemId &item);
+
     void setRenderNormals(const wxTreeItemId &item, bool renderNormals);
+
     void setCurrentlySelectedRenderNormals(bool renderNormals);
+
     void introduceNoise(const wxTreeItemId &item, const float stdDev);
+
     void moveCurrentlySelectedCentroidToOrigin();
+
+    void setCurrentlySelectedTranslation(const Vector3f& translation);
+    void setCurrentlySelectedRotation(const Matrix3f& rotation);
+    void setCurrentlySelectedScale(const Vector3f& scale);
+
     Vector3f getCurrentlySelectedTranslation();
+
     Vector3f getCurrentlySelectedRotation();
+
     Vector3f getCurrentlySelectedScaling();
+
     bool getCurrentlySelectedShowNormals();
+
     bool isAnyModelSelected();
+
     void runICP();
 
     /**
@@ -95,7 +113,10 @@ public:
 
 
     const string getSingleSelection();
+
     bool selectionChanged();
+
+    void eatSelectionChangeNotification();
 
 private:
     wxTreeItemId m_currentlySelectedId = NULL;

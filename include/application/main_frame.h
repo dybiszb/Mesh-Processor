@@ -97,6 +97,12 @@ private:
 
     void OnMoveCentroidToOrigin(wxCommandEvent &event);
 
+    void OnTranslationEditing(wxCommandEvent &event);
+
+    void OnRotationEditing(wxCommandEvent &event);
+
+    void OnScaleEditing(wxCommandEvent &event);
+
 wxDECLARE_EVENT_TABLE();
 };
 
@@ -107,12 +113,7 @@ enum {
     ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
     ID_MESHES_TREE_CTRL = wxID_HIGHEST + 5,
     ID_ICP_SLIDER = wxID_HIGHEST + 6,
-    ID_TEXT_TRANSLATION_X = wxID_HIGHEST + 7,
-    ID_TEXT_TRANSLATION_Y = wxID_HIGHEST + 8,
-    ID_TEXT_TRANSLATION_Z = wxID_HIGHEST + 9,
-    ID_TEXT_ROTATION_X = wxID_HIGHEST + 10,
-    ID_TEXT_ROTATION_Y = wxID_HIGHEST + 11,
-    ID_TEXT_ROTATION_Z = wxID_HIGHEST + 12,
+
 };
 
 

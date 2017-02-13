@@ -221,10 +221,10 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
             /* ----- Normals ----- */
             bool showNormals = m_glPanel->getCurrentlySelectedShowNormals();
             m_modelPanel->setShowNormals(showNormals);
-
         } else {
             m_modelPanel->setActive(false);
         }
+        m_glPanel->eatSelectionChangeNotification();
     }
 }
 
@@ -248,7 +248,33 @@ MainFrame::OnNormalsCheckbox(wxCommandEvent &event) {
 void
 MainFrame::OnMoveCentroidToOrigin(wxCommandEvent &event) {
     m_glPanel->moveCurrentlySelectedCentroidToOrigin();
+    // TODO: Reset ICP panel
 };
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnTranslationEditing(wxCommandEvent &event) {
+    Vector3f translation = m_modelPanel->getTranslation();
+    m_glPanel->setCurrentlySelectedTranslation(translation);
+    // TODO: Reset ICP panel
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnRotationEditing(wxCommandEvent &event) {
+    Matrix3f rotation = m_modelPanel->getRotation();
+    m_glPanel->setCurrentlySelectedRotation(rotation);
+    // TODO: Reset ICP panel
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnScaleEditing(wxCommandEvent &event) {
+    cout << "edit scaling\n";
+    Vector3f scale = m_modelPanel->getScale();
+    m_glPanel->setCurrentlySelectedScale(scale);
+    // TODO: Reset ICP panel
+}
 
 //------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
@@ -256,6 +282,31 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
                 EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
                 EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnNextFrame)
+
+                // Translation
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_X,
+                               MainFrame::OnTranslationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Y,
+                               MainFrame::OnTranslationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Z,
+                               MainFrame::OnTranslationEditing)
+
+                // Rotation
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_X,
+                               MainFrame::OnRotationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Y,
+                               MainFrame::OnRotationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Z,
+                               MainFrame::OnRotationEditing)
+
+                // Scale
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_X,
+                               MainFrame::OnScaleEditing)
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_Y,
+                               MainFrame::OnScaleEditing)
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_Z,
+                               MainFrame::OnScaleEditing)
+
                 EVT_BUTTON (ID_INTRODUCE_NOISE, MainFrame::OnIntroduceNoise)
                 EVT_BUTTON (ID_MOVE_TO_ORIGIN,
                             MainFrame::OnMoveCentroidToOrigin)

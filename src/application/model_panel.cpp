@@ -26,12 +26,12 @@ ModelPanel::initializeTranslationBox(wxBoxSizer* parent) {
     wxBoxSizer *hboxTranslation = new wxBoxSizer(wxHORIZONTAL);
     auto translationText = new wxStaticText(this, wxID_ANY, wxT(" Translation:"),
                                             wxPoint(-10, 10), wxSize(90, 30));
-    m_translationXText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
-    m_translationYText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
-    m_translationZText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
+    m_translationXText = new wxTextCtrl(this, ID_TEXT_TRANSLATION_X, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_translationYText = new wxTextCtrl(this, ID_TEXT_TRANSLATION_Y, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_translationZText = new wxTextCtrl(this, ID_TEXT_TRANSLATION_Z, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
     hboxTranslation->Add(translationText, 1, wxALL, 5);
     hboxTranslation->Add(m_translationXText, 0, wxALL, 1);
     hboxTranslation->Add(m_translationYText, 0, wxALL, 1);
@@ -47,12 +47,12 @@ ModelPanel::initializeRotationBox(wxBoxSizer* parent) {
     wxBoxSizer *hboxRotation = new wxBoxSizer(wxHORIZONTAL);
     auto rotationText = new wxStaticText(this, wxID_ANY, wxT(" Rotation:"),
                                             wxPoint(-10, 10), wxSize(90, 30));
-    m_rotationXText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
-    m_rotationYText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
-    m_rotationZText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                        wxDefaultPosition, wxSize(45, -1));
+    m_rotationXText = new wxTextCtrl(this, ID_TEXT_ROTATION_X, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_rotationYText = new wxTextCtrl(this, ID_TEXT_ROTATION_Y, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_rotationZText = new wxTextCtrl(this, ID_TEXT_ROTATION_Z, wxString(""),
+                                        wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
     hboxRotation->Add(rotationText, 1, wxALL, 5);
     hboxRotation->Add(m_rotationXText, 0, wxALL, 1);
     hboxRotation->Add(m_rotationYText, 0, wxALL, 1);
@@ -68,12 +68,12 @@ ModelPanel::initializeScalingBox(wxBoxSizer* parent) {
     wxBoxSizer *hboxScaling = new wxBoxSizer(wxHORIZONTAL);
     auto scalingText = new wxStaticText(this, wxID_ANY, wxT(" Scaling:"),
                                          wxPoint(-10, 10), wxSize(90, 30));
-    m_scalingXText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                     wxDefaultPosition, wxSize(45, -1));
-    m_scalingYText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                     wxDefaultPosition, wxSize(45, -1));
-    m_scalingZText = new wxTextCtrl(this, wxID_ANY, wxString(""),
-                                     wxDefaultPosition, wxSize(45, -1));
+    m_scalingXText = new wxTextCtrl(this, ID_TEXT_SCALING_X, wxString(""),
+                                     wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_scalingYText = new wxTextCtrl(this, ID_TEXT_SCALING_Y, wxString(""),
+                                     wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+    m_scalingZText = new wxTextCtrl(this, ID_TEXT_SCALING_Z, wxString(""),
+                                     wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
     hboxScaling->Add(scalingText, 1, wxALL, 5);
     hboxScaling->Add(m_scalingXText, 0, wxALL, 1);
     hboxScaling->Add(m_scalingYText, 0, wxALL, 1);
@@ -226,6 +226,39 @@ ModelPanel::setShowNormals(bool showNormals) {
     if(m_normalsCheckbox) {
         m_normalsCheckbox->SetValue(showNormals);
     }
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+ModelPanel::getTranslation() {
+    double x, y, z;
+    (m_translationXText->GetValue()).ToDouble(&x);
+    (m_translationYText->GetValue()).ToDouble(&y);
+    (m_translationZText->GetValue()).ToDouble(&z);
+
+    return Vector3f(x, y, z);
+}
+
+//------------------------------------------------------------------------------
+Matrix3f
+ModelPanel::getRotation() {
+    double x, y, z;
+    (m_rotationXText->GetValue()).ToDouble(&x);
+    (m_rotationYText->GetValue()).ToDouble(&y);
+    (m_rotationZText->GetValue()).ToDouble(&z);
+
+    return rotationMatrix(x, y, z);
+}
+
+//------------------------------------------------------------------------------
+Vector3f
+ModelPanel::getScale() {
+    double x, y, z;
+    (m_scalingXText->GetValue()).ToDouble(&x);
+    (m_scalingYText->GetValue()).ToDouble(&y);
+    (m_scalingZText->GetValue()).ToDouble(&z);
+
+    return Vector3f(x, y, z);
 }
 
 //------------------------------------------------------------------------------
