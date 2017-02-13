@@ -226,6 +226,11 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
             /* ----- Normals ----- */
             bool showNormals = m_glPanel->getCurrentlySelectedShowNormals();
             m_modelPanel->setShowNormals(showNormals);
+
+            /* ----- ICP Base ----- */
+            bool icpBase = m_glPanel->getCurrentlySelectedICPBase();
+            m_modelPanel->setICPBase(icpBase);
+
         } else {
             m_modelPanel->setActive(false);
         }
@@ -247,6 +252,14 @@ void
 MainFrame::OnNormalsCheckbox(wxCommandEvent &event) {
     wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
     m_glPanel->setCurrentlySelectedRenderNormals(source->IsChecked());
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnICPBaseCheckbox(wxCommandEvent& event) {
+    wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
+    m_glPanel->setCurrentlySelectedAsICPBaseMesh(source->IsChecked());
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -285,12 +298,19 @@ MainFrame::OnScaleEditing(wxCommandEvent &event) {
 void
 MainFrame::OnICPRun(wxCommandEvent &event) {
     wxTreeItemId baseId;
+    wxTreeItemId selectedId;
     try {
         baseId = m_glPanel->getCurrentICPBaseMeshId();
     }catch (string info) {
         wxMessageBox(info, "No base Mesh.", wxICON_INFORMATION);
         return;
     }
+    try {
+
+    } catch(string info) {
+
+    }
+
     m_icpPanel->SetActive(true);
 }
 
@@ -336,6 +356,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_MOVE_TO_ORIGIN,
                             MainFrame::OnMoveCentroidToOrigin)
                 EVT_CHECKBOX(ID_CHECKBOX_NORMALS, MainFrame::OnNormalsCheckbox)
+                EVT_CHECKBOX(ID_CHECKBOX_ICP_BASE, MainFrame::OnICPBaseCheckbox)
                 EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
                                         MainFrame::OnMeshesTreeItemClicked)
                 EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,

@@ -102,10 +102,18 @@ glPlane::runICP() {
 //------------------------------------------------------------------------------
 wxTreeItemId
 glPlane::getCurrentICPBaseMeshId() {
-    // For all meshes check if any is a base
-    string s = "No mesh selected as a base for ICP Algorithm. Please select a"
-            " mesh and in 'Mesh Options' tick box that says 'Base for ICP'.";
-    throw s;
+    // For all meshes check if any is a base and return
+    for(const auto& pair: meshes) {
+        if(pair.second->getICPBase()) {
+            return pair.first;
+        }
+    }
+
+    // If not - throw error info
+    string errorInfo = "No mesh selected as a base for ICP Algorithm. Please "
+            "select a mesh and in 'Mesh Options' tick box that says 'Base for"
+            " ICP'.";
+    throw errorInfo;
 }
 
 
@@ -133,6 +141,35 @@ glPlane::setCurrentlySelectedRenderNormals(bool renderNormals) {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->setRenderNormals(renderNormals);
+}
+
+//------------------------------------------------------------------------------
+void  // TODO: rewrite or split <== too complicated
+glPlane::setCurrentlySelectedAsICPBaseMesh(bool icpBase) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+
+        // Inform current base that it is no longer a base
+        if(m_currentICPBaseId != NULL) {
+            glPlyModel *currentICPBase
+                    = (meshes[m_currentICPBaseId.GetID()]).get();
+            currentICPBase->setICPBase(false);
+        }
+
+        // Store new base id if requested
+        if(icpBase) {
+            m_currentICPBaseId = m_currentlySelectedId;
+        }
+    } else {
+        string errorInfo = "No mesh currently selected.";
+        throw errorInfo;
+    };
+
+    if(icpBase) {
+        selectedModel->setICPBase(icpBase);
+    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -223,6 +260,16 @@ glPlane::getCurrentlySelectedShowNormals() {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else false;
     return selectedModel->getRenderNormals();
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlane::getCurrentlySelectedICPBase() {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else false;
+    return selectedModel->getICPBase();
 }
 
 //------------------------------------------------------------------------------

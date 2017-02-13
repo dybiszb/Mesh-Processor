@@ -1,5 +1,5 @@
 //==============================================================================
-// Naming convenction:
+// Naming convention:
 // > '__' (double underscore) <=> private function/variable
 // > '_' (single underscore) <=> protected function/variable
 // > 'm_' <=> member function/variable
@@ -8,6 +8,10 @@
 // > both: methods and variables use camelcase
 //
 // Max line length: 80 digits.
+//
+// I only return exception in form of string objects. It helps in transparent
+// dialog creation and nothing more sophisticated is really needed for this
+// project.
 //==============================================================================
 // author: dybisz
 //------------------------------------------------------------------------------

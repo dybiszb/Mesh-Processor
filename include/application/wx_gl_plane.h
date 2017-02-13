@@ -81,7 +81,7 @@ public:
     void setRenderNormals(const wxTreeItemId &item, bool renderNormals);
 
     void setCurrentlySelectedRenderNormals(bool renderNormals);
-
+    void setCurrentlySelectedAsICPBaseMesh(bool icpBase);
     void introduceNoise(const wxTreeItemId &item, const float stdDev);
 
     void moveCurrentlySelectedCentroidToOrigin();
@@ -97,7 +97,7 @@ public:
     Vector3f getCurrentlySelectedScaling();
 
     bool getCurrentlySelectedShowNormals();
-
+    bool getCurrentlySelectedICPBase();
     bool isAnyModelSelected();
 
     void runICP();
@@ -120,6 +120,7 @@ public:
 
 private:
     wxTreeItemId m_currentlySelectedId = NULL;
+    wxTreeItemId m_currentICPBaseId = NULL;
 
     int getWidth();
 

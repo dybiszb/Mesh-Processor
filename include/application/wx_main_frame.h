@@ -96,6 +96,8 @@ private:
 
     void OnNormalsCheckbox(wxCommandEvent& event);
 
+    void OnICPBaseCheckbox(wxCommandEvent& event);
+
     void OnMoveCentroidToOrigin(wxCommandEvent &event);
 
     void OnTranslationEditing(wxCommandEvent &event);

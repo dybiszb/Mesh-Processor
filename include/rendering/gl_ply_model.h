@@ -57,6 +57,9 @@ public:
 
     void moveCentroidToOrigin();
 
+    void setICPBase(bool isBase);
+    bool getICPBase();
+
     unique_ptr<PointsCloud> m_pointsCloud;
 
     GLuint getVertexArrayId();
@@ -84,6 +87,7 @@ private:
     bool modelLoaded;
     bool m_isWireframed = true;
     bool m_renderNormals = false;
+    bool m_isICPBased = false;
     float m_scale = 1.0;
     GLuint vbo, vao, ebo, vbo_normals, vao_normals;
 

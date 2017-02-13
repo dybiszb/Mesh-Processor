@@ -502,8 +502,21 @@ glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
 
 //------------------------------------------------------------------------------
 void
-glPlyModel:: moveCentroidToOrigin() {
+glPlyModel::moveCentroidToOrigin() {
     Vector3f centroid = m_pointsCloud->getCentroidFromUpdatedVertices();
     centroid = -centroid;
     m_pointsCloud->accumulateTranslation(centroid);
+}
+
+
+//------------------------------------------------------------------------------
+void
+glPlyModel::setICPBase(bool isBase) {
+    m_isICPBased = isBase;
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlyModel::getICPBase() {
+    return m_isICPBased;
 }
