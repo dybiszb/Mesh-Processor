@@ -51,6 +51,15 @@ PointsCloud::getKdTreeOfUpdatedVertices() {
 
 //------------------------------------------------------------------------------
 void
+PointsCloud::setVertices(const vector<Vector3f>& vertices) {
+    // TODO: check stdl for something more efficient
+    for(int i = 0; i < m_vertices.size(); ++i) {
+        m_vertices[i] = vertices[i];
+    }
+}
+
+//------------------------------------------------------------------------------
+void
 PointsCloud::setScale(const Vector3f& scale) {
     m_scale = scale;
 }

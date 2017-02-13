@@ -18,7 +18,8 @@
 #include <iostream>
 #include <fstream>
 #include "rendering/gl_utils.h"
-
+#include <chrono>
+#include <random>
 #include "entities/points_cloud.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_eigen.h"
@@ -47,7 +48,11 @@ public:
     void setColor(const Vector4f &color);
 
     void setWireframe(bool isWireframed);
+
     void setRenderNormals(bool renderNormals);
+
+    void introduceGaussianNoise(float mean, float stdDev);
+
     unique_ptr<PointsCloud> m_pointsCloud;
 
     GLuint getVertexArrayId();

@@ -62,6 +62,8 @@ public:
      */
     kdTreeT getKdTreeOfUpdatedVertices();
 
+    void setVertices(const vector<Vector3f>& vertices);
+
     /**
      *
      * @param scale

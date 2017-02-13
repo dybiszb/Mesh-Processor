@@ -451,3 +451,40 @@ void
 glPlyModel::setRenderNormals(bool renderNormals) {
     m_renderNormals = renderNormals;
 }
+
+//------------------------------------------------------------------------------
+void
+glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator (seed);
+
+    std::normal_distribution<double> distribution (mean, stdDev);
+
+    for(int i = 0; i < m_vertices.size(); ++i) {
+        // update m_vertices
+        // update m_glVertice
+
+        float x = (float) distribution(generator);
+        float y = (float) distribution(generator);
+        float z = (float) distribution(generator);
+
+        m_vertices[i](0) += x;
+        m_vertices[i](1) += y;
+        m_vertices[i](2) += z;
+
+        glVertices2[3 * i + 0] += x;
+        glVertices2[3 * i + 1] += y;
+        glVertices2[3 * i + 2] += z;
+    }
+
+    // update PointsCloud
+    m_pointsCloud->setVertices(m_vertices);
+
+    // Clear current normals
+    m_normals.clear();
+    m_glNormals.clear();
+
+    // Reload Normals
+    this->approximateNormals();
+    this->loadOpenGLData();
+}

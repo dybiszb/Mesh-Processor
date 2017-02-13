@@ -109,7 +109,7 @@ glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
 void
 glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
     if (meshes.count(item.GetID()) != 0){
-//        (meshes[item.GetID()])->setRenderNormals(renderNormals);
+        (meshes[item.GetID()])->introduceGaussianNoise(0.0f, stdDev);
         cout << "introducing noise with std dev: " << stdDev << endl;
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
