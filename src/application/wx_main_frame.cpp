@@ -1,4 +1,4 @@
-#include "application/main_frame.h"
+#include "application/wx_main_frame.h"
 
 //------------------------------------------------------------------------------
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
@@ -46,12 +46,14 @@ MainFrame::initializeMeshTree(wxBoxSizer *parent) {
     // Buttons
     auto hBox1 = new wxBoxSizer(wxHORIZONTAL);
     auto loadMeshButton = new wxButton(this, ID_BUTTON_LOAD_MESH,
-                                       wxT("      Load Mesh      "));
+                                       wxT("      Load Mesh      "),wxPoint
+                                               (-10, 10), wxSize(121, -1));
     auto deleteMeshButton = new wxButton(this, ID_BUTTON_DELETE_MESH,
-                                         wxT("      Delete Mesh    "));
+                                         wxT("      Delete Mesh    "),wxPoint
+                                                 (-10, 10), wxSize(121, -1));
     hBox1->Add(loadMeshButton, 0, wxEXPAND);
     hBox1->Add(deleteMeshButton, 0, wxEXPAND);
-    parent->Add(hBox1, 0, wxALIGN_TOP);
+    parent->Add(hBox1, 0, wxALIGN_CENTER_HORIZONTAL, 4);
 }
 
 //------------------------------------------------------------------------------
@@ -65,21 +67,24 @@ MainFrame::initializeICPBox(wxBoxSizer *parent) {
     m_icpTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
 
 
-    auto runICPButton = new wxButton(this, ID_BUTTON_RUN_ICP,
-                                     wxT("           Run ICP        "));
-    m_nextICPFrame = new wxButton(this, ID_BUTTON_NEXT_FRAME,
-                                  wxT("        Next Frame    "));
-    m_nextICPFrame->Enable(false);
-
-    hBox2->Add(runICPButton, 0, wxEXPAND);
-    hBox2->Add(m_nextICPFrame, 0, wxEXPAND);
+//    auto runICPButton = new wxButton(this, ID_BUTTON_RUN_ICP,
+//                                     wxT("           Run ICP        "));
+//    m_nextICPFrame = new wxButton(this, ID_BUTTON_NEXT_FRAME,
+//                                  wxT("        Next Frame    "));
+//    m_nextICPFrame->Enable(false);
+//
+//    hBox2->Add(runICPButton, 0, wxEXPAND);
+//    hBox2->Add(m_nextICPFrame, 0, wxEXPAND);
 
     parent->Add(m_icpTitleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
-    parent->Add(hBox2, 0, wxALIGN_TOP);
+//    parent->Add(hBox2, 0, wxALIGN_TOP);
+//
+//    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
+//                               wxPoint(10, 30), wxSize(140, -1));
+//    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
 
-    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
-                               wxPoint(10, 30), wxSize(140, -1));
-    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
+    m_icpPanel = new ICPPanel(this, wxPoint(-1, -1));
+    parent->Add(m_icpPanel, 0, wxALL, 4);
 
 }
 
@@ -166,7 +171,7 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 void
 MainFrame::OnRunICP(wxCommandEvent &event) {
     m_glPanel->runICP();
-    m_nextICPFrame->Enable(true);
+//    m_nextICPFrame->Enable(true);
 }
 
 //------------------------------------------------------------------------------

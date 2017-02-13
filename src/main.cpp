@@ -1,12 +1,19 @@
 //==============================================================================
+// Naming convenction:
+// > '__' (double underscore) <=> private function/variable
+// > '_' (single underscore) <=> protected function/variable
+// > 'm_' <=> member function/variable
+// > methods starts from upper case letter
+// > variables starts from lower case letter
+// > both: methods and variables use camelcase
 //
+// Max line length: 80 digits.
 //==============================================================================
 // author: dybisz
 //------------------------------------------------------------------------------
 #include <GL/glew.h>
-#include "application/main_app.h"
-#include "application/main_frame.h"
-#include "rendering/gl_shader_program.h"
+#include "application/wx_main_app.h"
+#include "application/wx_main_frame.h"
 
 #define MAIN_WINDOW_WIDTH  1024
 #define MAIN_WINDOW_HEIGHT 768
@@ -14,18 +21,13 @@
 
 wxIMPLEMENT_APP(MainApp);
 
-bool initGLEW() {
-    glewExperimental = (GLboolean) true;
-    return glewInit() == GLEW_OK;
-}
-
 bool MainApp::OnInit() {
 
-    MainFrame *mainWindow = new MainFrame(MAIN_WINDOW_TITLE,
-                                          wxPoint(50, 50),
-                                          wxSize(MAIN_WINDOW_WIDTH,
-                                                 MAIN_WINDOW_HEIGHT));
-
+    MainFrame *mainWindow =
+            new MainFrame(MAIN_WINDOW_TITLE,
+                          wxPoint(50, 50),
+                          wxSize(MAIN_WINDOW_WIDTH,
+                                 MAIN_WINDOW_HEIGHT));
 
     mainWindow->Center();
     mainWindow->Show(true);

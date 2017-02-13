@@ -1,4 +1,4 @@
-#include "application/gl_plane.h"
+#include "application/wx_gl_plane.h"
 
 //------------------------------------------------------------------------------
 glPlane::glPlane(wxFrame *parent, int *args) : m_selectionChanged(true),

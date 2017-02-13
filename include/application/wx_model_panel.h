@@ -17,34 +17,6 @@ using namespace std;
 using namespace Eigen;
 
 class ModelPanel : public wxPanel {
-private:
-
-    wxTextCtrl *m_translationXText;
-    wxTextCtrl *m_translationYText;
-    wxTextCtrl *m_translationZText;
-    wxTextCtrl *m_rotationXText;
-    wxTextCtrl *m_rotationYText;
-    wxTextCtrl *m_rotationZText;
-    wxTextCtrl *m_scalingXText;
-    wxTextCtrl *m_scalingYText;
-    wxTextCtrl *m_scalingZText;
-    wxButton *m_introduceNoise;
-    wxTextCtrl *m_stddevText;
-    wxButton *m_moveCentroidButton;
-    wxCheckBox *m_normalsCheckbox;
-
-    void initializeTranslationBox(wxBoxSizer *parent);
-
-    void initializeRotationBox(wxBoxSizer *parent);
-
-    void initializeScalingBox(wxBoxSizer *parent);
-
-    void initializeNoiseBox(wxBoxSizer *parent);
-
-    void initializeMoveCentroidToOrigin(wxBoxSizer *parent);
-
-    void initializeNormalsBox(wxBoxSizer *parent);
-
 public:
     ModelPanel(wxWindow *parent, const wxPoint &pos);
 
@@ -65,6 +37,28 @@ public:
     Vector3f getScale();
 
     float getStdDev();
+
+private:
+    wxTextCtrl *__m_translationXText;
+    wxTextCtrl *__m_translationYText;
+    wxTextCtrl *__m_translationZText;
+    wxTextCtrl *__m_rotationXText;
+    wxTextCtrl *__m_rotationYText;
+    wxTextCtrl *__m_rotationZText;
+    wxTextCtrl *__m_scalingXText;
+    wxTextCtrl *__m_scalingYText;
+    wxTextCtrl *__m_scalingZText;
+    wxButton   *__m_introduceNoise;
+    wxTextCtrl *__m_stddevText;
+    wxButton   *__m_moveCentroidButton;
+    wxCheckBox *__m_normalsCheckbox;
+
+    void __InitializeTranslationBox(wxBoxSizer *parent);
+    void __InitializeRotationBox(wxBoxSizer *parent);
+    void __InitializeScalingBox(wxBoxSizer *parent);
+    void __InitializeNoiseBox(wxBoxSizer *parent);
+    void __InitializeMoveCentroidToOrigin(wxBoxSizer *parent);
+    void __InitializeNormalsBox(wxBoxSizer *parent);
 
 };
 

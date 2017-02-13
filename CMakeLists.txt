@@ -70,17 +70,16 @@ include_directories(3rdParty/nanoflann/include)
 include_directories(3rdParty/nanoflann/examples)
 set(SOURCE_FILES
         src/main.cpp
-        src/application/main_frame.cpp
-        src/application/gl_plane.cpp
+        src/application/wx_main_frame.cpp
+        src/application/wx_gl_plane.cpp
         src/rendering/gl_shader_program.cpp
         src/rendering/gl_box.cpp
         src/rendering/gl_camera.cpp
-        src/application/input.cpp
         src/rendering/gl_ply_model.cpp
         src/rendering/gl_coordinates_frame.cpp
         src/logic/icp_algorithm.cpp
         src/entities/points_cloud.cpp
-        src/application/model_panel.cpp)
+        src/application/wx_model_panel.cpp src/application/wx_icp_panel.cpp)
 
 #===============================================================================
 # Compile & Link

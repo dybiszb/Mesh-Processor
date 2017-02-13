@@ -31,7 +31,6 @@
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
 #include "rendering/gl_eigen.h"
-#include "application/input.h"
 #include "rendering/gl_ply_model.h"
 #include "rendering/gl_coordinates_frame.h"
 #include "logic/icp_algoriithm.h"
@@ -53,7 +52,6 @@ public:
     glCoordinatesFrame *coordinates;
     // Camera Stuff
     glOrbitCamera *camera;
-    Input input;
     clock_t start;
 
     bool dragging = false;

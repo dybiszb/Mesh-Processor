@@ -16,9 +16,10 @@
 #include <wx/treectrl.h>
 #include <wx/statline.h>
 #include <memory>
-#include "gl_plane.h"
+#include "wx_gl_plane.h"
 #include <iostream>
-#include "application/model_panel.h"
+#include "application/wx_model_panel.h"
+#include "application/wx_icp_panel.h"
 #include "rendering/gl_eigen.h"
 
 class MainFrame : public wxFrame {
@@ -31,11 +32,11 @@ public:
 
 private:
     glPlane *m_glPanel;
-    wxButton *m_nextICPFrame;
     wxTreeItemId m_meshesRoot;
     wxTreeCtrl *m_treeCtrl;
     ModelPanel *m_modelPanel;
-    wxSlider *m_icpSlider;
+
+    ICPPanel* m_icpPanel;
 
     wxStaticBitmap *m_meshesTitleBitmap;
     wxStaticBitmap *m_icpTitleBitmap;
@@ -113,7 +114,6 @@ enum {
     ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
     ID_MESHES_TREE_CTRL = wxID_HIGHEST + 5,
     ID_ICP_SLIDER = wxID_HIGHEST + 6,
-
 };
 
 
