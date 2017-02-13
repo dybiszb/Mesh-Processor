@@ -102,6 +102,8 @@ public:
 
     void runICP();
 
+    wxTreeItemId getCurrentICPBaseMeshId();
+
     /**
      * Initialize OpenGL context.
      */

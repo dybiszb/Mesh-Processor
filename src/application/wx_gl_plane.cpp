@@ -98,6 +98,17 @@ glPlane::runICP() {
     m_results = icp.pointToPointsICP(m1_pc, m2_pc);
 }
 
+
+//------------------------------------------------------------------------------
+wxTreeItemId
+glPlane::getCurrentICPBaseMeshId() {
+    // For all meshes check if any is a base
+    string s = "No mesh selected as a base for ICP Algorithm. Please select a"
+            " mesh and in 'Mesh Options' tick box that says 'Base for ICP'.";
+    throw s;
+}
+
+
 //------------------------------------------------------------------------------
 void
 glPlane::deleteMesh(const wxTreeItemId &item) {

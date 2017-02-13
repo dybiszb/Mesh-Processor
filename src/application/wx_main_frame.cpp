@@ -38,7 +38,7 @@ MainFrame::initializeMeshTree(wxBoxSizer *parent) {
 
     // Tree
     m_treeCtrl = new wxTreeCtrl(this, ID_MESHES_TREE_CTRL, wxDefaultPosition,
-                                wxSize(240, 100));
+                                wxSize(240, 50));
     m_treeCtrl->SetBackgroundColour(wxColour(255, 255, 255));
     m_meshesRoot = m_treeCtrl->AddRoot("Meshes");
     parent->Add(m_treeCtrl, 1, wxALL, 4);
@@ -168,11 +168,11 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 }
 
 //------------------------------------------------------------------------------
-void
-MainFrame::OnRunICP(wxCommandEvent &event) {
-    m_glPanel->runICP();
-//    m_nextICPFrame->Enable(true);
-}
+//void
+//MainFrame::OnRunICP(wxCommandEvent &event) {
+//    m_glPanel->runICP();
+////    m_nextICPFrame->Enable(true);
+//}
 
 //------------------------------------------------------------------------------
 void
@@ -188,10 +188,10 @@ MainFrame::OnMeshesTreeItemClicked(wxTreeEvent &event) {
 }
 
 //------------------------------------------------------------------------------
-void
-MainFrame::OnNextFrame(wxCommandEvent &event) {
-    m_glPanel->loadNextICPResult();
-}
+//void
+//MainFrame::OnNextFrame(wxCommandEvent &event) {
+//    m_glPanel->loadNextICPResult();
+//}
 
 //------------------------------------------------------------------------------
 void
@@ -239,7 +239,7 @@ MainFrame::OnIntroduceNoise(wxCommandEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
     float stdDev = m_modelPanel->getStdDev();
     m_glPanel->introduceNoise(selected, stdDev);
-    // TODO: reset ICP panel
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ MainFrame::OnNormalsCheckbox(wxCommandEvent &event) {
 void
 MainFrame::OnMoveCentroidToOrigin(wxCommandEvent &event) {
     m_glPanel->moveCurrentlySelectedCentroidToOrigin();
-    // TODO: Reset ICP panel
+    m_icpPanel->SetActive(false);
 };
 
 //------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ void
 MainFrame::OnTranslationEditing(wxCommandEvent &event) {
     Vector3f translation = m_modelPanel->getTranslation();
     m_glPanel->setCurrentlySelectedTranslation(translation);
-    // TODO: Reset ICP panel
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void
 MainFrame::OnRotationEditing(wxCommandEvent &event) {
     Matrix3f rotation = m_modelPanel->getRotation();
     m_glPanel->setCurrentlySelectedRotation(rotation);
-    // TODO: Reset ICP panel
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -278,16 +278,36 @@ MainFrame::OnScaleEditing(wxCommandEvent &event) {
     cout << "edit scaling\n";
     Vector3f scale = m_modelPanel->getScale();
     m_glPanel->setCurrentlySelectedScale(scale);
-    // TODO: Reset ICP panel
+    m_icpPanel->SetActive(false);
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnICPRun(wxCommandEvent &event) {
+    wxTreeItemId baseId;
+    try {
+        baseId = m_glPanel->getCurrentICPBaseMeshId();
+    }catch (string info) {
+        wxMessageBox(info, "No base Mesh.", wxICON_INFORMATION);
+        return;
+    }
+    m_icpPanel->SetActive(true);
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnICPReset(wxCommandEvent &event) {
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
-                EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
-                EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnNextFrame)
-
+                EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnICPRun)
+                EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnICPReset)
+                EVT_BUTTON (ID_RUN_ICP_BUTTON, MainFrame::OnICPRun)
+                EVT_BUTTON (ID_RESET_ICP_BUTTON, MainFrame::OnICPReset)
                 // Translation
                 EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_X,
                                MainFrame::OnTranslationEditing)

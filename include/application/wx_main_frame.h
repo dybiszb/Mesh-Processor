@@ -72,7 +72,7 @@ private:
      *
      * @param event
      */
-    void OnRunICP(wxCommandEvent &event);
+//    void OnRunICP(wxCommandEvent &event);
 
     /**
      *
@@ -84,7 +84,7 @@ private:
      *
      * @param event
      */
-    void OnNextFrame(wxCommandEvent &event);
+//    void OnNextFrame(wxCommandEvent &event);
 
     /**
      *
@@ -103,6 +103,10 @@ private:
     void OnRotationEditing(wxCommandEvent &event);
 
     void OnScaleEditing(wxCommandEvent &event);
+
+    void OnICPRun(wxCommandEvent &event);
+
+    void OnICPReset(wxCommandEvent &event);
 
 wxDECLARE_EVENT_TABLE();
 };
