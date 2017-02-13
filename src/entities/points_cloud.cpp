@@ -42,6 +42,14 @@ PointsCloud::getUpdatedVertices() {
 }
 
 //------------------------------------------------------------------------------
+PointsCloud::kdTreeT
+PointsCloud::getKdTreeOfUpdatedVertices() {
+    kdTreeT updatedVerticesKdTree(3, getUpdatedVertices() );
+    updatedVerticesKdTree.index->buildIndex();
+    return updatedVerticesKdTree;
+}
+
+//------------------------------------------------------------------------------
 void
 PointsCloud::setScale(const Vector3f& scale) {
     m_scale = scale;

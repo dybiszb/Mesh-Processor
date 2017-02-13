@@ -30,18 +30,22 @@ public:
     void OnShow(wxShowEvent &event);
 
 private:
-    glPlane* m_glPanel;
-    wxButton* m_nextICPFrame;
+    glPlane *m_glPanel;
+    wxButton *m_nextICPFrame;
     wxTreeItemId m_meshesRoot;
-    wxTreeCtrl* m_treeCtrl;
-    ModelPanel* m_modelPanel;
-    wxSlider* m_icpSlider;
+    wxTreeCtrl *m_treeCtrl;
+    ModelPanel *m_modelPanel;
+    wxSlider *m_icpSlider;
 
-    void initializeMeshTree(wxBoxSizer* parent);
+    wxStaticBitmap *m_meshesTitleBitmap;
+    wxStaticBitmap *m_icpTitleBitmap;
+    wxStaticBitmap *m_titleBitmap;
 
-    void initializeMeshOperationButton(wxBoxSizer* parent);
+    void initializeMeshTree(wxBoxSizer *parent);
 
-    void initializeICPPanel(wxBoxSizer* parent);
+    void initializeICPBox(wxBoxSizer *parent);
+
+    void initializeMeshOptionsBox(wxBoxSizer *parent);
 
     /**
      *
@@ -73,7 +77,7 @@ private:
      *
      * @param event
      */
-    void OnMeshesTreeItemClicked(wxTreeEvent& event);
+    void OnMeshesTreeItemClicked(wxTreeEvent &event);
 
     /**
      *
@@ -85,7 +89,9 @@ private:
      *
      * @param event
      */
-    void OnIdleWindow(wxIdleEvent& event);
+    void OnIdleWindow(wxIdleEvent &event);
+
+    void OnIntroduceNoise(wxCommandEvent &event);
 
 wxDECLARE_EVENT_TABLE();
 };
@@ -95,8 +101,8 @@ enum {
     ID_BUTTON_DELETE_MESH = wxID_HIGHEST + 2,
     ID_BUTTON_RUN_ICP = wxID_HIGHEST + 3,
     ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
-    ID_MESHES_TREE_CTRL  = wxID_HIGHEST + 5,
-    ID_ICP_SLIDER  = wxID_HIGHEST + 6,
+    ID_MESHES_TREE_CTRL = wxID_HIGHEST + 5,
+    ID_ICP_SLIDER = wxID_HIGHEST + 6,
     ID_TEXT_TRANSLATION_X = wxID_HIGHEST + 7,
     ID_TEXT_TRANSLATION_Y = wxID_HIGHEST + 8,
     ID_TEXT_TRANSLATION_Z = wxID_HIGHEST + 9,

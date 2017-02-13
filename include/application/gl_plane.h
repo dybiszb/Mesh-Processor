@@ -74,6 +74,10 @@ public:
     void setSelected(const wxTreeItemId& id, bool isSelected);
     void unselectAll();
     void deleteMesh(const wxTreeItemId &item);
+    void setRenderNormals(const wxTreeItemId &item, bool renderNormals);
+
+    void introduceNoise(const wxTreeItemId &item, const float stdDev);
+
     Vector3f getCurrentlySelectedTranslation();
     Vector3f getCurrentlySelectedRotation();
     Vector3f getCurrentlySelectedScaling();

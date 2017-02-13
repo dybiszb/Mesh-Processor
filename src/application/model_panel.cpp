@@ -5,12 +5,14 @@
 //------------------------------------------------------------------------------
 ModelPanel::ModelPanel(wxWindow *parent, const wxPoint &pos)
         : wxPanel(parent, wxID_ANY, pos, wxSize(-1, -1), wxBORDER_NONE) {
-
+    this->SetBackgroundColour(wxColour(255,255,255));
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
 
     initializeTranslationBox(vbox);
     initializeRotationBox(vbox);
     initializeScalingBox(vbox);
+    initializeNoiseBox(vbox);
 
     vbox->SetSizeHints(this);
     this->SetSizer(vbox);
@@ -81,6 +83,27 @@ ModelPanel::initializeScalingBox(wxBoxSizer* parent) {
 
 //----------------------------------------------------------------------------
 void
+ModelPanel::initializeNoiseBox(wxBoxSizer* parent) {
+    wxBoxSizer *hboxScaling = new wxBoxSizer(wxHORIZONTAL);
+
+    m_introduceNoise = new wxButton(this, ID_INTRODUCE_NOISE,
+               wxT("Introduce Noise"),wxPoint(-10, 10), wxSize(130, -1));
+
+    auto stdDevText = new wxStaticText(this, wxID_ANY, wxT(" std dev: "),
+                                        wxPoint(-10, 10), wxSize(62, 30));
+    m_stddevText = new wxTextCtrl(this, ID_STD_DEV_TEXT, wxString("1.0"),
+                                    wxDefaultPosition, wxSize(45, -1));
+
+    hboxScaling->Add(m_introduceNoise, 0, wxALL, 1);
+    hboxScaling->Add(stdDevText, 0, wxALIGN_CENTER_VERTICAL);
+    hboxScaling->Add(m_stddevText, 0, wxALL, 1);
+
+
+    parent->Add(hboxScaling, 1, wxALL, 0);
+}
+
+//----------------------------------------------------------------------------
+void
 ModelPanel::setActive(bool isActive) {
     m_translationXText->Enable(isActive);
     m_translationYText->Enable(isActive);
@@ -112,6 +135,12 @@ ModelPanel::setActive(bool isActive) {
         m_scalingZText->Clear();
     }
 
+    m_introduceNoise->Enable(isActive);
+    m_stddevText->Enable(isActive);
+
+//    if(!isActive) {
+//        m_stddevText->Clear();
+//    }
 }
 
 
@@ -170,4 +199,13 @@ ModelPanel::setScale(float x, float y, float z) {
         m_scalingZText->Clear();
         *m_scalingZText << z;
     }
+}
+
+//------------------------------------------------------------------------------
+float
+ModelPanel::getStdDev() {
+    double stdDev;
+    wxString val = m_stddevText->GetValue();
+    val.ToDouble(&stdDev);
+    return (float) stdDev;
 }

@@ -47,7 +47,7 @@ public:
     void setColor(const Vector4f &color);
 
     void setWireframe(bool isWireframed);
-
+    void setRenderNormals(bool renderNormals);
     unique_ptr<PointsCloud> m_pointsCloud;
 
     GLuint getVertexArrayId();
@@ -74,6 +74,7 @@ private:
     bool numberOfFacesFound = false;
     bool modelLoaded;
     bool m_isWireframed = true;
+    bool m_renderNormals = false;
     float m_scale = 1.0;
     GLuint vbo, vao, ebo, vbo_normals, vao_normals;
 

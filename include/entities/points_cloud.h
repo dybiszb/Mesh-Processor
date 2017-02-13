@@ -9,12 +9,17 @@
 #include <eigen3/Eigen/Geometry>
 #include <iostream>
 #include <vector>
+#include "nanoflann.hpp"
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 using namespace std;
 using namespace Eigen;
+using namespace nanoflann;
 
 class PointsCloud {
 public:
+    typedef vector<Vector3f> kdTreePointsT;
+    typedef KDTreeVectorOfVectorsAdaptor<kdTreePointsT, double> kdTreeT;
 
     /**
      *
@@ -54,15 +59,20 @@ public:
 
     /**
      *
+     */
+    kdTreeT getKdTreeOfUpdatedVertices();
+
+    /**
+     *
      * @param scale
      */
-    void setScale(const Vector3f& scale);
+    void setScale(const Vector3f &scale);
 
     /**
      *
      * @param rotation
      */
-    void setRotation(const Matrix3f& rotation);
+    void setRotation(const Matrix3f &rotation);
 
     /**
      * @return Rotation matrix of the cloud.

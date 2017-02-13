@@ -8,14 +8,14 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
     /* ----- Initialize OpenGL Plane ----- */
     int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
     m_glPanel = new glPlane((wxFrame *) this, args);
-
+    this->SetBackgroundColour(wxColour(51,51,51));
     /* ----- Initialize Left Panel ----- */
     auto leftPanel = new wxBoxSizer(wxVERTICAL);
+
     initializeMeshTree(leftPanel);
-    initializeMeshOperationButton(leftPanel);
-    initializeICPPanel(leftPanel);
-    m_modelPanel = new ModelPanel(this, wxPoint(-1, -1));
-    leftPanel->Add(m_modelPanel, 0, wxALL, 4);
+    initializeICPBox(leftPanel);
+    initializeMeshOptionsBox(leftPanel);
+
 
     /* ----- Initialize Layout ----- */
     auto vBox = new wxBoxSizer(wxHORIZONTAL);
@@ -28,42 +28,73 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos,
 //------------------------------------------------------------------------------
 void
 MainFrame::initializeMeshTree(wxBoxSizer *parent) {
+    // Title
+    m_meshesTitleBitmap = new wxStaticBitmap(
+            this, wxID_ANY,
+            wxBitmap("res/tex/loaded_meshes.png", wxBITMAP_TYPE_PNG),
+            wxPoint(0,0), wxSize(200, 30));
+    m_meshesTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
+    parent->Add(m_meshesTitleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
+
+    // Tree
     m_treeCtrl = new wxTreeCtrl(this, ID_MESHES_TREE_CTRL, wxDefaultPosition,
-                                wxSize(250, 100));
+                                wxSize(240, 100));
+    m_treeCtrl->SetBackgroundColour(wxColour(255,255,255));
     m_meshesRoot = m_treeCtrl->AddRoot("Meshes");
-    parent->Add(m_treeCtrl, 1, wxALIGN_TOP);
-}
+    parent->Add(m_treeCtrl, 1, wxALL, 4);
 
-//------------------------------------------------------------------------------
-void
-MainFrame::initializeMeshOperationButton(wxBoxSizer *parent) {
+    // Buttons
     auto hBox1 = new wxBoxSizer(wxHORIZONTAL);
-    auto hBox2 = new wxBoxSizer(wxHORIZONTAL);
-
     auto loadMeshButton = new wxButton(this, ID_BUTTON_LOAD_MESH,
                                        wxT("      Load Mesh      "));
     auto deleteMeshButton = new wxButton(this, ID_BUTTON_DELETE_MESH,
                                          wxT("      Delete Mesh    "));
+    hBox1->Add(loadMeshButton, 0, wxEXPAND);
+    hBox1->Add(deleteMeshButton, 0, wxEXPAND);
+    parent->Add(hBox1, 0, wxALIGN_TOP);
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::initializeICPBox(wxBoxSizer *parent) {
+    auto hBox2 = new wxBoxSizer(wxHORIZONTAL);
+    m_icpTitleBitmap = new wxStaticBitmap(
+            this, wxID_ANY,
+            wxBitmap("res/tex/icp_algorithm.png", wxBITMAP_TYPE_PNG),
+            wxPoint(0,0), wxSize(200, 30));
+    m_icpTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
+
+
     auto runICPButton = new wxButton(this, ID_BUTTON_RUN_ICP,
                                      wxT("           Run ICP        "));
     m_nextICPFrame = new wxButton(this, ID_BUTTON_NEXT_FRAME,
                                   wxT("        Next Frame    "));
     m_nextICPFrame->Enable(false);
-    hBox1->Add(loadMeshButton, 0, wxEXPAND);
-    hBox1->Add(deleteMeshButton, 0, wxEXPAND);
+
     hBox2->Add(runICPButton, 0, wxEXPAND);
     hBox2->Add(m_nextICPFrame, 0, wxEXPAND);
 
-    parent->Add(hBox1, 0, wxALIGN_TOP);
+    parent->Add(m_icpTitleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
     parent->Add(hBox2, 0, wxALIGN_TOP);
+
+    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
+                               wxPoint(10, 30), wxSize(140, -1));
+    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
+
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::initializeICPPanel(wxBoxSizer* parent) {
-    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
-                               wxPoint(10, 30), wxSize(140, -1));
-    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
+MainFrame::initializeMeshOptionsBox(wxBoxSizer* parent) {
+    m_titleBitmap = new wxStaticBitmap(
+            this, wxID_ANY,
+            wxBitmap("res/tex/mesh_options.png", wxBITMAP_TYPE_PNG),
+            wxPoint(0,0), wxSize(200, 30));
+    m_titleBitmap->SetBackgroundColour(this->GetBackgroundColour());
+    parent->Add(m_titleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
+
+    m_modelPanel = new ModelPanel(this, wxPoint(-1, -1));
+    parent->Add(m_modelPanel, 0, wxALL, 4);
 }
 
 //------------------------------------------------------------------------------
@@ -82,13 +113,14 @@ MainFrame::OnLoadMesh(wxCommandEvent &event) {
     }
 }
 
-
+//------------------------------------------------------------------------------
 void
 MainFrame::loadDefaultMesh() {
     string path = "./res/models/bunny/reconstruction/bun_zipper_res4.ply";
 
     wxTreeItemId id1 = appendMeshToTree(path);
     m_glPanel->loadMesh(path, id1);
+    m_glPanel->setRenderNormals(id1, true);
     wxTreeItemId id2 = appendMeshToTree(path);
 
     /* ----- Initialize shifted and rotated mesh ----- */
@@ -190,11 +222,20 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
 }
 
 //------------------------------------------------------------------------------
+void
+MainFrame::OnIntroduceNoise(wxCommandEvent &event) {
+    wxTreeItemId selected = m_treeCtrl->GetSelection();
+    float stdDev = m_modelPanel->getStdDev();
+    m_glPanel->introduceNoise(selected, stdDev);
+}
+
+//------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
                 EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::OnRunICP)
                 EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnNextFrame)
+                EVT_BUTTON (ID_INTRODUCE_NOISE, MainFrame::OnIntroduceNoise)
                 EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
                                         MainFrame::OnMeshesTreeItemClicked)
                 EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,

@@ -9,6 +9,12 @@ ICPAlgorithm::pointToPointsICP(PointsCloud m1,
     vector<ICPResults> results;
     const vector<Vector3f>& pointsP = m1.getUpdatedVertices();
 
+    // I know it is costly but happens only once and separated logic of
+    // updating vertices and constructing the tree.
+//    const PointsCloud::kdTreeT m1KdTree = m1.getKdTreeOfUpdatedVertices();
+
+
+
     for(int i = 0; i < 50; ++i) {
 
         const vector<Vector3f>& pointsQ = m2.getUpdatedVertices();

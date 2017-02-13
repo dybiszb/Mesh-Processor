@@ -72,37 +72,37 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
     //////////////////////////////////////////////////
     // Render Normals
     //////////////////////////////////////////////////
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    shader.use();
-    glBindVertexArray(vao_normals);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
-    glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
-                false);
-//
-    glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
-                 1,
-                 m_colorNormal.data());
+    if(m_renderNormals) {
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        shader.use();
+        glBindVertexArray(vao_normals);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+        glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
+                    false);
+        glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
+                     1,
+                     m_colorNormal.data());
 
-//    m_pointsCloud->setScale(Vector3f(0.1f, 0.1f, 0.1f));
-    Matrix4f modelMatrixNormal = computeModelMatrix();
+        Matrix4f modelMatrixNormal = computeModelMatrix();
 
 
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
-                       GL_FALSE, modelMatrixNormal.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_view"), 1,
-                       GL_FALSE, view.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
-                       GL_FALSE, projection.data());
-    glEnableVertexAttribArray(0);
-    glDrawArrays(GL_LINES, 0, (GLsizei) m_glNormalsLinesData.size());
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
+                           GL_FALSE, modelMatrixNormal.data());
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_view"), 1,
+                           GL_FALSE, view.data());
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
+                           GL_FALSE, projection.data());
+        glEnableVertexAttribArray(0);
+        glDrawArrays(GL_LINES, 0, (GLsizei) m_glNormalsLinesData.size());
 
-    //Clean
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glBindVertexArray(0);
-    glCheckForErrors();
-    shader.unuse();
-//    m_pointsCloud->setScale(Vector3f(1.0, 1.0, 1.0));
+        //Clean
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glBindVertexArray(0);
+        glCheckForErrors();
+        shader.unuse();
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -444,4 +444,10 @@ glPlyModel::setColor(const Vector4f &color) {
 void
 glPlyModel::setWireframe(bool isWireframed) {
     m_isWireframed = isWireframed;
+}
+
+//------------------------------------------------------------------------------
+void
+glPlyModel::setRenderNormals(bool renderNormals) {
+    m_renderNormals = renderNormals;
 }

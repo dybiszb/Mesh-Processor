@@ -96,6 +96,27 @@ glPlane::deleteMesh(const wxTreeItemId& item) {
 }
 
 //------------------------------------------------------------------------------
+void
+glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
+    if (meshes.count(item.GetID()) != 0){
+        (meshes[item.GetID()])->setRenderNormals(renderNormals);
+    } else {
+        cout << "Warning: Cannot find mesh id." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
+    if (meshes.count(item.GetID()) != 0){
+//        (meshes[item.GetID()])->setRenderNormals(renderNormals);
+        cout << "introducing noise with std dev: " << stdDev << endl;
+    } else {
+        cout << "Warning: Cannot find mesh id." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
 Vector3f
 glPlane::getCurrentlySelectedTranslation() {
     const glPlyModel* selectedModel;

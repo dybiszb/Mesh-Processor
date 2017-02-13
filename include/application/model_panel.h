@@ -10,8 +10,7 @@ using namespace std;
 
 class ModelPanel : public wxPanel {
 private:
-    wxButton *m_minusButton;
-    wxButton *m_plusButton;
+
     wxTextCtrl *m_translationXText;
     wxTextCtrl *m_translationYText;
     wxTextCtrl *m_translationZText;
@@ -21,6 +20,8 @@ private:
     wxTextCtrl *m_scalingXText;
     wxTextCtrl *m_scalingYText;
     wxTextCtrl *m_scalingZText;
+    wxButton *m_introduceNoise;
+    wxTextCtrl *m_stddevText;
 
     void initializeTranslationBox(wxBoxSizer *parent);
 
@@ -28,6 +29,7 @@ private:
 
     void initializeScalingBox(wxBoxSizer *parent);
 
+    void initializeNoiseBox(wxBoxSizer *parent);
 public:
     ModelPanel(wxWindow *parent, const wxPoint &pos);
 
@@ -38,6 +40,13 @@ public:
     void setRotation(float roll, float yaw, float pitch);
 
     void setScale(float x, float y, float z);
+
+    float getStdDev();
+};
+
+enum {
+    ID_INTRODUCE_NOISE = wxID_HIGHEST + 50,
+    ID_STD_DEV_TEXT = wxID_HIGHEST + 51
 };
 
 #endif

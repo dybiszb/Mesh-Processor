@@ -15,8 +15,7 @@ glCoordinatesFrame::glCoordinatesFrame() :
     initializeAxis(m_yAxisModel, m_yAxisColor, m_yAxisRotation);
     initializeAxis(m_zAxisModel, m_zAxisColor, m_zAxisRotation);
 
-    m_plane = unique_ptr<glPlyModel>(new glPlyModel("./res/models/plane"
-                                                              ".ply"));
+    m_plane = unique_ptr<glPlyModel>(new glPlyModel("./res/models/plane.ply"));
     m_plane->m_pointsCloud->setRotation(rotationMatrix(0.0f, 0.0f, 3.14f/2.0f));
     float sc = 0.1;
     Vector3f scale(sc, sc, sc);

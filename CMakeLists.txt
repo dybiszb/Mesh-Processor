@@ -66,7 +66,8 @@ include_directories(EIGEN3_INCLUDE_DIR)
 # Include Sources
 #-------------------------------------------------------------------------------
 include_directories(include)
-include_directories(3rdParty)
+include_directories(3rdParty/nanoflann/include)
+include_directories(3rdParty/nanoflann/examples)
 set(SOURCE_FILES
         src/main.cpp
         src/application/main_frame.cpp
