@@ -38,7 +38,7 @@ public:
     ~glPlyModel();
 
     void render(glShaderProgram &shader, Matrix4f &view,
-                Matrix4f &projection);
+                Matrix4f &projection, glShaderProgram* normalsViz = NULL);
 
 
     void printInformation();
@@ -52,6 +52,9 @@ public:
     void setRenderNormals(bool renderNormals);
 
     bool getRenderNormals();
+
+    void setShading(bool shading);
+    bool getShading();
 
     void introduceGaussianNoise(float mean, float stdDev);
 
@@ -88,8 +91,11 @@ private:
     bool m_isWireframed = true;
     bool m_renderNormals = false;
     bool m_isICPBased = false;
+    bool __m_shading = false;
     float m_scale = 1.0;
-    GLuint vbo, vao, ebo, vbo_normals, vao_normals;
+    GLuint vbo, vao, ebo;
+    GLuint vbo_normals, vao_normals;
+    GLuint vaoShading, eboShading, vboshading;
 
     void loadModel(string &path);
 

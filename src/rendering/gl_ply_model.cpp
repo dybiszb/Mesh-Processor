@@ -33,47 +33,51 @@ glPlyModel::getVertexArrayId() {
 
 //------------------------------------------------------------------------------
 void
-glPlyModel::render(glShaderProgram &shader, Matrix4f &view,
-                   Matrix4f &projection) {
+glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
+&projection, glShaderProgram* normalsViz) {
     if(m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glShaderProgram* currShdr;
+    if(__m_shading && normalsViz != NULL && m_glNormalsLinesData.size()) {
+        currShdr = normalsViz;
+        glBindVertexArray(vaoShading);
+    } else {
+        currShdr = &shader;
+        glBindVertexArray(vao);
+    }
+        currShdr->use();
 
-    shader.use();
+        Matrix4f modelMatrix = computeModelMatrix();
 
-    glBindVertexArray(vao);
+        glUniform1i(glGetUniformLocation(currShdr->getId(), "u_isSelected"),
+                    m_isSelected);
+        glCheckForErrors();
+        glUniform4fv(glGetUniformLocation(currShdr->getId(), "u_color"),
+                     1,
+                     m_color.data());
 
-    Matrix4f modelMatrix = computeModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(currShdr->getId(), "u_model"), 1,
+                           GL_FALSE, modelMatrix.data());
 
-    glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
-                m_isSelected);
+        glUniformMatrix4fv(glGetUniformLocation(currShdr->getId(), "u_view"), 1,
+                           GL_FALSE, view.data());
+        glCheckForErrors();
+        glUniformMatrix4fv(glGetUniformLocation(currShdr->getId(), "u_projection"), 1,
+                           GL_FALSE, projection.data());
+        glCheckForErrors();
+        glDrawElements(GL_TRIANGLES,
+                       (GLsizei) (glFaces2.size()) /*3*numberOfFaces*/,
+                       GL_UNSIGNED_INT,
+                       0);
+        //Clean
 
-    glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
-                 1,
-                 m_color.data());
-
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
-                       GL_FALSE, modelMatrix.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_view"), 1,
-                       GL_FALSE, view.data());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
-                       GL_FALSE, projection.data());
-
-    glDrawElements(GL_TRIANGLES,
-                   (GLsizei) (glFaces2.size()) /*3*numberOfFaces*/,
-                   GL_UNSIGNED_INT,
-                   0);
-    //Clean
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    currShdr->unuse();
+    currShdr = NULL;
     glBindVertexArray(0);
-    glCheckForErrors();
-    shader.unuse();
-
     //////////////////////////////////////////////////
     // Render Normals
     //////////////////////////////////////////////////
     if(m_renderNormals) {
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         shader.use();
         glBindVertexArray(vao_normals);
         glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
@@ -362,11 +366,46 @@ glPlyModel::loadOpenGLData() {
                  &glFaces2[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
                           (GLvoid *) 0);
-    //Clean
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    //Clean
+
+    glBindVertexArray(0);
+
+    glCheckForErrors();
+
+    //////////////////////////////////////
+    // Shading
+    //////////////////////////////////////
+    // Init Buffers
+    glGenVertexArrays(1, &vaoShading);
+    glGenBuffers(1, &vboshading);
+    glGenBuffers(1, &eboShading);
+    glCheckForErrors();
+
+    // Init Vertices/Indices
+    glBindVertexArray(vaoShading);
+    glBindBuffer(GL_ARRAY_BUFFER, vboshading);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_glNormalsLinesData.size() * sizeof(GLfloat),
+                 &m_glNormalsLinesData[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    // Normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    glCheckForErrors();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboShading);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 glFaces2.size() * sizeof(GLuint),
+                 &glFaces2[0],
+                 GL_STATIC_DRAW);
+    glCheckForErrors();
+
+    //Clean
     glBindVertexArray(0);
 
     glCheckForErrors();
@@ -384,11 +423,10 @@ glPlyModel::loadOpenGLData() {
                  &m_glNormalsLinesData[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
                           (GLvoid *) 0);
-    //Clean
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    //Clean
     glBindVertexArray(0);
 }
 
@@ -461,6 +499,19 @@ bool
 glPlyModel::getRenderNormals() {
     return m_renderNormals;
 }
+
+//------------------------------------------------------------------------------
+void
+glPlyModel::setShading(bool shading) {
+    __m_shading = shading;
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlyModel::getShading() {
+    return __m_shading;
+}
+
 
 //------------------------------------------------------------------------------
 void

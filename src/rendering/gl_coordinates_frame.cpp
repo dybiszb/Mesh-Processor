@@ -42,7 +42,6 @@ void
 glCoordinatesFrame::render(glShaderProgram &shader,
                            Matrix4f &view,
                            Matrix4f &projection) {
-
     m_plane->render(shader, view, projection);
     m_xAxisModel->render(shader, view, projection);
     m_yAxisModel->render(shader, view, projection);

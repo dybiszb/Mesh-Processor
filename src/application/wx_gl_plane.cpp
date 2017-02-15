@@ -19,6 +19,7 @@ glPlane::glPlane(wxFrame *parent, int *args) : m_selectionChanged(true),
 glPlane::~glPlane() {
     delete mesh;
     delete mainShader;
+    delete __m_normalsVisualizationShader;
     delete coordinates;
     delete camera;
     delete m_context;
@@ -305,6 +306,10 @@ glPlane::initializeGLContextIfNotReady() {
                 ("./res/shaders/default_shader.vert",
                  "./res/shaders/default_shader.frag");
 
+        __m_normalsVisualizationShader = new glShaderProgram
+                ("./res/shaders/normals_visualization.vert",
+                 "./res/shaders/normals_visualization.frag");
+
         camera = new glOrbitCamera();
         coordinates = new glCoordinatesFrame();
         // Perspective Matrix
@@ -380,15 +385,17 @@ glPlane::render(wxPaintEvent &evt) {
     wxPaintDC(this);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // Render Coordinates
     coordinates->render(*mainShader, camera->getViewMatrix(), projection);
 
     // Render Meshes
     for (auto const &mesh : meshes) {
-        (mesh.second)->render(*mainShader, camera->getViewMatrix(), projection);
+        (mesh.second)->setShading(true); // TODO: temp
+        (mesh.second)->render(*mainShader,
+                              camera->getViewMatrix(),
+                              projection,
+                              __m_normalsVisualizationShader);
     }
-
     glFlush();
     SwapBuffers();
     Refresh();

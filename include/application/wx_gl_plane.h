@@ -46,6 +46,7 @@ public:
     map<wxTreeItemId, unique_ptr<glPlyModel>> meshes;
     bool glReady;
     glShaderProgram *mainShader;
+    glShaderProgram *__m_normalsVisualizationShader;
     glPlyModel *mesh;
     vector<wxTreeItemId> tempModelsIndices;
     Matrix4f projection;
