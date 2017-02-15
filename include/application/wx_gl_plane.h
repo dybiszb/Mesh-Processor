@@ -83,6 +83,8 @@ public:
 
     void setCurrentlySelectedRenderNormals(bool renderNormals);
     void setCurrentlySelectedAsICPBaseMesh(bool icpBase);
+    void setCurrentlySelectedWireframe(bool wireframe);
+
     void introduceNoise(const wxTreeItemId &item, const float stdDev);
 
     void moveCurrentlySelectedCentroidToOrigin();
@@ -98,6 +100,7 @@ public:
     Vector3f getCurrentlySelectedScaling();
 
     bool getCurrentlySelectedShowNormals();
+    bool getCurrentlySelectedWireframe();
     bool getCurrentlySelectedICPBase();
     bool isAnyModelSelected();
 

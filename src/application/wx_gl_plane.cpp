@@ -175,6 +175,16 @@ glPlane::setCurrentlySelectedAsICPBaseMesh(bool icpBase) {
 
 //------------------------------------------------------------------------------
 void
+glPlane::setCurrentlySelectedWireframe(bool wireframe) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->setWireframe(wireframe);
+}
+
+//------------------------------------------------------------------------------
+void
 glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
     if (meshes.count(item.GetID()) != 0) {
         (meshes[item.GetID()])->introduceGaussianNoise(0.0f, stdDev);
@@ -261,6 +271,16 @@ glPlane::getCurrentlySelectedShowNormals() {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else false;
     return selectedModel->getRenderNormals();
+}
+
+//------------------------------------------------------------------------------
+bool
+glPlane::getCurrentlySelectedWireframe() {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else false;
+    return selectedModel->getWireframe();
 }
 
 //------------------------------------------------------------------------------

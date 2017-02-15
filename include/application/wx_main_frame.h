@@ -110,6 +110,8 @@ private:
 
     void OnICPReset(wxCommandEvent &event);
 
+    void OnWireframe(wxCommandEvent &event);
+
 wxDECLARE_EVENT_TABLE();
 };
 

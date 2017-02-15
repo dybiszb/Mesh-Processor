@@ -151,9 +151,16 @@ ModelPanel::__InitializeBottomCheckboxes(wxBoxSizer *parent) {
             "Approximated Normals");
     parent->Add(__m_normalsCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
 
+    // TODO: shading checkbox to the same hbox
+    __m_wireframeCheckbox = new wxCheckBox(this, ID_CHECKBOX_WIREFRAME,
+                                           "Wireframe");
+    parent->Add(__m_wireframeCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+
     __m_icpBaseCheckbox = new wxCheckBox(this, ID_CHECKBOX_ICP_BASE, "Base "
             "for ICP");
     parent->Add(__m_icpBaseCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -191,11 +198,10 @@ ModelPanel::setActive(bool isActive) {
 
     __m_introduceNoise->Enable(isActive);
     __m_stddevText->Enable(isActive);
-
     __m_moveCentroidButton->Enable(isActive);
     __m_normalsCheckbox->Enable(isActive);
     __m_icpBaseCheckbox->Enable(isActive);
-
+    __m_wireframeCheckbox->Enable(isActive);
 }
 
 
@@ -261,6 +267,14 @@ void
 ModelPanel::setShowNormals(bool showNormals) {
     if (__m_normalsCheckbox) {
         __m_normalsCheckbox->SetValue(showNormals);
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+ModelPanel::setWireframe(bool wireframe) {
+    if(__m_wireframeCheckbox) {
+        __m_wireframeCheckbox->SetValue(!wireframe);
     }
 }
 

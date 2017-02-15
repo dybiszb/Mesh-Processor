@@ -56,6 +56,7 @@ public:
     void setShading(bool shading);
     bool getShading();
 
+    bool getWireframe();
     void introduceGaussianNoise(float mean, float stdDev);
 
     void moveCentroidToOrigin();

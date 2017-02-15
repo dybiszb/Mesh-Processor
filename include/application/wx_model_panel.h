@@ -30,6 +30,8 @@ public:
 
     void setShowNormals(bool showNormals);
 
+    void setWireframe(bool wireframe);
+
     void setICPBase(bool icpBase);
 
     Vector3f getTranslation();
@@ -55,6 +57,7 @@ private:
     wxButton   *__m_moveCentroidButton;
     wxCheckBox *__m_normalsCheckbox;
     wxCheckBox *__m_icpBaseCheckbox;
+    wxCheckBox *__m_wireframeCheckbox;
 
     void __InitializeTranslationBox(wxBoxSizer *parent);
     void __InitializeRotationBox(wxBoxSizer *parent);
@@ -80,6 +83,7 @@ enum {
     ID_TEXT_SCALING_Y = wxID_HIGHEST + 61,
     ID_TEXT_SCALING_Z = wxID_HIGHEST + 62,
     ID_CHECKBOX_ICP_BASE = wxID_HIGHEST + 63,
+    ID_CHECKBOX_WIREFRAME = wxID_HIGHEST + 64,
 };
 
 #endif

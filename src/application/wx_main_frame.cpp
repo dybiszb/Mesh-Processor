@@ -227,6 +227,10 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
             bool showNormals = m_glPanel->getCurrentlySelectedShowNormals();
             m_modelPanel->setShowNormals(showNormals);
 
+            /* ----- Normals ----- */
+            bool wireframe = m_glPanel->getCurrentlySelectedWireframe();
+            m_modelPanel->setWireframe(wireframe);
+
             /* ----- ICP Base ----- */
             bool icpBase = m_glPanel->getCurrentlySelectedICPBase();
             m_modelPanel->setICPBase(icpBase);
@@ -321,6 +325,14 @@ MainFrame::OnICPReset(wxCommandEvent &event) {
 }
 
 //------------------------------------------------------------------------------
+void
+MainFrame::OnWireframe(wxCommandEvent &event) {
+    cout << "click"<<endl;
+    wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
+    m_glPanel->setCurrentlySelectedWireframe(!source->IsChecked());
+}
+
+//------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
@@ -357,6 +369,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                             MainFrame::OnMoveCentroidToOrigin)
                 EVT_CHECKBOX(ID_CHECKBOX_NORMALS, MainFrame::OnNormalsCheckbox)
                 EVT_CHECKBOX(ID_CHECKBOX_ICP_BASE, MainFrame::OnICPBaseCheckbox)
+                EVT_CHECKBOX(ID_CHECKBOX_WIREFRAME, MainFrame::OnWireframe)
                 EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
                                         MainFrame::OnMeshesTreeItemClicked)
                 EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,
