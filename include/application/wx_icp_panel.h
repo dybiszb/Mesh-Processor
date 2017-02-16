@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include "logic/icp_algoriithm.h"
+#include <ctime>
 
 using namespace std;
 
@@ -19,7 +20,20 @@ public:
      * @param frame Current frame number.
      * @param outOf Maximum number of frames.
      */
-    void SetFramesRate(int frame, int outOf);
+    void SetFramesRate(int frame, unsigned long outOf);
+
+    /**
+     * Updates the label with computation time of ICP algorithm.
+     *
+     * @param time New computation time.
+     */
+    void SetComputationTime(double time);
+
+    // TODO: excpt etc
+    const ICPResults& NextFrame();
+
+    // TODO
+    const ICPResults& PrevFrame();
 
     /**
      * Dim all widgets that are useless without the ICP results or activate
@@ -49,8 +63,8 @@ private:
 
     /* ----- ICP Results ----- */
     ICPAlgorithm       __m_icpAlgorithm;
-    unsigned int       __m_lastIndex;
-    unsigned int       __m_currentIndex;
+    int                __m_lastIndex;
+    int                __m_currentIndex;
     vector<ICPResults> __m_results;
 
     /* ----- Widgets Initializations ----- */
@@ -66,5 +80,7 @@ enum {
     ID_ANIMATION_SLIDER = wxID_HIGHEST + 100,
     ID_RUN_ICP_BUTTON   = wxID_HIGHEST + 101,
     ID_RESET_ICP_BUTTON = wxID_HIGHEST + 102,
+    ID_NEXT_PREV_ICP_BUTTON = wxID_HIGHEST + 103,
+    ID_NEXT_FRAME_ICP_BUTTON = wxID_HIGHEST + 104,
 };
 #endif

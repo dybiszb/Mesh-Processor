@@ -37,7 +37,6 @@ ICPAlgorithm::pointToPointsICP(PointsCloud m1,
         m2.accumulateTranslation(t);
     }
 
-    std::reverse(results.begin(), results.end());
     return results;
 }
 

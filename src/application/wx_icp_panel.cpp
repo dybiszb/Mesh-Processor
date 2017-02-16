@@ -10,9 +10,9 @@ ICPPanel::ICPPanel(wxWindow *parent, const wxPoint &pos)
     this->SetBackgroundColour(wxColour(255, 255, 255));
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
+    __InitializeNextPrevBox(vbox);
     __InitializeAnimationSliderBox(vbox);
     __InitializeFramesAndTimeBox(vbox);
-    __InitializeNextPrevBox(vbox);
     __InitializeResetBox(vbox);
     __InitializeICPTypeBox(vbox);
 
@@ -23,44 +23,88 @@ ICPPanel::ICPPanel(wxWindow *parent, const wxPoint &pos)
 
 //------------------------------------------------------------------------------
 void
-ICPPanel::SetFramesRate(int frame, int outOf) {
-    stringstream ss;
-    ss << "Frames: " << frame << "/" << outOf;
-    __m_framesRateText->SetLabel(ss.str());
-}
+ICPPanel::SetActive(bool isActive) { // TODO: fix indices and change this enable
+    if (__m_previousFrameButton) __m_previousFrameButton->Enable(false);
+    if (__m_nextFrameButton) __m_nextFrameButton->Enable(isActive);
+    if (__m_animationSlider) __m_animationSlider->Enable(isActive);
+    if (__m_resetButton) __m_resetButton->Enable(isActive);
 
-//------------------------------------------------------------------------------
-void
-ICPPanel::SetActive(bool isActive) {
-    if(__m_animationSlider) __m_animationSlider->Enable(isActive);
-    if(__m_resetButton) __m_resetButton->Enable(isActive);
-
-    if(__m_framesRateText) {
-        if(!isActive) SetFramesRate(0,0);
+    if (__m_framesRateText) {
+        if (!isActive) SetFramesRate(0, 0);
         __m_framesRateText->Enable(isActive);
     }
 
-    if(__m_timeText) {
+    if (__m_timeText) {
+        if(!isActive) SetComputationTime(0);
         __m_timeText->Enable(isActive);
     }
-
-    __m_results.clear();
-    __m_lastIndex = 0;
-    __m_currentIndex = 0;
+    if (!isActive) {
+        __m_results.clear();
+        __m_lastIndex = 0;
+        __m_currentIndex = 0;
+    }
 
     // Opposite actions for run button and the radio box
-    if(__m_runButton) __m_runButton->Enable(!isActive);
-    if(__m_icpTypeRadioBox) __m_icpTypeRadioBox->Enable(!isActive);
+    if (__m_runButton) __m_runButton->Enable(!isActive);
+    if (__m_icpTypeRadioBox) __m_icpTypeRadioBox->Enable(!isActive);
 }
 
 //------------------------------------------------------------------------------
 void
-ICPPanel::RunICP(const PointsCloud& m1PC, const PointsCloud& m2PC) {
+ICPPanel::SetFramesRate(int frame, unsigned long outOf) {
+    string s = "Iterations: " + to_string(frame) + "/" + to_string(outOf);
+    __m_framesRateText->SetLabel(s);
+
+    // Update slider
+    __m_animationSlider->SetRange(0, (int) outOf);
+    __m_animationSlider->SetTickFreq(1);
+    __m_animationSlider->SetValue(frame);
+    __m_animationSlider->Refresh();
+}
+
+//------------------------------------------------------------------------------
+void
+ICPPanel::SetComputationTime(double time) {
+    string s = "Comp. Time: " + to_string(time) + " [s]";
+    __m_timeText->SetLabel(s);
+}
+
+//------------------------------------------------------------------------------
+const ICPResults &
+ICPPanel::NextFrame() {
+    if (__m_currentIndex >= __m_results.size()) {
+        string errInfo = "ICPResults out of scope";
+        throw errInfo;
+    }
+    SetFramesRate(__m_currentIndex+1, __m_results.size());
+    return __m_results[__m_currentIndex++];
+}
+
+//------------------------------------------------------------------------------
+const ICPResults &
+ICPPanel::PrevFrame() {
+    if ((__m_currentIndex) < 0) {
+        string errInfo = "ICPResults out of scope";
+        throw errInfo;
+    }
+    SetFramesRate(__m_currentIndex, __m_results.size());
+    int temp = __m_currentIndex -1;
+    __m_currentIndex--;
+    return __m_results[temp];
+}
+
+//------------------------------------------------------------------------------
+void
+ICPPanel::RunICP(const PointsCloud &m1PC, const PointsCloud &m2PC) {
+    clock_t begin = clock();
     __m_results = __m_icpAlgorithm.pointToPointsICP(m1PC, m2PC);
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
     // Update Widgets
     SetActive(true);
-    SetFramesRate(0, (int) __m_results.size());
+    SetFramesRate(0, __m_results.size());
+    SetComputationTime(elapsed_secs);
 }
 
 //------------------------------------------------------------------------------
@@ -76,14 +120,14 @@ ICPPanel::__InitializeAnimationSliderBox(wxBoxSizer *parent) {
 void
 ICPPanel::__InitializeFramesAndTimeBox(wxBoxSizer *parent) {
     __m_framesRateText = new wxStaticText(this, wxID_ANY,
-                                          wxT("Frames: 0/0 "),
+                                          wxT("Iterations: 0/0 "),
                                           wxPoint(-10, 10),
                                           wxSize(200, 20));
 
     __m_timeText = new wxStaticText(this, wxID_ANY,
-                                          wxT("Time: 0 [ms]"),
-                                          wxPoint(-10, 10),
-                                          wxSize(200, 20));
+                                    wxT("Comp. Time: 0 [s]"),
+                                    wxPoint(-10, 10),
+                                    wxSize(200, 20));
 
     parent->Add(__m_framesRateText, 0, wxALIGN_CENTER_HORIZONTAL, 1);
     parent->Add(__m_timeText, 0, wxALIGN_CENTER_HORIZONTAL, 1);
@@ -92,7 +136,16 @@ ICPPanel::__InitializeFramesAndTimeBox(wxBoxSizer *parent) {
 //------------------------------------------------------------------------------
 void
 ICPPanel::__InitializeNextPrevBox(wxBoxSizer *parent) {
-
+    auto hbox = new wxBoxSizer(wxHORIZONTAL);
+    __m_nextFrameButton = new wxButton(this, ID_NEXT_FRAME_ICP_BUTTON,
+                                       wxT("Next Frame"), wxPoint
+                                               (-10, 10), wxSize(121, -1));
+    __m_previousFrameButton = new wxButton(this, ID_NEXT_PREV_ICP_BUTTON,
+                                           wxT("Previous Frame"), wxPoint
+                                                   (-10, 10), wxSize(121, -1));
+    hbox->Add(__m_previousFrameButton, 0, wxEXPAND);
+    hbox->Add(__m_nextFrameButton, 0, wxEXPAND);
+    parent->Add(hbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
 }
 
 //------------------------------------------------------------------------------
@@ -119,7 +172,7 @@ ICPPanel::__InitializeICPTypeBox(wxBoxSizer *parent) {
 
     // Buttons
     __m_runButton = new wxButton(this, ID_RUN_ICP_BUTTON, wxT("Run"), wxPoint
-                                         (-10, 10), wxSize(80, -1));
+            (-10, 10), wxSize(80, -1));
     __m_resetButton = new wxButton(this, ID_RESET_ICP_BUTTON, wxT("Reset"),
                                    wxPoint(-10, 10), wxSize(80, -1));
     rightVbox->Add(__m_runButton, 0, wxALL, 1);

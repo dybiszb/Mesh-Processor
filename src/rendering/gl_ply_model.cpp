@@ -37,6 +37,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
 &projection, glShaderProgram* normalsViz) {
     if(m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glShaderProgram* currShdr;
     if(__m_shading && normalsViz != NULL && m_glNormalsLinesData.size()) {
         currShdr = normalsViz;

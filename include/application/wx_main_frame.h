@@ -112,6 +112,9 @@ private:
 
     void OnWireframe(wxCommandEvent &event);
 
+    void OnPrevFrameICP(wxCommandEvent &event);
+    void OnNextFrameICP(wxCommandEvent &event);
+
 wxDECLARE_EVENT_TABLE();
 };
 

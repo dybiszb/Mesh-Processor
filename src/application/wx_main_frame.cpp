@@ -66,22 +66,7 @@ MainFrame::initializeICPBox(wxBoxSizer *parent) {
             wxPoint(0, 0), wxSize(200, 30));
     m_icpTitleBitmap->SetBackgroundColour(this->GetBackgroundColour());
 
-
-//    auto runICPButton = new wxButton(this, ID_BUTTON_RUN_ICP,
-//                                     wxT("           Run ICP        "));
-//    m_nextICPFrame = new wxButton(this, ID_BUTTON_NEXT_FRAME,
-//                                  wxT("        Next Frame    "));
-//    m_nextICPFrame->Enable(false);
-//
-//    hBox2->Add(runICPButton, 0, wxEXPAND);
-//    hBox2->Add(m_nextICPFrame, 0, wxEXPAND);
-
     parent->Add(m_icpTitleBitmap, 0, wxALIGN_CENTER_HORIZONTAL);
-//    parent->Add(hBox2, 0, wxALIGN_TOP);
-//
-//    m_icpSlider = new wxSlider(this, ID_ICP_SLIDER, 0, 0, 100,
-//                               wxPoint(10, 30), wxSize(140, -1));
-//    parent->Add(m_icpSlider, 0, wxALIGN_TOP);
 
     m_icpPanel = new ICPPanel(this, wxPoint(-1, -1));
     parent->Add(m_icpPanel, 0, wxALL, 4);
@@ -179,12 +164,15 @@ void
 MainFrame::OnMeshesTreeItemClicked(wxTreeEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
 
-    // Act only if not root
+    // Act only if not a root
     if (selected.GetID() != m_meshesRoot.GetID()) {
         m_glPanel->setSelected(selected, true);
     } else {
         m_glPanel->unselectAll();
     }
+
+    // Reset ICP panel
+    m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -310,12 +298,27 @@ MainFrame::OnICPRun(wxCommandEvent &event) {
         return;
     }
     try {
-
+        selectedId = m_glPanel->getCurrentlySelected();
     } catch(string info) {
-
+        wxMessageBox(info, "No mesh selected.", wxICON_INFORMATION);
+        return;
     }
 
-    m_icpPanel->SetActive(true);
+    if(selectedId.GetID() == baseId.GetID()) {
+        string info = "Base mesh for ICP is the same as selected one. Please "
+                "chage it.";
+        wxMessageBox(info, "The same mesh.", wxICON_INFORMATION);
+        return;
+    }
+    try {
+        const PointsCloud basePC = m_glPanel->getMeshCloudById(baseId);
+        const PointsCloud selectedPC = m_glPanel->getMeshCloudById(selectedId);
+        m_icpPanel->RunICP(basePC, selectedPC);
+    } catch (string info) {
+        wxMessageBox(info, "Wrong id", wxICON_INFORMATION);
+        return;
+    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -333,6 +336,30 @@ MainFrame::OnWireframe(wxCommandEvent &event) {
 }
 
 //------------------------------------------------------------------------------
+void
+MainFrame::OnPrevFrameICP(wxCommandEvent &event) {
+    try {
+        ICPResults prevFrame = m_icpPanel->PrevFrame();
+        prevFrame.m_t = - prevFrame.m_t;
+        prevFrame.m_R = prevFrame.m_R.inverse();
+        m_glPanel->setCurrentlySelectedICPResult(prevFrame);
+    } catch(string info) {
+        return;
+    }
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnNextFrameICP(wxCommandEvent &event) {
+    try {
+        ICPResults nextFrame = m_icpPanel->NextFrame();
+        m_glPanel->setCurrentlySelectedICPResult(nextFrame);
+    } catch(string info) {
+        return;
+    }
+}
+
+//------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::OnLoadMesh)
                 EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::OnDeleteMesh)
@@ -340,6 +367,10 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::OnICPReset)
                 EVT_BUTTON (ID_RUN_ICP_BUTTON, MainFrame::OnICPRun)
                 EVT_BUTTON (ID_RESET_ICP_BUTTON, MainFrame::OnICPReset)
+
+                EVT_BUTTON (ID_NEXT_FRAME_ICP_BUTTON, MainFrame::OnNextFrameICP)
+                EVT_BUTTON (ID_NEXT_PREV_ICP_BUTTON, MainFrame::OnPrevFrameICP)
+
                 // Translation
                 EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_X,
                                MainFrame::OnTranslationEditing)

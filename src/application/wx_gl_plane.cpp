@@ -58,6 +58,12 @@ glPlane::setSelected(const wxTreeItemId &id, bool isSelected) {
 //------------------------------------------------------------------------------
 wxTreeItemId
 glPlane::getCurrentlySelected() {
+    if(!m_currentlySelectedId) {
+        string errorInfo = "No mesh selected. Please right click on one of "
+                "the mesh in the tree view. Please do not select the one that"
+                " was selected as a base for ICP algorithm.";
+        throw errorInfo;
+    }
     return m_currentlySelectedId;
 }
 
@@ -71,18 +77,20 @@ glPlane::unselectAll() {
     m_selectionChanged = true;
 }
 
-// TODO: DELETE
-void glPlane::loadNextICPResult() {
-    if (m_results.size() < 1) {
-        cout << "out of frames\n";
-        return;
-    }
-    ICPResults res = m_results.back();
-    wxTreeItemId m2ID = tempModelsIndices[1];
-    (meshes[m2ID])->m_pointsCloud->accumulateRotation(res.m_R);
-    (meshes[m2ID])->m_pointsCloud->accumulateTranslation(res.m_t);
+void glPlane::loadICPResult(const wxTreeItemId& id, const ICPResults& result) {
+    (meshes[id.GetID()])->m_pointsCloud->accumulateRotation(result.m_R);
+    (meshes[id.GetID()])->m_pointsCloud->accumulateTranslation(result.m_t);
+}
 
-    m_results.pop_back();
+void
+glPlane::setCurrentlySelectedICPResult(const ICPResults& result) {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    cout << "setting\nM_t\n"<< result.m_t << "\nM_R\n" << result.m_R << endl;
+    selectedModel->m_pointsCloud->accumulateRotation(result.m_R);
+    selectedModel->m_pointsCloud->accumulateTranslation(result.m_t);
 }
 
 //------------------------------------------------------------------------------
@@ -300,6 +308,17 @@ glPlane::isAnyModelSelected() {
 }
 
 //------------------------------------------------------------------------------
+const PointsCloud&
+glPlane::getMeshCloudById(const wxTreeItemId& id) {
+    if (meshes.count(id.GetID()) != 0) {
+        return *(meshes[id.GetID()])->m_pointsCloud.get();
+    } else {
+        string errorInfo = "No mesh with provided id found.";
+        throw errorInfo;
+    }
+}
+
+//------------------------------------------------------------------------------
 void
 glPlane::initializeGLEW() {
     glewExperimental = GL_TRUE;
@@ -410,7 +429,6 @@ glPlane::render(wxPaintEvent &evt) {
 
     // Render Meshes
     for (auto const &mesh : meshes) {
-        (mesh.second)->setShading(true); // TODO: temp
         (mesh.second)->render(*mainShader,
                               camera->getViewMatrix(),
                               projection,

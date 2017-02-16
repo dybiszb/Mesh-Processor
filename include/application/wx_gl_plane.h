@@ -62,11 +62,11 @@ public:
     bool m_selectionChanged;
 
     glPlane(wxFrame *parent, int *args);
-
+    const PointsCloud& getMeshCloudById(const wxTreeItemId& id);
     virtual ~glPlane();
 
-    void loadNextICPResult();
-
+    void loadICPResult(const wxTreeItemId& id, const ICPResults& result);
+    void setCurrentlySelectedICPResult(const ICPResults& result);
     void loadMesh(string path, wxTreeItemId id,
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                   const Matrix3f &rotation = Matrix3f::Identity());
