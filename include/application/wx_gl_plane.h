@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include "rendering/gl_box.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
 #include "rendering/gl_eigen.h"
@@ -66,6 +65,7 @@ public:
     virtual ~glPlane();
 
     void loadICPResult(const wxTreeItemId& id, const ICPResults& result);
+    void setCurrentlySelectedToInitialTransformations();
     void setCurrentlySelectedICPResult(const ICPResults& result);
     void loadMesh(string path, wxTreeItemId id,
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),

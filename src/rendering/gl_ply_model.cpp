@@ -8,43 +8,45 @@ glPlyModel::glPlyModel(string path,
                        const Vector3f &translation,
                        const Matrix3f &rotation,
                        const Vector4f &color)
-        : path(path),
-          modelLoaded(false),
-          m_color(color) {
+        : __m_path(path),
+          __m_modelLoaded(false),
+          __m_color(color),
+          __m_initialT(translation),
+          __m_InitialR(rotation) {
     this->loadModel(path);
     this->approximateNormals();
     this->loadPointsCloud(translation, rotation);
     this->loadOpenGLData();
-    m_colorNormal = Vector4f(1.0f, 0.0f, 151.0f / 256.0f, 1.0f);
+    __m_colorNormal = Vector4f(1.0f, 0.0f, 151.0f / 256.0f, 1.0f);
 }
 
 //-----------------------------------------------------------------------------
 glPlyModel::~glPlyModel() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ebo);
+    glDeleteVertexArrays(1, &__m_vao);
+    glDeleteBuffers(1, &__m_vbo);
+    glDeleteBuffers(1, &__m_ebo);
 }
 
 //------------------------------------------------------------------------------
 GLuint
 glPlyModel::getVertexArrayId() {
-    return vbo;
+    return __m_vbo;
 }
 
 //------------------------------------------------------------------------------
 void
 glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
 &projection, glShaderProgram* normalsViz) {
-    if(m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if(__m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glShaderProgram* currShdr;
-    if(__m_shading && normalsViz != NULL && m_glNormalsLinesData.size()) {
+    if(__m_shading && normalsViz != NULL && __m_glNormalsLinesData.size()) {
         currShdr = normalsViz;
-        glBindVertexArray(vaoShading);
+        glBindVertexArray(__m_vaoShading);
     } else {
         currShdr = &shader;
-        glBindVertexArray(vao);
+        glBindVertexArray(__m_vao);
     }
         currShdr->use();
 
@@ -55,7 +57,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
         glCheckForErrors();
         glUniform4fv(glGetUniformLocation(currShdr->getId(), "u_color"),
                      1,
-                     m_color.data());
+                     __m_color.data());
 
         glUniformMatrix4fv(glGetUniformLocation(currShdr->getId(), "u_model"), 1,
                            GL_FALSE, modelMatrix.data());
@@ -67,7 +69,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
                            GL_FALSE, projection.data());
         glCheckForErrors();
         glDrawElements(GL_TRIANGLES,
-                       (GLsizei) (glFaces2.size()) /*3*numberOfFaces*/,
+                       (GLsizei) (__m_glFaces2.size()) /*3*numberOfFaces*/,
                        GL_UNSIGNED_INT,
                        0);
         //Clean
@@ -78,15 +80,15 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
     //////////////////////////////////////////////////
     // Render Normals
     //////////////////////////////////////////////////
-    if(m_renderNormals) {
+    if(__m_renderNormals) {
         shader.use();
-        glBindVertexArray(vao_normals);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+        glBindVertexArray(__m_vao_normals);
+        glBindBuffer(GL_ARRAY_BUFFER, __m_vbo_normals);
         glUniform1i(glGetUniformLocation(shader.getId(), "u_isSelected"),
                     false);
         glUniform4fv(glGetUniformLocation(shader.getId(), "u_color"),
                      1,
-                     m_colorNormal.data());
+                     __m_colorNormal.data());
 
         Matrix4f modelMatrixNormal = computeModelMatrix();
 
@@ -98,7 +100,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
         glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_projection"), 1,
                            GL_FALSE, projection.data());
         glEnableVertexAttribArray(0);
-        glDrawArrays(GL_LINES, 0, (GLsizei) m_glNormalsLinesData.size());
+        glDrawArrays(GL_LINES, 0, (GLsizei) __m_glNormalsLinesData.size());
 
         //Clean
         glEnableVertexAttribArray(0);
@@ -113,7 +115,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
 //-----------------------------------------------------------------------------
 void
 glPlyModel::loadModel(string &path) {
-    if (!modelLoaded) {
+    if (!__m_modelLoaded) {
 
 
         // Open File
@@ -126,23 +128,27 @@ glPlyModel::loadModel(string &path) {
         int verticesCount = -1;
         int facesCount = -1;
         bool headerEnd = false;
+        pair<float, float> minMaxX(INT8_MAX, -INT8_MAX);
+        pair<float, float> minMaxY(INT8_MAX, -INT8_MAX);
+        pair<float, float> minMaxZ(INT8_MAX, -INT8_MAX);
+
         while (!file.eof()) {
 
             std::string line;
             std::getline(file, line);
 
             // Number of vertices and faces unknown
-            if (!numberOfVerticesFound || !numberOfFacesFound) {
+            if (!__m_numberOfVerticesFound || !__m_numberOfFacesFound) {
 
                 // Look for number of vertices
                 std::size_t foundVertices = line.find("element vertex");
                 if (foundVertices != string::npos) {
                     stringstream lineStream(line);
                     string _;
-                    lineStream >> _ >> _ >> numberOfVertices;
+                    lineStream >> _ >> _ >> __m_numberOfVertices;
 
-                    verticesCount = numberOfVertices;
-                    numberOfVerticesFound = true;
+                    verticesCount = __m_numberOfVertices;
+                    __m_numberOfVerticesFound = true;
                 }
 
                 // Look for number of faces
@@ -150,10 +156,10 @@ glPlyModel::loadModel(string &path) {
                 if (foundFaces != string::npos) {
                     stringstream lineStream(line);
                     string _;
-                    lineStream >> _ >> _ >> numberOfFaces;
+                    lineStream >> _ >> _ >> __m_numberOfFaces;
 
-                    facesCount = numberOfFaces;
-                    numberOfFacesFound = true;
+                    facesCount = __m_numberOfFaces;
+                    __m_numberOfFacesFound = true;
                 }
 
 
@@ -169,11 +175,19 @@ glPlyModel::loadModel(string &path) {
                 float x, y, z;
                 lineStream >> x >> y >> z;
                 Vector3f vertex(x, y, z);
-                m_vertices.push_back(vertex);
+                __m_vertices.push_back(vertex);
 
-                glVertices2.push_back(x);
-                glVertices2.push_back(y);
-                glVertices2.push_back(z);
+                __m_glVertices2.push_back(x);
+                __m_glVertices2.push_back(y);
+                __m_glVertices2.push_back(z);
+
+                // Store min.max
+                if(minMaxX.first > x) minMaxX.first = x;
+                if(minMaxX.second < x) minMaxX.second = x;
+                if(minMaxY.first > y) minMaxY.first = y;
+                if(minMaxY.second < y) minMaxY.second = y;
+                if(minMaxZ.first > z) minMaxZ.first = z;
+                if(minMaxZ.second < z) minMaxZ.second = z;
 
             } else if (facesCount > 0) {
                 // Load Faces
@@ -187,9 +201,9 @@ glPlyModel::loadModel(string &path) {
                     // Triangle
                     //
                     lineStream >> i1 >> i2 >> i3;
-                    glFaces2.push_back(i1);
-                    glFaces2.push_back(i2);
-                    glFaces2.push_back(i3);
+                    __m_glFaces2.push_back(i1);
+                    __m_glFaces2.push_back(i2);
+                    __m_glFaces2.push_back(i3);
                     assignNeighbors(i1, i2, i3);
 
                 } else if (type == 4) {
@@ -197,14 +211,14 @@ glPlyModel::loadModel(string &path) {
                     // Quad
                     //
                     lineStream >> i1 >> i2 >> i3 >> i4;
-                    glFaces2.push_back(i1);
-                    glFaces2.push_back(i2);
-                    glFaces2.push_back(i3);
+                    __m_glFaces2.push_back(i1);
+                    __m_glFaces2.push_back(i2);
+                    __m_glFaces2.push_back(i3);
                     assignNeighbors(i1, i2, i3);
 
-                    glFaces2.push_back(i4);
-                    glFaces2.push_back(i1);
-                    glFaces2.push_back(i3);
+                    __m_glFaces2.push_back(i4);
+                    __m_glFaces2.push_back(i1);
+                    __m_glFaces2.push_back(i3);
                     assignNeighbors(i4, i1, i3);
                 }
 
@@ -215,7 +229,11 @@ glPlyModel::loadModel(string &path) {
 
         // Close File
         file.close();
-        modelLoaded = true;
+        __m_minMaxBB.push_back(minMaxX);
+        __m_minMaxBB.push_back(minMaxY);
+        __m_minMaxBB.push_back(minMaxZ);
+
+        __m_modelLoaded = true;
     } else {
         cout << "Model from path: " << path << " already loaded." << endl;
     }
@@ -224,29 +242,29 @@ glPlyModel::loadModel(string &path) {
 //------------------------------------------------------------------------------
 void
 glPlyModel::approximateNormals() {
-    if(m_neighbors.size() <= 0) {
+    if(__m_neighbors.size() <= 0) {
         cout << "Vector m_niegbors empty\n";
         return;
     }
 
-    if(m_normals.size() != 0 || m_glNormals.size() != 0) {
+    if(__m_normals.size() != 0 ||__m_glNormals.size() != 0) {
         cout << "Vector m_normals or m_glNormals not empty\n";
         return;
     }
-    if(m_glNormalsLinesData.size() != 0) {
+    if(__m_glNormalsLinesData.size() != 0) {
         cout << "Vector m_glNormalsLinesData not empty\n";
         return;
     }
 
-    for(int i = 0; i < m_vertices.size(); ++i) {
+    for(int i = 0; i < __m_vertices.size(); ++i) {
         // Calculate covariance matrix
         Matrix3f cov(Matrix3f::Zero());
-        const set<int>& neigh = m_neighbors[i];
+        const set<int>& neigh = __m_neighbors[i];
 
         for(const auto neighbor : neigh) {
             if(i == neighbor) continue;
 
-            Vector3f const toNeighbor = m_vertices[neighbor] - m_vertices[i];
+            Vector3f const toNeighbor = __m_vertices[neighbor] - __m_vertices[i];
             cov += toNeighbor * toNeighbor.transpose();
         }
 
@@ -266,32 +284,31 @@ glPlyModel::approximateNormals() {
         Matrix3f temp = es.eigenvectors();
         Vector3f normal = temp.col(smallestEigenValueId).normalized();
         // Save normal in m_ and m_gl array
-        m_normals.push_back(normal);
+        __m_normals.push_back(normal);
         float x = normal(0);
         float y = normal(1);
         float z = normal(2);
-        m_glNormals.push_back(x);
-        m_glNormals.push_back(y);
-        m_glNormals.push_back(z);
+        __m_glNormals.push_back(x);
+        __m_glNormals.push_back(y);
+        __m_glNormals.push_back(z);
     }
 
-    // TODO: I hope this is a temp array
-    for(int i = 0; i < m_vertices.size(); ++i) {
-        float ver_x = m_vertices[i](0);
-        float ver_y = m_vertices[i](1);
-        float ver_z = m_vertices[i](2);
+    for(int i = 0; i < __m_vertices.size(); ++i) {
+        float ver_x = __m_vertices[i](0);
+        float ver_y = __m_vertices[i](1);
+        float ver_z = __m_vertices[i](2);
 
-        m_glNormalsLinesData.push_back(ver_x);
-        m_glNormalsLinesData.push_back(ver_y);
-        m_glNormalsLinesData.push_back(ver_z);
+        __m_glNormalsLinesData.push_back(ver_x);
+        __m_glNormalsLinesData.push_back(ver_y);
+        __m_glNormalsLinesData.push_back(ver_z);
 
-        float norm_x = ver_x + m_normals[i](0) / 100.0f;
-        float norm_y = ver_y + m_normals[i](1) / 100.0f;
-        float norm_z = ver_z + m_normals[i](2) / 100.0f;
+        float norm_x = ver_x + __m_normals[i](0) / 100.0f;
+        float norm_y = ver_y + __m_normals[i](1) / 100.0f;
+        float norm_z = ver_z + __m_normals[i](2) / 100.0f;
 
-        m_glNormalsLinesData.push_back(norm_x);
-        m_glNormalsLinesData.push_back(norm_y);
-        m_glNormalsLinesData.push_back(norm_z);
+        __m_glNormalsLinesData.push_back(norm_x);
+        __m_glNormalsLinesData.push_back(norm_y);
+        __m_glNormalsLinesData.push_back(norm_z);
     }
 
 }
@@ -300,8 +317,8 @@ glPlyModel::approximateNormals() {
 void
 glPlyModel::loadPointsCloud(const Vector3f &translation,
                             const Matrix3f &rotation) {
-    if (m_vertices.size()) {
-        m_pointsCloud = unique_ptr<PointsCloud>(new PointsCloud(m_vertices,
+    if (__m_vertices.size()) {
+        m_pointsCloud = unique_ptr<PointsCloud>(new PointsCloud(__m_vertices,
                                                                 translation,
                                                                 rotation));
     } else cout << "No vertices loaded to cloud\n";
@@ -311,60 +328,60 @@ glPlyModel::loadPointsCloud(const Vector3f &translation,
 void
 glPlyModel::assignNeighbors(int n1, int n2, int n3) {
     // Check if vector has enough entries to store n1
-    if(m_neighbors.size() <= n1) {
-        for(int i = (int) m_neighbors.size(); i < n1+1; ++i) {
+    if(__m_neighbors.size() <= n1) {
+        for(int i = (int) __m_neighbors.size(); i < n1+1; ++i) {
             set<int> temp;
-            m_neighbors.push_back(temp);
+            __m_neighbors.push_back(temp);
         }
     }
     // Assign n1 with n2, n3
-    m_neighbors[n1].insert(n2);
-    m_neighbors[n1].insert(n3);
+    __m_neighbors[n1].insert(n2);
+    __m_neighbors[n1].insert(n3);
 
     // Check if vector has enough entries to store n2
-    if(m_neighbors.size() <= n2) {
-        for(int i = (int) m_neighbors.size(); i < n2+1; ++i) {
+    if(__m_neighbors.size() <= n2) {
+        for(int i = (int) __m_neighbors.size(); i < n2+1; ++i) {
             set<int> temp;
-            m_neighbors.push_back(temp);
+            __m_neighbors.push_back(temp);
         }
     }
     // Assign n2 with n1, n3
-    m_neighbors[n2].insert(n1);
-    m_neighbors[n2].insert(n3);
+    __m_neighbors[n2].insert(n1);
+    __m_neighbors[n2].insert(n3);
 
     // Check if vector has enough entries to store n3
-    if(m_neighbors.size() <= n3) {
-        for(int i = (int) m_neighbors.size(); i < n3+1; ++i) {
+    if(__m_neighbors.size() <= n3) {
+        for(int i = (int) __m_neighbors.size(); i < n3+1; ++i) {
             set<int> temp;
-            m_neighbors.push_back(temp);
+            __m_neighbors.push_back(temp);
         }
     }
     // Assign n3 with n1, n2
-    m_neighbors[n3].insert(n1);
-    m_neighbors[n3].insert(n2);
+    __m_neighbors[n3].insert(n1);
+    __m_neighbors[n3].insert(n2);
 }
 
 //------------------------------------------------------------------------------
 void
 glPlyModel::loadOpenGLData() {
     // Init Buffers
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
+    glGenVertexArrays(1, &__m_vao);
+    glGenBuffers(1, &__m_vbo);
+    glGenBuffers(1, &__m_ebo);
     glCheckForErrors();
 
     // Init Vertices/Indices
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindVertexArray(__m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, __m_vbo);
     glBufferData(GL_ARRAY_BUFFER,
-                 glVertices2.size() * sizeof(GLfloat),
-                 &glVertices2[0],
+                 __m_glVertices2.size() * sizeof(GLfloat),
+                 &__m_glVertices2[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, __m_ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 glFaces2.size() * sizeof(GLuint),
-                 &glFaces2[0],
+                 __m_glFaces2.size() * sizeof(GLuint),
+                 &__m_glFaces2[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
@@ -380,17 +397,17 @@ glPlyModel::loadOpenGLData() {
     // Shading
     //////////////////////////////////////
     // Init Buffers
-    glGenVertexArrays(1, &vaoShading);
-    glGenBuffers(1, &vboshading);
-    glGenBuffers(1, &eboShading);
+    glGenVertexArrays(1, &__m_vaoShading);
+    glGenBuffers(1, &__m_vboshading);
+    glGenBuffers(1, &__m_eboShading);
     glCheckForErrors();
 
     // Init Vertices/Indices
-    glBindVertexArray(vaoShading);
-    glBindBuffer(GL_ARRAY_BUFFER, vboshading);
+    glBindVertexArray(__m_vaoShading);
+    glBindBuffer(GL_ARRAY_BUFFER, __m_vboshading);
     glBufferData(GL_ARRAY_BUFFER,
-                 m_glNormalsLinesData.size() * sizeof(GLfloat),
-                 &m_glNormalsLinesData[0],
+                 __m_glNormalsLinesData.size() * sizeof(GLfloat),
+                 &__m_glNormalsLinesData[0],
                  GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
@@ -399,10 +416,10 @@ glPlyModel::loadOpenGLData() {
     glEnableVertexAttribArray(1);
 
     glCheckForErrors();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboShading);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, __m_eboShading);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 glFaces2.size() * sizeof(GLuint),
-                 &glFaces2[0],
+                 __m_glFaces2.size() * sizeof(GLuint),
+                 &__m_glFaces2[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
 
@@ -413,15 +430,15 @@ glPlyModel::loadOpenGLData() {
 
     /////////////////////////////////////////
     // Normals
-    glGenVertexArrays(1, &vao_normals);
-    glGenBuffers(1, &vbo_normals);
+    glGenVertexArrays(1, &__m_vao_normals);
+    glGenBuffers(1, &__m_vbo_normals);
 
-    glBindVertexArray(vao_normals);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+    glBindVertexArray(__m_vao_normals);
+    glBindBuffer(GL_ARRAY_BUFFER, __m_vbo_normals);
 
     glBufferData(GL_ARRAY_BUFFER,
-                 m_glNormalsLinesData.size() * sizeof(GLfloat),
-                 &m_glNormalsLinesData[0],
+                 __m_glNormalsLinesData.size() * sizeof(GLfloat),
+                 &__m_glNormalsLinesData[0],
                  GL_STATIC_DRAW);
     glCheckForErrors();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
@@ -430,6 +447,7 @@ glPlyModel::loadOpenGLData() {
     //Clean
     glBindVertexArray(0);
 }
+
 
 //------------------------------------------------------------------------------
 Matrix4f
@@ -459,16 +477,28 @@ glPlyModel::computeModelMatrix() {
 void
 glPlyModel::printInformation() {
 
-    cout << "Model Path:  " << this->path << endl;
-    if (numberOfVerticesFound)
-        cout << "# vertices: " << this->numberOfVertices << endl;
+    cout << "Model Path:  " << this->__m_path << endl;
+    if (__m_numberOfVerticesFound)
+        cout << "# vertices: " << this->__m_numberOfVertices << endl;
     else
         cout << "# vertices: " << "Not Found" << endl;
 
-    if (numberOfFacesFound)
-        cout << "# faces     " << this->numberOfFaces << endl;
+    if (__m_numberOfFacesFound)
+        cout << "# faces     " << this->__m_numberOfFaces << endl;
     else
         cout << "# faces     " << "Not Found" << endl;
+
+    if(__m_minMaxBB.size()) {
+        cout << "Bounding Box:" << endl;
+        cout << "Min/max x: " << __m_minMaxBB[0].first
+             << "/" << __m_minMaxBB[0].second << endl;
+
+        cout << "Min/max y: " << __m_minMaxBB[1].first
+             << "/" << __m_minMaxBB[1].second << endl;
+
+        cout << "Min/max z: " << __m_minMaxBB[2].first
+             << "/" << __m_minMaxBB[2].second << endl;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -480,25 +510,25 @@ glPlyModel::setSelected(bool isSelected) {
 //------------------------------------------------------------------------------
 void
 glPlyModel::setColor(const Vector4f &color) {
-    m_color = color;
+    __m_color = color;
 }
 
 //------------------------------------------------------------------------------
 void
 glPlyModel::setWireframe(bool isWireframed) {
-    m_isWireframed = isWireframed;
+    __m_isWireframed = isWireframed;
 }
 
 //------------------------------------------------------------------------------
 void
 glPlyModel::setRenderNormals(bool renderNormals) {
-    m_renderNormals = renderNormals;
+    __m_renderNormals = renderNormals;
 }
 
 //------------------------------------------------------------------------------
 bool
 glPlyModel::getRenderNormals() {
-    return m_renderNormals;
+    return __m_renderNormals;
 }
 
 //------------------------------------------------------------------------------
@@ -514,9 +544,16 @@ glPlyModel::getShading() {
 }
 
 //------------------------------------------------------------------------------
+void
+glPlyModel::resetToInitialTransform() {
+    m_pointsCloud->setTranslation(__m_initialT);
+    m_pointsCloud->setRotation(__m_InitialR);
+}
+
+//------------------------------------------------------------------------------
 bool
 glPlyModel::getWireframe() {
-    return m_isWireframed;
+    return __m_isWireframed;
 }
 
 
@@ -528,7 +565,7 @@ glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
 
     std::normal_distribution<double> distribution (mean, stdDev);
 
-    for(int i = 0; i < m_vertices.size(); ++i) {
+    for(int i = 0; i < __m_vertices.size(); ++i) {
         // update m_vertices
         // update m_glVertice
 
@@ -536,22 +573,22 @@ glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
         float y = (float) distribution(generator);
         float z = (float) distribution(generator);
 
-        m_vertices[i](0) += x;
-        m_vertices[i](1) += y;
-        m_vertices[i](2) += z;
+        __m_vertices[i](0) += x;
+        __m_vertices[i](1) += y;
+        __m_vertices[i](2) += z;
 
-        glVertices2[3 * i + 0] += x;
-        glVertices2[3 * i + 1] += y;
-        glVertices2[3 * i + 2] += z;
+        __m_glVertices2[3 * i + 0] += x;
+        __m_glVertices2[3 * i + 1] += y;
+        __m_glVertices2[3 * i + 2] += z;
     }
 
     // update PointsCloud
-    m_pointsCloud->setVertices(m_vertices);
+    m_pointsCloud->setVertices(__m_vertices);
 
     // Clear current normals
-    m_normals.clear();
-    m_glNormals.clear();
-    m_glNormalsLinesData.clear();
+    __m_normals.clear();
+    __m_glNormals.clear();
+    __m_glNormalsLinesData.clear();
 
     // Reload Normals
     this->approximateNormals();
@@ -570,11 +607,11 @@ glPlyModel::moveCentroidToOrigin() {
 //------------------------------------------------------------------------------
 void
 glPlyModel::setICPBase(bool isBase) {
-    m_isICPBased = isBase;
+    __m_isICPBased = isBase;
 }
 
 //------------------------------------------------------------------------------
 bool
 glPlyModel::getICPBase() {
-    return m_isICPBased;
+    return __m_isICPBased;
 }

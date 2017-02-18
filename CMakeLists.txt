@@ -73,7 +73,6 @@ set(SOURCE_FILES
         src/application/wx_main_frame.cpp
         src/application/wx_gl_plane.cpp
         src/rendering/gl_shader_program.cpp
-        src/rendering/gl_box.cpp
         src/rendering/gl_camera.cpp
         src/rendering/gl_ply_model.cpp
         src/rendering/gl_coordinates_frame.cpp

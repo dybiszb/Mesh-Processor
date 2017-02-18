@@ -16,12 +16,9 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <algorithm>
 #include "rendering/gl_ply_model.h"
 #include "entities/points_cloud.h"
-//#include "nanoflann/include/nanoflann.hpp"
-//#include "nanoflann/examples/KDTreeVectorOfVectorsAdaptor.h"
-//
-//using namespace nanoflann;
 
 using namespace std;
 using namespace Eigen;
@@ -31,14 +28,17 @@ struct ICPResults {
     ICPResults(const Matrix3f &R,
                const Vector3f &t,
                const Vector3f &cM1,
-               const Vector3f &cM2) : m_R(R),
+               const Vector3f &cM2,
+               const float& avrgEucl) : m_R(R),
                                       m_t(t),
                                       m_centroidM1(cM1),
-                                      m_centroidM2(cM2) {};
+                                      m_centroidM2(cM2),
+                                      avrgEucl(avrgEucl) {};
     Matrix3f m_R;
     Vector3f m_t;
     Vector3f m_centroidM1;
     Vector3f m_centroidM2;
+    float avrgEucl;
 };
 
 class ICPAlgorithm {
@@ -52,7 +52,10 @@ public:
      * @param m2
      * @return
      */
-    vector<ICPResults> pointToPointsICP(PointsCloud m1, PointsCloud m2);
+    vector<ICPResults> pointToPointsICP(PointsCloud m1,
+                                        PointsCloud m2,
+                                        bool useNearestNeighbors = false,
+                                        int subSamples = -1);
 
     /**
      * The procedure calculate ICP based on point-to-point scheme, for meshes
@@ -66,7 +69,7 @@ public:
 
 private:
 
-    Matrix3f calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs);
+    Matrix3f __calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs);
 
     /**
      * Using provided centroids: <c_p, c_q>, the procedure converts <p_i,
@@ -79,7 +82,7 @@ private:
      * @return          Vector of pairs updated according to aforementioned
      *                  scheme.
      */
-    vector<pair<Vector3f, Vector3f>> getTyldaPairs(
+    vector<pair<Vector3f, Vector3f>> __getTyldaPairs(
             const vector<pair<Vector3f, Vector3f>> &pairs,
             const pair<Vector3f, Vector3f> &centroids);
 
@@ -93,22 +96,25 @@ private:
      * @return        A pair of centroids, each corresponding to appropriate
      *                mesh.
      */
-    pair<Vector3f, Vector3f> getCentroids(const vector<Vector3f> &pointsP,
-                                          const vector<Vector3f> &pointsQ);
+    pair<Vector3f, Vector3f> __getCentroids(const vector<Vector3f> &pointsP,
+                                            const vector<Vector3f> &pointsQ);
 
     /**
      * The procedure takes mesh1points and join each entry with closest one
-     * (in euclidean sense) from mesh2Points.
+     * (in euclidean sense) from mesh2Points. In addition the mean average of
+     * all distance is calculated and stored in corresponding reference.
      *
-     * @param mesh1points A vector of points from mesh 1.
-     * @param mesh2Points A vector of poitns from mesh 2.
+     * @param mesh1points      A vector of points from mesh 1.
+     * @param mesh2Points      A vector of poitns from mesh 2.
+     * @param averageEuclidean A reference that will be updated to store mean
+     *                         average of all paired distances.
      *
-     * @return            A vector of pairs
+     * @return                 A vector of pairs
      */
-    vector<pair<Vector3f, Vector3f>> getPairs(
-            const vector<Vector3f> &mesh1Points,
-            const vector<Vector3f> &mesh2Points);
-
+    vector<pair<Vector3f, Vector3f>> __getPairs(
+            vector<Vector3f> mesh1Points,
+            const vector<Vector3f> &mesh2Points,
+            float &averageEuclidean, int subSamples = -1);
 };
 
 

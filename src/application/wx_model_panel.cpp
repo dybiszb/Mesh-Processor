@@ -149,16 +149,16 @@ void
 ModelPanel::__InitializeBottomCheckboxes(wxBoxSizer *parent) {
     __m_normalsCheckbox = new wxCheckBox(this, ID_CHECKBOX_NORMALS, "Show "
             "Approximated Normals");
-    parent->Add(__m_normalsCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+    parent->Add(__m_normalsCheckbox, 0, wxALIGN_LEFT, 4);
 
     // TODO: shading checkbox to the same hbox
     __m_wireframeCheckbox = new wxCheckBox(this, ID_CHECKBOX_WIREFRAME,
                                            "Wireframe");
-    parent->Add(__m_wireframeCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+    parent->Add(__m_wireframeCheckbox, 0, wxALIGN_LEFT, 4);
 
     __m_icpBaseCheckbox = new wxCheckBox(this, ID_CHECKBOX_ICP_BASE, "Base "
             "for ICP");
-    parent->Add(__m_icpBaseCheckbox, 0, wxALIGN_CENTER_HORIZONTAL, 4);
+    parent->Add(__m_icpBaseCheckbox, 0, wxALIGN_LEFT, 4);
 
 
 }

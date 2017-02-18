@@ -81,14 +81,23 @@ void glPlane::loadICPResult(const wxTreeItemId& id, const ICPResults& result) {
     (meshes[id.GetID()])->m_pointsCloud->accumulateRotation(result.m_R);
     (meshes[id.GetID()])->m_pointsCloud->accumulateTranslation(result.m_t);
 }
+//------------------------------------------------------------------------------
+void
+glPlane::setCurrentlySelectedToInitialTransformations() {
+    glPlyModel *selectedModel;
+    if (m_currentlySelectedId != NULL) {
+        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    } else return;
+    selectedModel->resetToInitialTransform();
+}
 
+//------------------------------------------------------------------------------
 void
 glPlane::setCurrentlySelectedICPResult(const ICPResults& result) {
     glPlyModel *selectedModel;
     if (m_currentlySelectedId != NULL) {
         selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
     } else return;
-    cout << "setting\nM_t\n"<< result.m_t << "\nM_R\n" << result.m_R << endl;
     selectedModel->m_pointsCloud->accumulateRotation(result.m_R);
     selectedModel->m_pointsCloud->accumulateTranslation(result.m_t);
 }

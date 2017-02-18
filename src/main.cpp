@@ -16,6 +16,7 @@
 // author: dybisz
 //------------------------------------------------------------------------------
 #include <GL/glew.h>
+#include <cstdlib>
 #include "application/wx_main_app.h"
 #include "application/wx_main_frame.h"
 
@@ -26,7 +27,7 @@
 wxIMPLEMENT_APP(MainApp);
 
 bool MainApp::OnInit() {
-
+    std::srand(unsigned(std::time(0)));
     MainFrame *mainWindow =
             new MainFrame(MAIN_WINDOW_TITLE,
                           wxPoint(50, 50),

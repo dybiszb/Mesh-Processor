@@ -114,7 +114,7 @@ private:
 
     void OnPrevFrameICP(wxCommandEvent &event);
     void OnNextFrameICP(wxCommandEvent &event);
-
+    void OnNearestNeighborsCheckbox(wxCommandEvent &event);
 wxDECLARE_EVENT_TABLE();
 };
 

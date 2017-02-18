@@ -5,7 +5,10 @@
 //------------------------------------------------------------------------------
 ICPPanel::ICPPanel(wxWindow *parent, const wxPoint &pos)
         : wxPanel(parent, wxID_ANY, pos, wxSize(-1, -1), wxBORDER_NONE),
-          __m_lastIndex(0), __m_currentIndex(0) {
+          __m_lastIndex(0), __m_currentIndex(0),
+          __m_useNearestNeighbors(false),
+          __m_useSubSampling(false),
+          __m_samples(-1) {
 
     this->SetBackgroundColour(wxColour(255, 255, 255));
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
@@ -15,6 +18,7 @@ ICPPanel::ICPPanel(wxWindow *parent, const wxPoint &pos)
     __InitializeFramesAndTimeBox(vbox);
     __InitializeResetBox(vbox);
     __InitializeICPTypeBox(vbox);
+    __InitializeBottomCheckboxes(vbox);
 
     SetActive(false);
     vbox->SetSizeHints(this);
@@ -35,7 +39,7 @@ ICPPanel::SetActive(bool isActive) { // TODO: fix indices and change this enable
     }
 
     if (__m_timeText) {
-        if(!isActive) SetComputationTime(0);
+        if (!isActive) SetComputationTime(0);
         __m_timeText->Enable(isActive);
     }
     if (!isActive) {
@@ -47,6 +51,16 @@ ICPPanel::SetActive(bool isActive) { // TODO: fix indices and change this enable
     // Opposite actions for run button and the radio box
     if (__m_runButton) __m_runButton->Enable(!isActive);
     if (__m_icpTypeRadioBox) __m_icpTypeRadioBox->Enable(!isActive);
+    if (__m_nearestNeighboursCheckbox) __m_nearestNeighboursCheckbox->Enable
+                (!isActive);
+    if(__m_subSamplingCheckbox) __m_subSamplingCheckbox->Enable(!isActive);
+    if(__m_subSamplingTextCtrl) __m_subSamplingTextCtrl->Enable(__m_useSubSampling);
+}
+
+//------------------------------------------------------------------------------
+void
+ICPPanel::SetNearestNeighbors(bool nns) {
+    __m_useNearestNeighbors = nns;
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +90,7 @@ ICPPanel::NextFrame() {
         string errInfo = "ICPResults out of scope";
         throw errInfo;
     }
-    SetFramesRate(__m_currentIndex+1, __m_results.size());
+    SetFramesRate(__m_currentIndex + 1, __m_results.size());
     return __m_results[__m_currentIndex++];
 }
 
@@ -88,7 +102,7 @@ ICPPanel::PrevFrame() {
         throw errInfo;
     }
     SetFramesRate(__m_currentIndex, __m_results.size());
-    int temp = __m_currentIndex -1;
+    int temp = __m_currentIndex - 1;
     __m_currentIndex--;
     return __m_results[temp];
 }
@@ -96,8 +110,14 @@ ICPPanel::PrevFrame() {
 //------------------------------------------------------------------------------
 void
 ICPPanel::RunICP(const PointsCloud &m1PC, const PointsCloud &m2PC) {
+    // Read Samples
+
+
     clock_t begin = clock();
-    __m_results = __m_icpAlgorithm.pointToPointsICP(m1PC, m2PC);
+    __m_results = __m_icpAlgorithm.pointToPointsICP(m1PC,
+                                                    m2PC,
+                                                    __m_useNearestNeighbors,
+                                                    __m_samples);
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
@@ -183,3 +203,57 @@ ICPPanel::__InitializeICPTypeBox(wxBoxSizer *parent) {
 
 }
 
+//------------------------------------------------------------------------------
+void
+ICPPanel::__InitializeBottomCheckboxes(wxBoxSizer *parent) {
+
+    __m_nearestNeighboursCheckbox = new wxCheckBox(this,
+                                                   ID_NEAREST_NEIGHBOURS_CHECKBOX,
+                                                   "Use nearest neighbour "
+                                                           "K-tree.");
+    __m_nearestNeighboursCheckbox->SetValue(__m_useNearestNeighbors);
+    parent->Add(__m_nearestNeighboursCheckbox, 0, wxALIGN_LEFT, 4);
+
+    // Sub Sampling
+    wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
+    __m_subSamplingCheckbox = new wxCheckBox(this,
+                                                   ID_SUB_SAMPLING_CHECKBOX,
+                                                   "Use subsampling");
+    __m_subSamplingCheckbox->SetValue(__m_useNearestNeighbors);
+    __m_subSamplingTextCtrl = new wxTextCtrl(this,
+                                             ID_SUB_SAMPLING_TEXT,
+                                             wxString(""),
+                                             wxDefaultPosition,
+                                             wxSize(45, -1),
+                                             wxTE_PROCESS_ENTER);
+    __m_subSamplingTextCtrl->Enable(false);
+    hbox->Add(__m_subSamplingCheckbox, 0, wxALIGN_CENTER_VERTICAL, 4);
+    hbox->Add(__m_subSamplingTextCtrl, 0, wxALL, 4);
+    parent->Add(hbox, 0, wxALIGN_LEFT, 4);
+}
+
+
+//------------------------------------------------------------------------------
+void
+ICPPanel::__OnSubSamplesCheckbox(wxCommandEvent &event) {
+    wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
+    __m_useSubSampling = source->IsChecked();
+    __m_subSamplingTextCtrl->Enable(source->IsChecked());
+    if(!__m_useSubSampling) __m_samples = -1;
+}
+
+//------------------------------------------------------------------------------
+void
+ICPPanel::__OnSubSampleTextCtrl(wxCommandEvent &event) {
+    double samples;
+    (__m_subSamplingTextCtrl->GetValue()).ToDouble( &samples);
+    __m_samples = (int) samples;
+}
+
+//------------------------------------------------------------------------------
+wxBEGIN_EVENT_TABLE(ICPPanel, wxPanel)
+                EVT_CHECKBOX(ID_SUB_SAMPLING_CHECKBOX,
+                             ICPPanel::__OnSubSamplesCheckbox)
+                EVT_TEXT_ENTER(ID_SUB_SAMPLING_TEXT,
+                               ICPPanel::__OnSubSampleTextCtrl)
+wxEND_EVENT_TABLE()

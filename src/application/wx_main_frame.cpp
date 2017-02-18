@@ -114,8 +114,8 @@ MainFrame::loadDefaultMesh() {
     wxTreeItemId id2 = appendMeshToTree(path);
 
     /* ----- Initialize shifted and rotated mesh ----- */
-    Matrix3f r = rotationMatrix((float) (M_PI / 4.0f), 0.0f, 0.0);
-    m_glPanel->loadMesh(path, id2, Vector3f(-0.08f, 0.00, -0.00f), r);
+    Matrix3f r = rotationMatrix((float) 0.0, 0.0f, 0.0);
+    m_glPanel->loadMesh(path, id2, Vector3f(-0.01f, 0.00, -0.00f), r);
 
     // Prepare Tree Entries
     m_treeCtrl->ExpandAll();
@@ -153,13 +153,6 @@ MainFrame::OnDeleteMesh(wxCommandEvent &event) {
 }
 
 //------------------------------------------------------------------------------
-//void
-//MainFrame::OnRunICP(wxCommandEvent &event) {
-//    m_glPanel->runICP();
-////    m_nextICPFrame->Enable(true);
-//}
-
-//------------------------------------------------------------------------------
 void
 MainFrame::OnMeshesTreeItemClicked(wxTreeEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
@@ -174,12 +167,6 @@ MainFrame::OnMeshesTreeItemClicked(wxTreeEvent &event) {
     // Reset ICP panel
     m_icpPanel->SetActive(false);
 }
-
-//------------------------------------------------------------------------------
-//void
-//MainFrame::OnNextFrame(wxCommandEvent &event) {
-//    m_glPanel->loadNextICPResult();
-//}
 
 //------------------------------------------------------------------------------
 void
@@ -202,9 +189,9 @@ MainFrame::OnIdleWindow(wxIdleEvent &event) {
 
             /* ----- Rotation ----- */
             Vector3f rotation = m_glPanel->getCurrentlySelectedRotation();
-            m_modelPanel->setRotation((rotation(0)),
-                                      (rotation(1)),
-                                      (rotation(2)));
+            m_modelPanel->setRotation(degToRad(rotation(0)),
+                                      degToRad(rotation(1)),
+                                      degToRad(rotation(2)));
 
 
             /* ----- Scaling ----- */
@@ -324,6 +311,7 @@ MainFrame::OnICPRun(wxCommandEvent &event) {
 //------------------------------------------------------------------------------
 void
 MainFrame::OnICPReset(wxCommandEvent &event) {
+    m_glPanel->setCurrentlySelectedToInitialTransformations();
     m_icpPanel->SetActive(false);
 }
 
@@ -357,6 +345,13 @@ MainFrame::OnNextFrameICP(wxCommandEvent &event) {
     } catch(string info) {
         return;
     }
+}
+
+//------------------------------------------------------------------------------
+void
+MainFrame::OnNearestNeighborsCheckbox(wxCommandEvent &event) {
+    wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
+    m_icpPanel->SetNearestNeighbors(source->IsChecked());
 }
 
 //------------------------------------------------------------------------------
@@ -401,6 +396,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
                 EVT_CHECKBOX(ID_CHECKBOX_NORMALS, MainFrame::OnNormalsCheckbox)
                 EVT_CHECKBOX(ID_CHECKBOX_ICP_BASE, MainFrame::OnICPBaseCheckbox)
                 EVT_CHECKBOX(ID_CHECKBOX_WIREFRAME, MainFrame::OnWireframe)
+                EVT_CHECKBOX(ID_NEAREST_NEIGHBOURS_CHECKBOX, MainFrame::OnNearestNeighborsCheckbox)
                 EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
                                         MainFrame::OnMeshesTreeItemClicked)
                 EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,

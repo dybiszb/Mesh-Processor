@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 #include "logic/icp_algoriithm.h"
 #include <ctime>
 
@@ -15,36 +16,24 @@ public:
     ICPPanel(wxWindow *parent, const wxPoint &pos);
 
     /**
-     * Updates the label with frame rates.
+     * Run ICP for specified clouds of points. Appropriate widgets will be
+     * updated automatically.
      *
-     * @param frame Current frame number.
-     * @param outOf Maximum number of frames.
+     * @param m1PC M1's cloud of points.
+     * @param m2PC M2's cloud of points.
      */
-    void SetFramesRate(int frame, unsigned long outOf);
+    void RunICP(const PointsCloud& m1PC, const PointsCloud& m2PC);
 
-    /**
-     * Updates the label with computation time of ICP algorithm.
-     *
-     * @param time New computation time.
-     */
-    void SetComputationTime(double time);
-
-    // TODO: excpt etc
     const ICPResults& NextFrame();
-
-    // TODO
     const ICPResults& PrevFrame();
 
-    /**
-     * Dim all widgets that are useless without the ICP results or activate
-     * all of them.
-     *
-     * @param isActive Activate or dim?
-     */
+    /* ----- Setters for corresponding widgets ----- */
+    void SetFramesRate(int frame, unsigned long outOf);
+    void SetComputationTime(double time);
     void SetActive(bool isActive);
+    void SetNearestNeighbors(bool nns);
 
-    // NOTE: Will update/activate widgets
-    void RunICP(const PointsCloud& m1PC, const PointsCloud& m2PC);
+
 
 private:
     enum { POINT_TO_POINT, POINT_TO_PLANE };
@@ -60,11 +49,17 @@ private:
     wxButton     *__m_resetButton;
     wxRadioBox   *__m_icpTypeRadioBox;
     wxTextCtrl   *__m_deltaTimeText;
+    wxCheckBox   *__m_nearestNeighboursCheckbox;
+    wxCheckBox   *__m_subSamplingCheckbox;
+    wxTextCtrl   *__m_subSamplingTextCtrl;
 
     /* ----- ICP Results ----- */
     ICPAlgorithm       __m_icpAlgorithm;
     int                __m_lastIndex;
     int                __m_currentIndex;
+    bool               __m_useNearestNeighbors;
+    bool               __m_useSubSampling;
+    int                __m_samples;
     vector<ICPResults> __m_results;
 
     /* ----- Widgets Initializations ----- */
@@ -73,7 +68,13 @@ private:
     void __InitializeNextPrevBox(wxBoxSizer* parent);
     void __InitializeResetBox(wxBoxSizer* parent);
     void __InitializeICPTypeBox(wxBoxSizer* parent);
+    void __InitializeBottomCheckboxes(wxBoxSizer *parent);
 
+    /* ----- Internal Event Calls ----- */
+    void __OnSubSamplesCheckbox(wxCommandEvent &event);
+    void __OnSubSampleTextCtrl(wxCommandEvent &event);
+
+wxDECLARE_EVENT_TABLE();
 };
 
 enum {
@@ -82,5 +83,8 @@ enum {
     ID_RESET_ICP_BUTTON = wxID_HIGHEST + 102,
     ID_NEXT_PREV_ICP_BUTTON = wxID_HIGHEST + 103,
     ID_NEXT_FRAME_ICP_BUTTON = wxID_HIGHEST + 104,
+    ID_NEAREST_NEIGHBOURS_CHECKBOX = wxID_HIGHEST + 105,
+    ID_SUB_SAMPLING_CHECKBOX = wxID_HIGHEST + 106,
+    ID_SUB_SAMPLING_TEXT = wxID_HIGHEST + 107,
 };
 #endif

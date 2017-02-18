@@ -5,24 +5,27 @@
 //------------------------------------------------------------------------------
 vector<ICPResults>
 ICPAlgorithm::pointToPointsICP(PointsCloud m1,
-                               PointsCloud m2) {
+                               PointsCloud m2,
+                               bool useNearestNeighbors,
+                               int samples) {
     vector<ICPResults> results;
-    const vector<Vector3f>& pointsP = m1.getUpdatedVertices();
+    const vector<Vector3f> &pointsP = m1.getUpdatedVertices();
+    float averageEuclidean = 0;
 
-    // I know it is costly but happens only once and separated logic of
-    // updating vertices and constructing the tree.
-//    const PointsCloud::kdTreeT m1KdTree = m1.getKdTreeOfUpdatedVertices();
+    for (int i = 0; i < 100; ++i) {
 
+        const vector<Vector3f> &pointsQ = m2.getUpdatedVertices();
+        averageEuclidean = 0;
 
+        vector<pair<Vector3f, Vector3f>> pairs = __getPairs(pointsP, pointsQ,
+                                                            averageEuclidean,
+                                                            samples);
 
-    for(int i = 0; i < 50; ++i) {
+        if (averageEuclidean < 0.002) break;
 
-        const vector<Vector3f>& pointsQ = m2.getUpdatedVertices();
-
-        auto pairs = getPairs(pointsP, pointsQ);
-        auto centroids = getCentroids(pointsP, pointsQ);
-        auto tyldaPairs = getTyldaPairs(pairs, centroids);
-        auto A = calculateMatrixA(tyldaPairs);
+        auto centroids = __getCentroids(pointsP, pointsQ);
+        auto tyldaPairs = __getTyldaPairs(pairs, centroids);
+        auto A = __calculateMatrixA(tyldaPairs);
 
         // Calculate New Transformations
         JacobiSVD<Matrix3f> svdOfA(A, ComputeThinU | ComputeThinV);
@@ -30,19 +33,22 @@ ICPAlgorithm::pointToPointsICP(PointsCloud m1,
         Vector3f t = centroids.first - R * centroids.second;
 
         // Save Result:
-        ICPResults result(R, t, centroids.first, centroids.second);
+        ICPResults result(R, t, centroids.first, centroids.second,
+                          averageEuclidean);
         results.push_back(result);
 
         m2.accumulateRotation(R);
         m2.accumulateTranslation(t);
+
     }
+
 
     return results;
 }
 
 //------------------------------------------------------------------------------
 Matrix3f
-ICPAlgorithm::calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs) {
+ICPAlgorithm::__calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs) {
     Matrix3f A = Matrix3f::Zero();
 
     for (auto const &pair: pairs) {
@@ -56,8 +62,8 @@ ICPAlgorithm::calculateMatrixA(const vector<pair<Vector3f, Vector3f>> &pairs) {
 
 //------------------------------------------------------------------------------
 pair<Vector3f, Vector3f>
-ICPAlgorithm::getCentroids(const vector<Vector3f> &pointsP,
-                           const vector<Vector3f> &pointsQ) {
+ICPAlgorithm::__getCentroids(const vector<Vector3f> &pointsP,
+                             const vector<Vector3f> &pointsQ) {
     Vector3f cenP(0.0, 0.0, 0.0);
     Vector3f cenQ(0.0, 0.0, 0.0);
 
@@ -71,8 +77,8 @@ ICPAlgorithm::getCentroids(const vector<Vector3f> &pointsP,
 
 //------------------------------------------------------------------------------
 vector<pair<Vector3f, Vector3f>>
-ICPAlgorithm::getTyldaPairs(const vector<pair<Vector3f, Vector3f>> &pairs,
-                            const pair<Vector3f, Vector3f> &centroids) {
+ICPAlgorithm::__getTyldaPairs(const vector<pair<Vector3f, Vector3f>> &pairs,
+                              const pair<Vector3f, Vector3f> &centroids) {
 
     vector<pair<Vector3f, Vector3f>> tyldaPairs;
     tyldaPairs.reserve(pairs.size());
@@ -89,10 +95,18 @@ ICPAlgorithm::getTyldaPairs(const vector<pair<Vector3f, Vector3f>> &pairs,
 
 //------------------------------------------------------------------------------
 vector<pair<Vector3f, Vector3f>>
-ICPAlgorithm::getPairs(const vector<Vector3f> &mesh1Points,
-                       const vector<Vector3f> &mesh2Points) {
+ICPAlgorithm::__getPairs(vector<Vector3f> mesh1Points,
+                         const vector<Vector3f> &mesh2Points,
+                         float &averangeEuclidean,
+                         int samples) {
     vector<pair<Vector3f, Vector3f>> paired;
     paired.reserve(mesh1Points.size());
+
+    // Sub sample if necessary
+    if (samples > 0 && samples < mesh1Points.size()) {
+        std::random_shuffle(mesh1Points.begin(), mesh1Points.end());
+        mesh1Points = vector<Vector3f>(mesh1Points.begin(), mesh1Points.begin() + samples);
+    }
 
     for (int i = 0; i < mesh1Points.size(); ++i) {
         float minVal = INT8_MAX;
@@ -105,11 +119,10 @@ ICPAlgorithm::getPairs(const vector<Vector3f> &mesh1Points,
                 minInd = j;
             }
         }
-
-        paired.push_back(pair<Vector3f, Vector3f> (mesh1Points[i],
-                                                   mesh2Points[minInd]));
+        averangeEuclidean += minVal;
+        paired.push_back(pair<Vector3f, Vector3f>(mesh1Points[i],
+                                                  mesh2Points[minInd]));
     }
-
+    averangeEuclidean /= (float) mesh1Points.size();
     return paired;
 };
-

@@ -19,7 +19,7 @@ using namespace nanoflann;
 class PointsCloud {
 public:
     typedef vector<Vector3f> kdTreePointsT;
-    typedef KDTreeVectorOfVectorsAdaptor<kdTreePointsT, double> kdTreeT;
+    typedef KDTreeVectorOfVectorsAdaptor<kdTreePointsT, float> kdTreeT;
 
     /**
      *
@@ -58,55 +58,32 @@ public:
     vector<Vector3f> getUpdatedVertices();
 
     /**
+     * Creates Kd-Tree for points transformed by stored transformatins
+     * (rotation, translation and scaling).
      *
+     * @return Kd-Tree of the cloud's points.
      */
     kdTreeT getKdTreeOfUpdatedVertices();
 
+    /* ----- Setters for internal members ----- */
     void setVertices(const vector<Vector3f>& vertices);
-
     void setTranslation(const Vector3f& translation);
-
-    /**
-     *
-     * @param scale
-     */
     void setScale(const Vector3f &scale);
-
-    /**
-     *
-     * @param rotation
-     */
     void setRotation(const Matrix3f &rotation);
 
-    /**
-     * @return Rotation matrix of the cloud.
-     */
+    /* ----- Getters for internal members ----- */
     Matrix3f getRotation();
-
-    /**
-     *
-     * @return
-     */
     Vector3f getRotationAngles();
-
-    /**
-     * @return Translation vector of the cloud.
-     */
     Vector3f getTranslation();
-
-    /**
-     * @return Scaling factor of the cloud.
-     */
     Vector3f getScale();
-
     Vector3f getCentroidFromUpdatedVertices();
 
 protected:
-    vector<Vector3f> m_vertices;
-    vector<Vector3f> m_normals;
-    Matrix3f m_rotation;
-    Vector3f m_translation;
-    Vector3f m_scale;
+    vector<Vector3f> __m_vertices;
+    vector<Vector3f> __m_normals;
+    Matrix3f         __m_rotation;
+    Vector3f         __m_translation;
+    Vector3f         __m_scale;
 
 };
 

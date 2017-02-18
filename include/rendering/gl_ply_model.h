@@ -40,63 +40,59 @@ public:
     void render(glShaderProgram &shader, Matrix4f &view,
                 Matrix4f &projection, glShaderProgram* normalsViz = NULL);
 
-
     void printInformation();
 
-    void setSelected(bool isSelected);
+    void resetToInitialTransform();
 
-    void setColor(const Vector4f &color);
-
-    void setWireframe(bool isWireframed);
-
-    void setRenderNormals(bool renderNormals);
-
-    bool getRenderNormals();
-
-    void setShading(bool shading);
-    bool getShading();
-
-    bool getWireframe();
     void introduceGaussianNoise(float mean, float stdDev);
 
     void moveCentroidToOrigin();
 
-    void setICPBase(bool isBase);
-    bool getICPBase();
-
     unique_ptr<PointsCloud> m_pointsCloud;
-
-    GLuint getVertexArrayId();
 
     Matrix4f computeModelMatrix();
 
+    void setICPBase(bool isBase);
+    void setSelected(bool isSelected);
+    void setColor(const Vector4f &color);
+    void setWireframe(bool isWireframed);
+    void setRenderNormals(bool renderNormals);
+    void setShading(bool shading);
+
+    bool getWireframe();
+    bool getShading();
+    GLuint getVertexArrayId();
+    bool getICPBase();
+    bool getRenderNormals();
+
 private:
-    Vector4f m_color;
-    Vector4f m_colorNormal;
-    vector<Vector3f> m_vertices;
-    vector<GLfloat> glVertices2;
-    vector<GLuint> glFaces2;
-    // each entry corresponds to one vertex in m_vertices
-    // in each entry indices of neighbors are stored
-    vector<std::set<int>> m_neighbors;
-    vector<Vector3f> m_normals;
-    vector<GLfloat> m_glNormals;
-    vector<GLfloat> m_glNormalsLinesData;
+    vector<pair<float, float>> __m_minMaxBB;
+    Vector4f                   __m_color;
+    Vector4f                   __m_colorNormal;
+    vector<Vector3f>           __m_vertices;
+    vector<GLfloat>            __m_glVertices2;
+    vector<GLuint>             __m_glFaces2;
+    vector<std::set<int>>      __m_neighbors;
+    vector<Vector3f>           __m_normals;
+    vector<GLfloat>            __m_glNormals;
+    vector<GLfloat>            __m_glNormalsLinesData;
     int m_isSelected = 0;
-    string path;
-    int numberOfVertices = -1;
-    int numberOfFaces = -1;
-    bool numberOfVerticesFound = false;
-    bool numberOfFacesFound = false;
-    bool modelLoaded;
-    bool m_isWireframed = true;
-    bool m_renderNormals = false;
-    bool m_isICPBased = false;
-    bool __m_shading = false;
+    string                     __m_path;
+    int                        __m_numberOfVertices = -1;
+    int                        __m_numberOfFaces = -1;
+    bool                       __m_numberOfVerticesFound = false;
+    bool                       __m_numberOfFacesFound = false;
+    bool                       __m_modelLoaded;
+    bool                       __m_isWireframed = true;
+    bool                       __m_renderNormals = false;
+    bool                       __m_isICPBased = false;
+    bool                       __m_shading = false;
     float m_scale = 1.0;
-    GLuint vbo, vao, ebo;
-    GLuint vbo_normals, vao_normals;
-    GLuint vaoShading, eboShading, vboshading;
+    GLuint                     __m_vbo, __m_vao, __m_ebo;
+    GLuint                     __m_vbo_normals, __m_vao_normals;
+    GLuint                     __m_vaoShading, __m_eboShading, __m_vboshading;
+    Vector3f                   __m_initialT;
+    Matrix3f                   __m_InitialR;
 
     void loadModel(string &path);
 
