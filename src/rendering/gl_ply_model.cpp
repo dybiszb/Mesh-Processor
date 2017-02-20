@@ -4,10 +4,10 @@
 #include "rendering/gl_ply_model.h"
 
 //-----------------------------------------------------------------------------
-glPlyModel::glPlyModel(string path,
-                       const Vector3f &translation,
-                       const Matrix3f &rotation,
-                       const Vector4f &color)
+glPlyModel::glPlyModel(std::string path,
+                       const vec3 &translation,
+                       const mat3 &rotation,
+                       const vec4 &color)
         : __m_path(path),
           __m_modelLoaded(false),
           __m_color(color),
@@ -17,7 +17,7 @@ glPlyModel::glPlyModel(string path,
     this->approximateNormals();
     this->loadPointsCloud(translation, rotation);
     this->loadOpenGLData();
-    __m_colorNormal = Vector4f(1.0f, 0.0f, 151.0f / 256.0f, 1.0f);
+    __m_colorNormal = vec4(1.0f, 0.0f, 151.0f / 256.0f, 1.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -35,8 +35,8 @@ glPlyModel::getVertexArrayId() {
 
 //------------------------------------------------------------------------------
 void
-glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
-&projection, glShaderProgram* normalsViz) {
+glPlyModel::render(glShaderProgram &shader, mat4 &view, mat4 &projection,
+                   glShaderProgram* normalsViz) {
     if(__m_isWireframed) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -50,7 +50,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
     }
         currShdr->use();
 
-        Matrix4f modelMatrix = computeModelMatrix();
+        mat4 modelMatrix = computeModelMatrix();
 
         glUniform1i(glGetUniformLocation(currShdr->getId(), "u_isSelected"),
                     m_isSelected);
@@ -90,7 +90,7 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
                      1,
                      __m_colorNormal.data());
 
-        Matrix4f modelMatrixNormal = computeModelMatrix();
+        mat4 modelMatrixNormal = computeModelMatrix();
 
 
         glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "u_model"), 1,
@@ -114,23 +114,23 @@ glPlyModel::render(glShaderProgram &shader, Matrix4f &view, Matrix4f
 
 //-----------------------------------------------------------------------------
 void
-glPlyModel::loadModel(string &path) {
+glPlyModel::loadModel(std::string &path) {
     if (!__m_modelLoaded) {
 
 
         // Open File
-        ifstream file(path, std::ifstream::in);
+        std::ifstream file(path, std::ifstream::in);
         if (file.fail()) {
-            cout << "Failed to load: " << path << endl;
+            std::cout << "Failed to load: " << path << std::endl;
         }
 
         // Parse File
         int verticesCount = -1;
         int facesCount = -1;
         bool headerEnd = false;
-        pair<float, float> minMaxX(INT8_MAX, -INT8_MAX);
-        pair<float, float> minMaxY(INT8_MAX, -INT8_MAX);
-        pair<float, float> minMaxZ(INT8_MAX, -INT8_MAX);
+        std::pair<float, float> minMaxX(INT8_MAX, -INT8_MAX);
+        std::pair<float, float> minMaxY(INT8_MAX, -INT8_MAX);
+        std::pair<float, float> minMaxZ(INT8_MAX, -INT8_MAX);
 
         while (!file.eof()) {
 
@@ -142,9 +142,9 @@ glPlyModel::loadModel(string &path) {
 
                 // Look for number of vertices
                 std::size_t foundVertices = line.find("element vertex");
-                if (foundVertices != string::npos) {
-                    stringstream lineStream(line);
-                    string _;
+                if (foundVertices != std::string::npos) {
+                    std::stringstream lineStream(line);
+                    std::string _;
                     lineStream >> _ >> _ >> __m_numberOfVertices;
 
                     verticesCount = __m_numberOfVertices;
@@ -153,9 +153,9 @@ glPlyModel::loadModel(string &path) {
 
                 // Look for number of faces
                 std::size_t foundFaces = line.find("element face");
-                if (foundFaces != string::npos) {
-                    stringstream lineStream(line);
-                    string _;
+                if (foundFaces != std::string::npos) {
+                    std::stringstream lineStream(line);
+                    std::string _;
                     lineStream >> _ >> _ >> __m_numberOfFaces;
 
                     facesCount = __m_numberOfFaces;
@@ -166,15 +166,15 @@ glPlyModel::loadModel(string &path) {
             } else if (!headerEnd) {
                 // Look for header end
                 std::size_t found = line.find("end_header");
-                if (found != string::npos) headerEnd = true;
+                if (found != std::string::npos) headerEnd = true;
 
             } else if (verticesCount > 0) {
                 // Load Vertices
-                stringstream lineStream(line);
+                std::stringstream lineStream(line);
                 verticesCount--;
                 float x, y, z;
                 lineStream >> x >> y >> z;
-                Vector3f vertex(x, y, z);
+                vec3 vertex(x, y, z);
                 __m_vertices.push_back(vertex);
 
                 __m_glVertices2.push_back(x);
@@ -191,7 +191,7 @@ glPlyModel::loadModel(string &path) {
 
             } else if (facesCount > 0) {
                 // Load Faces
-                stringstream lineStream(line);
+                std::stringstream lineStream(line);
                 facesCount--;
                 unsigned int type, i1, i2, i3, i4;
                 lineStream >> type;
@@ -235,7 +235,7 @@ glPlyModel::loadModel(string &path) {
 
         __m_modelLoaded = true;
     } else {
-        cout << "Model from path: " << path << " already loaded." << endl;
+        std::cout << "Model from path: " << path << " already loaded." << std::endl;
     }
 }
 
@@ -243,33 +243,33 @@ glPlyModel::loadModel(string &path) {
 void
 glPlyModel::approximateNormals() {
     if(__m_neighbors.size() <= 0) {
-        cout << "Vector m_niegbors empty\n";
+        std::cout << "Vector m_niegbors empty\n";
         return;
     }
 
     if(__m_normals.size() != 0 ||__m_glNormals.size() != 0) {
-        cout << "Vector m_normals or m_glNormals not empty\n";
+        std::cout << "Vector m_normals or m_glNormals not empty\n";
         return;
     }
     if(__m_glNormalsLinesData.size() != 0) {
-        cout << "Vector m_glNormalsLinesData not empty\n";
+        std::cout << "Vector m_glNormalsLinesData not empty\n";
         return;
     }
 
     for(int i = 0; i < __m_vertices.size(); ++i) {
         // Calculate covariance matrix
-        Matrix3f cov(Matrix3f::Zero());
-        const set<int>& neigh = __m_neighbors[i];
+        mat3 cov(mat3::Zero());
+        const std::set<int>& neigh = __m_neighbors[i];
 
         for(const auto neighbor : neigh) {
             if(i == neighbor) continue;
 
-            Vector3f const toNeighbor = __m_vertices[neighbor] - __m_vertices[i];
+            vec3 const toNeighbor = __m_vertices[neighbor] - __m_vertices[i];
             cov += toNeighbor * toNeighbor.transpose();
         }
 
         // Get normal from Eigens
-        SelfAdjointEigenSolver<Matrix3f> es(cov);
+        Eigen::SelfAdjointEigenSolver<mat3> es(cov);
 
         int const smallestEigenValueId = // 0, 1 2
                 static_cast<int>(
@@ -281,8 +281,8 @@ glPlyModel::approximateNormals() {
                                 )
                         )
                 );
-        Matrix3f temp = es.eigenvectors();
-        Vector3f normal = temp.col(smallestEigenValueId).normalized();
+        mat3 temp = es.eigenvectors();
+        vec3 normal = temp.col(smallestEigenValueId).normalized();
         // Save normal in m_ and m_gl array
         __m_normals.push_back(normal);
         float x = normal(0);
@@ -315,13 +315,13 @@ glPlyModel::approximateNormals() {
 
 //------------------------------------------------------------------------------
 void
-glPlyModel::loadPointsCloud(const Vector3f &translation,
-                            const Matrix3f &rotation) {
+glPlyModel::loadPointsCloud(const vec3 &translation,
+                            const mat3 &rotation) {
     if (__m_vertices.size()) {
-        m_pointsCloud = unique_ptr<PointsCloud>(new PointsCloud(__m_vertices,
+        m_pointsCloud = std::unique_ptr<PointsCloud>(new PointsCloud(__m_vertices,
                                                                 translation,
                                                                 rotation));
-    } else cout << "No vertices loaded to cloud\n";
+    } else std::cout << "No vertices loaded to cloud\n";
 }
 
 //------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ glPlyModel::assignNeighbors(int n1, int n2, int n3) {
     // Check if vector has enough entries to store n1
     if(__m_neighbors.size() <= n1) {
         for(int i = (int) __m_neighbors.size(); i < n1+1; ++i) {
-            set<int> temp;
+            std::set<int> temp;
             __m_neighbors.push_back(temp);
         }
     }
@@ -341,7 +341,7 @@ glPlyModel::assignNeighbors(int n1, int n2, int n3) {
     // Check if vector has enough entries to store n2
     if(__m_neighbors.size() <= n2) {
         for(int i = (int) __m_neighbors.size(); i < n2+1; ++i) {
-            set<int> temp;
+            std::set<int> temp;
             __m_neighbors.push_back(temp);
         }
     }
@@ -352,7 +352,7 @@ glPlyModel::assignNeighbors(int n1, int n2, int n3) {
     // Check if vector has enough entries to store n3
     if(__m_neighbors.size() <= n3) {
         for(int i = (int) __m_neighbors.size(); i < n3+1; ++i) {
-            set<int> temp;
+            std::set<int> temp;
             __m_neighbors.push_back(temp);
         }
     }
@@ -450,18 +450,18 @@ glPlyModel::loadOpenGLData() {
 
 
 //------------------------------------------------------------------------------
-Matrix4f
+mat4
 glPlyModel::computeModelMatrix() {
-    Matrix4f scaleTranslation = Matrix4f::Identity();
-    Matrix4f rotation = Matrix4f::Identity();
+    mat4 scaleTranslation = mat4::Identity();
+    mat4 rotation = mat4::Identity();
 
     /* ----- Scale + Translate ----- */
-    Vector3f scale = m_pointsCloud->getScale();
+    vec3 scale = m_pointsCloud->getScale();
     scaleTranslation(0, 0) = scale(0);
     scaleTranslation(1, 1) = scale(1);
     scaleTranslation(2, 2) = scale(2);
 
-    Vector3f t = m_pointsCloud->getTranslation();
+    vec3 t = m_pointsCloud->getTranslation();
     scaleTranslation(0, 3) = t(0);
     scaleTranslation(1, 3) = t(1);
     scaleTranslation(2, 3) = t(2);
@@ -477,27 +477,27 @@ glPlyModel::computeModelMatrix() {
 void
 glPlyModel::printInformation() {
 
-    cout << "Model Path:  " << this->__m_path << endl;
+    std::cout << "Model Path:  " << this->__m_path << std::endl;
     if (__m_numberOfVerticesFound)
-        cout << "# vertices: " << this->__m_numberOfVertices << endl;
+        std::cout << "# vertices: " << this->__m_numberOfVertices << std::endl;
     else
-        cout << "# vertices: " << "Not Found" << endl;
+        std::cout << "# vertices: " << "Not Found" << std::endl;
 
     if (__m_numberOfFacesFound)
-        cout << "# faces     " << this->__m_numberOfFaces << endl;
+        std::cout << "# faces     " << this->__m_numberOfFaces << std::endl;
     else
-        cout << "# faces     " << "Not Found" << endl;
+        std::cout << "# faces     " << "Not Found" << std::endl;
 
     if(__m_minMaxBB.size()) {
-        cout << "Bounding Box:" << endl;
-        cout << "Min/max x: " << __m_minMaxBB[0].first
-             << "/" << __m_minMaxBB[0].second << endl;
+        std::cout << "Bounding Box:" << std::endl;
+        std::cout << "Min/max x: " << __m_minMaxBB[0].first
+             << "/" << __m_minMaxBB[0].second << std::endl;
 
-        cout << "Min/max y: " << __m_minMaxBB[1].first
-             << "/" << __m_minMaxBB[1].second << endl;
+        std::cout << "Min/max y: " << __m_minMaxBB[1].first
+             << "/" << __m_minMaxBB[1].second << std::endl;
 
-        cout << "Min/max z: " << __m_minMaxBB[2].first
-             << "/" << __m_minMaxBB[2].second << endl;
+        std::cout << "Min/max z: " << __m_minMaxBB[2].first
+             << "/" << __m_minMaxBB[2].second << std::endl;
     }
 }
 
@@ -509,7 +509,7 @@ glPlyModel::setSelected(bool isSelected) {
 
 //------------------------------------------------------------------------------
 void
-glPlyModel::setColor(const Vector4f &color) {
+glPlyModel::setColor(const vec4 &color) {
     __m_color = color;
 }
 
@@ -598,7 +598,7 @@ glPlyModel::introduceGaussianNoise(float mean, float stdDev) {
 //------------------------------------------------------------------------------
 void
 glPlyModel::moveCentroidToOrigin() {
-    Vector3f centroid = m_pointsCloud->getCentroidFromUpdatedVertices();
+    vec3 centroid = m_pointsCloud->getCentroidFromUpdatedVertices();
     centroid = -centroid;
     m_pointsCloud->accumulateTranslation(centroid);
 }

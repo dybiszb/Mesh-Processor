@@ -66,7 +66,7 @@ ICPPanel::SetNearestNeighbors(bool nns) {
 //------------------------------------------------------------------------------
 void
 ICPPanel::SetFramesRate(int frame, unsigned long outOf) {
-    string s = "Iterations: " + to_string(frame) + "/" + to_string(outOf);
+    std::string s = "Iterations: " + std::to_string(frame) + "/" + std::to_string(outOf);
     __m_framesRateText->SetLabel(s);
 
     // Update slider
@@ -79,15 +79,15 @@ ICPPanel::SetFramesRate(int frame, unsigned long outOf) {
 //------------------------------------------------------------------------------
 void
 ICPPanel::SetComputationTime(double time) {
-    string s = "Comp. Time: " + to_string(time) + " [s]";
+    std::string s = "Comp. Time: " + std::to_string(time) + " [s]";
     __m_timeText->SetLabel(s);
 }
 
 //------------------------------------------------------------------------------
-const ICPResults &
+ICPResults
 ICPPanel::NextFrame() {
-    if (__m_currentIndex >= __m_results.size()) {
-        string errInfo = "ICPResults out of scope";
+    if (__m_currentIndex >= __m_results.size() || !__m_results.size()) {
+        std::string errInfo = "ICPResults out of scope";
         throw errInfo;
     }
     SetFramesRate(__m_currentIndex + 1, __m_results.size());
@@ -95,10 +95,10 @@ ICPPanel::NextFrame() {
 }
 
 //------------------------------------------------------------------------------
-const ICPResults &
+ICPResults
 ICPPanel::PrevFrame() {
-    if ((__m_currentIndex) < 0) {
-        string errInfo = "ICPResults out of scope";
+    if ((__m_currentIndex) < 0 || !__m_results.size()) {
+        std::string errInfo = "ICPResults out of scope";
         throw errInfo;
     }
     SetFramesRate(__m_currentIndex, __m_results.size());

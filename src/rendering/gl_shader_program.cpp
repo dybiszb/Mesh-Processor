@@ -5,8 +5,8 @@
 //------------------------------------------------------------------------------
 glShaderProgram::glShaderProgram(const GLchar *vertexPath,
                              const GLchar *fragmentPath) {
-    string vertexCode = loadShaderSourceCode(vertexPath, "VERTEX");
-    string fragmentCode = loadShaderSourceCode(fragmentPath, "FRAGMENT");
+    std::string vertexCode = loadShaderSourceCode(vertexPath, "VERTEX");
+    std::string fragmentCode = loadShaderSourceCode(fragmentPath, "FRAGMENT");
 
     GLuint vertexID = compileShader(vertexCode, GL_VERTEX_SHADER);
     GLuint fragmentID = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
@@ -35,15 +35,15 @@ glShaderProgram::getId() {
 }
 
 //------------------------------------------------------------------------------
-string
-glShaderProgram::loadShaderSourceCode(string path, string type) {
-    string shaderCode;
+std::string
+glShaderProgram::loadShaderSourceCode(std::string path, std::string type) {
+    std::string shaderCode;
     std::ifstream shaderFile;
     shaderFile.exceptions(std::ifstream::badbit);
 
     try {
         shaderFile.open(path);
-        stringstream shaderStream;
+        std::stringstream shaderStream;
         shaderStream << shaderFile.rdbuf();
         shaderFile.close();
         shaderCode = shaderStream.str();
@@ -58,7 +58,7 @@ glShaderProgram::loadShaderSourceCode(string path, string type) {
 
 //------------------------------------------------------------------------------
 GLuint
-glShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
+glShaderProgram::compileShader(std::string shaderCode, GLenum shaderType) {
     GLuint shaderId = glCreateShader(shaderType);
     const char* temp = shaderCode.c_str();
     glShaderSource(shaderId, 1, &(temp), NULL);
@@ -80,14 +80,14 @@ glShaderProgram::compileShader(string shaderCode, GLenum shaderType) {
 
 //------------------------------------------------------------------------------
 void
-glShaderProgram::getIdStatusInfo(GLuint id, GLenum status, string idType) {
+glShaderProgram::getIdStatusInfo(GLuint id, GLenum status, std::string idType) {
     GLint success;
     GLchar infoLog[512];
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
     if (!success) {
-        cout << "ERROR::" << idType << "\n";
+        std::cout << "ERROR::" << idType << "\n";
         glGetShaderInfoLog(id, 512, NULL, infoLog);
-        cout << "::TYPE::" << status << "\n" << infoLog << endl;
+        std::cout << "::TYPE::" << status << "\n" << infoLog << std::endl;
     }
 }
 

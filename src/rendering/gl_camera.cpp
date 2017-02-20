@@ -12,7 +12,7 @@ glOrbitCamera::glOrbitCamera()
           up(0.0f, 1.0f, 0.0f) { updateViewMatrix(); }
 
 //------------------------------------------------------------------------------
-Matrix4f &
+mat4 &
 glOrbitCamera::getViewMatrix() {
     updateViewMatrix();
     return viewMatrix;
@@ -51,7 +51,7 @@ glOrbitCamera::translate(float x, float y, float z) {
 
 //------------------------------------------------------------------------------
 void
-glOrbitCamera::setTarget(const Vector3f &newTarget) {
+glOrbitCamera::setTarget(const vec3 &newTarget) {
     // TODO: check if it creates copy
     target = newTarget;
 }

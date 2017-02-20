@@ -6,17 +6,17 @@
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
-#include "rendering/gl_eigen.h"
 #include <iostream>
+#include "logic/typedefs.h"
+#include "rendering/gl_eigen.h"
 
-using namespace std;
-using namespace Eigen;
+using namespace Application;
 
 class glOrbitCamera {
 public:
     glOrbitCamera();
 
-    Matrix4f& getViewMatrix();
+    mat4& getViewMatrix();
 
     void rotateX(float angle);
 
@@ -24,15 +24,15 @@ public:
 
     void changeRadiusBy(float delta);
 
-    void setTarget(const Vector3f& newTarget);
+    void setTarget(const vec3& newTarget);
 
     // TODO: check if needed
     void translate(float x, float y, float z);
 
 private:
     float phi, theta, radius;
-    Vector3f position, target, up;
-    Matrix4f viewMatrix;
+    vec3 position, target, up;
+    mat4 viewMatrix;
 
     void updateViewMatrix();
 };

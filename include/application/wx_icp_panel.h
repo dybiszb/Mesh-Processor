@@ -1,3 +1,15 @@
+//==============================================================================
+// The class in charge of 'ICP algorithm' section. besides encapsulating all of
+// get/set functionality it also introduces procedures that run the ICP
+// algorithm and returns next/previous frame of the solution. The latter is
+// based on internal index pointing to the current frame, which is tightly
+// binded with the section's slider. Please note that the solutions are stored
+// in form of a vector that holds structures of consecutive transformations
+// generated during ICP computations.
+//==============================================================================
+// author: dybisz
+//------------------------------------------------------------------------------
+
 #ifndef ICP_PANEL_H
 #define ICP_PANEL_H
 
@@ -8,8 +20,6 @@
 #include <algorithm>
 #include "logic/icp_algoriithm.h"
 #include <ctime>
-
-using namespace std;
 
 class ICPPanel : public wxPanel {
 public:
@@ -24,10 +34,26 @@ public:
      */
     void RunICP(const PointsCloud& m1PC, const PointsCloud& m2PC);
 
-    const ICPResults& NextFrame();
-    const ICPResults& PrevFrame();
+    /**
+     * Returns previous frame (with respect to currently selected) of the
+     * ICP solutions. In case when no solutions are available or caller asks
+     * for an index that is out of scope: exception will be thrown.
+     *
+     * @return Structure of transformations related to a next frame of the ICP
+     *         solution.
+     */
+    ICPResults NextFrame();
 
-    /* ----- Setters for corresponding widgets ----- */
+    /**
+     * Returns previous frame (with respect to currently selected) of the
+     * ICP solutions. In case when no solutions are available or caller asks
+     * for an index that is out of scope: exception will be thrown.
+     *
+     * @return Structure of transformations related to a previous frame of
+     *        the ICP solution.
+     */
+    ICPResults PrevFrame();
+
     void SetFramesRate(int frame, unsigned long outOf);
     void SetComputationTime(double time);
     void SetActive(bool isActive);
@@ -60,7 +86,7 @@ private:
     bool               __m_useNearestNeighbors;
     bool               __m_useSubSampling;
     int                __m_samples;
-    vector<ICPResults> __m_results;
+    std::vector<ICPResults> __m_results;
 
     /* ----- Widgets Initializations ----- */
     void __InitializeAnimationSliderBox(wxBoxSizer* parent);
@@ -78,13 +104,13 @@ wxDECLARE_EVENT_TABLE();
 };
 
 enum {
-    ID_ANIMATION_SLIDER = wxID_HIGHEST + 100,
-    ID_RUN_ICP_BUTTON   = wxID_HIGHEST + 101,
-    ID_RESET_ICP_BUTTON = wxID_HIGHEST + 102,
-    ID_NEXT_PREV_ICP_BUTTON = wxID_HIGHEST + 103,
-    ID_NEXT_FRAME_ICP_BUTTON = wxID_HIGHEST + 104,
+    ID_ANIMATION_SLIDER            = wxID_HIGHEST + 100,
+    ID_RUN_ICP_BUTTON              = wxID_HIGHEST + 101,
+    ID_RESET_ICP_BUTTON            = wxID_HIGHEST + 102,
+    ID_NEXT_PREV_ICP_BUTTON        = wxID_HIGHEST + 103,
+    ID_NEXT_FRAME_ICP_BUTTON       = wxID_HIGHEST + 104,
     ID_NEAREST_NEIGHBOURS_CHECKBOX = wxID_HIGHEST + 105,
-    ID_SUB_SAMPLING_CHECKBOX = wxID_HIGHEST + 106,
-    ID_SUB_SAMPLING_TEXT = wxID_HIGHEST + 107,
+    ID_SUB_SAMPLING_CHECKBOX       = wxID_HIGHEST + 106,
+    ID_SUB_SAMPLING_TEXT           = wxID_HIGHEST + 107,
 };
 #endif

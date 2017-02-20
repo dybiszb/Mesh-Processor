@@ -165,7 +165,7 @@ ModelPanel::__InitializeBottomCheckboxes(wxBoxSizer *parent) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setActive(bool isActive) {
+ModelPanel::SetActive(bool isActive) {
     __m_translationXText->Enable(isActive);
     __m_translationYText->Enable(isActive);
     __m_translationZText->Enable(isActive);
@@ -207,7 +207,7 @@ ModelPanel::setActive(bool isActive) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setTranslationText(float x, float y, float z) {
+ModelPanel::SetTranslationText(float x, float y, float z) {
     if (__m_translationXText) {
         __m_translationXText->Clear();
         *__m_translationXText << x;
@@ -226,7 +226,7 @@ ModelPanel::setTranslationText(float x, float y, float z) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setRotation(float roll, float yaw, float pitch) {
+ModelPanel::SetRotation(float roll, float yaw, float pitch) {
     if (__m_rotationXText) {
         __m_rotationXText->Clear();
         *__m_rotationXText << roll;
@@ -245,7 +245,7 @@ ModelPanel::setRotation(float roll, float yaw, float pitch) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setScale(float x, float y, float z) {
+ModelPanel::SetScale(float x, float y, float z) {
     if (__m_scalingXText) {
         __m_scalingXText->Clear();
         *__m_scalingXText << x;
@@ -264,7 +264,7 @@ ModelPanel::setScale(float x, float y, float z) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setShowNormals(bool showNormals) {
+ModelPanel::SetShowNormals(bool showNormals) {
     if (__m_normalsCheckbox) {
         __m_normalsCheckbox->SetValue(showNormals);
     }
@@ -272,7 +272,7 @@ ModelPanel::setShowNormals(bool showNormals) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setWireframe(bool wireframe) {
+ModelPanel::SetWireframe(bool wireframe) {
     if(__m_wireframeCheckbox) {
         __m_wireframeCheckbox->SetValue(!wireframe);
     }
@@ -280,26 +280,26 @@ ModelPanel::setWireframe(bool wireframe) {
 
 //------------------------------------------------------------------------------
 void
-ModelPanel::setICPBase(bool icpBase) {
+ModelPanel::SetICPBase(bool icpBase) {
     if(__m_icpBaseCheckbox) {
         __m_icpBaseCheckbox->SetValue(icpBase);
     }
 }
 
 //------------------------------------------------------------------------------
-Vector3f
-ModelPanel::getTranslation() {
+Eigen::Vector3f
+ModelPanel::GetTranslation() {
     double x, y, z;
     (__m_translationXText->GetValue()).ToDouble(&x);
     (__m_translationYText->GetValue()).ToDouble(&y);
     (__m_translationZText->GetValue()).ToDouble(&z);
 
-    return Vector3f(x, y, z);
+    return vec3(x, y, z);
 }
 
 //------------------------------------------------------------------------------
-Matrix3f
-ModelPanel::getRotation() {
+Eigen::Matrix3f
+ModelPanel::GetRotation() {
     double x, y, z;
     (__m_rotationXText->GetValue()).ToDouble(&x);
     (__m_rotationYText->GetValue()).ToDouble(&y);
@@ -309,19 +309,19 @@ ModelPanel::getRotation() {
 }
 
 //------------------------------------------------------------------------------
-Vector3f
-ModelPanel::getScale() {
+Eigen::Vector3f
+ModelPanel::GetScale() {
     double x, y, z;
     (__m_scalingXText->GetValue()).ToDouble(&x);
     (__m_scalingYText->GetValue()).ToDouble(&y);
     (__m_scalingZText->GetValue()).ToDouble(&z);
 
-    return Vector3f(x, y, z);
+    return vec3(x, y, z);
 }
 
 //------------------------------------------------------------------------------
 float
-ModelPanel::getStdDev() {
+ModelPanel::GetStdDev() {
     double stdDev;
     wxString val = __m_stddevText->GetValue();
     val.ToDouble(&stdDev);

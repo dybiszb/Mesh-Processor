@@ -139,7 +139,7 @@ MainFrame::__AppendMeshToTree(string path) {
 //------------------------------------------------------------------------------
 void
 MainFrame::__OnDeleteMesh(wxCommandEvent &event) {
-    if (__m_glPanel->isAnyModelSelected()) {
+    if (__m_glPanel->IsAnyModelSelected()) {
         wxTreeItemId glSelected = __m_glPanel->getCurrentlySelected();
         __m_glPanel->unselectAll();
 
@@ -176,43 +176,43 @@ MainFrame::__OnShow(wxShowEvent &event) {
 //------------------------------------------------------------------------------
 void // TODO: For the love of God - Bartek, make a setter for this : D
 MainFrame::__OnIdleWindow(wxIdleEvent &event) {
-    if (__m_glPanel->selectionChanged()) {
-        if (__m_glPanel->isAnyModelSelected()) {
-            __m_modelPanel->setActive(true);
+    if (__m_glPanel->SelectionChanged()) {
+        if (__m_glPanel->IsAnyModelSelected()) {
+            __m_modelPanel->SetActive(true);
 
             /* ----- Translation ----- */
             Vector3f translation = __m_glPanel->getCurrentlySelectedTranslation();
-            __m_modelPanel->setTranslationText(translation(0),
-                                             translation(1),
-                                             translation(2));
+            __m_modelPanel->SetTranslationText(translation(0),
+                                               translation(1),
+                                               translation(2));
 
             /* ----- Rotation ----- */
             Vector3f rotation = __m_glPanel->getCurrentlySelectedRotation();
-            __m_modelPanel->setRotation(degToRad(rotation(0)),
-                                      degToRad(rotation(1)),
-                                      degToRad(rotation(2)));
+            __m_modelPanel->SetRotation(degToRad(rotation(0)),
+                                        degToRad(rotation(1)),
+                                        degToRad(rotation(2)));
 
 
             /* ----- Scaling ----- */
             Vector3f scaling = __m_glPanel->getCurrentlySelectedScaling();
-            __m_modelPanel->setScale(scaling(0), scaling(1), scaling(2));
+            __m_modelPanel->SetScale(scaling(0), scaling(1), scaling(2));
 
             /* ----- Normals ----- */
             bool showNormals = __m_glPanel->getCurrentlySelectedShowNormals();
-            __m_modelPanel->setShowNormals(showNormals);
+            __m_modelPanel->SetShowNormals(showNormals);
 
             /* ----- Normals ----- */
             bool wireframe = __m_glPanel->getCurrentlySelectedWireframe();
-            __m_modelPanel->setWireframe(wireframe);
+            __m_modelPanel->SetWireframe(wireframe);
 
             /* ----- ICP Base ----- */
             bool icpBase = __m_glPanel->getCurrentlySelectedICPBase();
-            __m_modelPanel->setICPBase(icpBase);
+            __m_modelPanel->SetICPBase(icpBase);
 
         } else {
-            __m_modelPanel->setActive(false);
+            __m_modelPanel->SetActive(false);
         }
-        __m_glPanel->eatSelectionChangeNotification();
+        __m_glPanel->EatSelectionChangeNotification();
     }
 }
 
@@ -220,7 +220,7 @@ MainFrame::__OnIdleWindow(wxIdleEvent &event) {
 void
 MainFrame::__OnIntroduceNoise(wxCommandEvent &event) {
     wxTreeItemId selected = __m_treeCtrl->GetSelection();
-    float stdDev = __m_modelPanel->getStdDev();
+    float stdDev = __m_modelPanel->GetStdDev();
     __m_glPanel->introduceNoise(selected, stdDev);
     __m_icpPanel->SetActive(false);
 }
@@ -250,7 +250,7 @@ MainFrame::__OnMoveCentroidToOrigin(wxCommandEvent &event) {
 //------------------------------------------------------------------------------
 void
 MainFrame::__OnTranslationEditing(wxCommandEvent &event) {
-    Vector3f translation = __m_modelPanel->getTranslation();
+    Vector3f translation = __m_modelPanel->GetTranslation();
     __m_glPanel->setCurrentlySelectedTranslation(translation);
     __m_icpPanel->SetActive(false);
 }
@@ -258,7 +258,7 @@ MainFrame::__OnTranslationEditing(wxCommandEvent &event) {
 //------------------------------------------------------------------------------
 void
 MainFrame::__OnRotationEditing(wxCommandEvent &event) {
-    Matrix3f rotation = __m_modelPanel->getRotation();
+    Matrix3f rotation = __m_modelPanel->GetRotation();
     __m_glPanel->setCurrentlySelectedRotation(rotation);
     __m_icpPanel->SetActive(false);
 }
@@ -266,7 +266,7 @@ MainFrame::__OnRotationEditing(wxCommandEvent &event) {
 //------------------------------------------------------------------------------
 void
 MainFrame::__OnScalingEditing(wxCommandEvent &event) {
-    Vector3f scale = __m_modelPanel->getScale();
+    Vector3f scale = __m_modelPanel->GetScale();
     __m_glPanel->setCurrentlySelectedScale(scale);
     __m_icpPanel->SetActive(false);
 }

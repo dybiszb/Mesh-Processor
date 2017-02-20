@@ -312,7 +312,7 @@ glPlane::getCurrentlySelectedICPBase() {
 
 //------------------------------------------------------------------------------
 bool
-glPlane::isAnyModelSelected() {
+glPlane::IsAnyModelSelected() {
     return (m_currentlySelectedId != NULL);
 }
 
@@ -388,13 +388,13 @@ glPlane::getSingleSelection() {
 
 //------------------------------------------------------------------------------
 bool
-glPlane::selectionChanged() {
+glPlane::SelectionChanged() {
     return m_selectionChanged;
 }
 
 //------------------------------------------------------------------------------
 void
-glPlane::eatSelectionChangeNotification() {
+glPlane::EatSelectionChangeNotification() {
     m_selectionChanged = false;
 }
 

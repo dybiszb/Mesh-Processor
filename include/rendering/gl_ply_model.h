@@ -17,28 +17,26 @@
 #include <set>
 #include <iostream>
 #include <fstream>
-#include "rendering/gl_utils.h"
 #include <chrono>
 #include <random>
+#include "logic/typedefs.h"
 #include "entities/points_cloud.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_eigen.h"
-
-using namespace std;
-using namespace Eigen;
+#include "rendering/gl_utils.h"
 
 class glPlyModel {
 public:
-    glPlyModel(string path,
-               const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
-               const Matrix3f &rotation = Matrix3f::Identity(),
-               const Vector4f &color = Vector4f(45.0f / 256.0, 137.0f / 256.0f,
+    glPlyModel(std::string path,
+               const vec3 &translation = vec3(0.0, 0.0, 0.0),
+               const mat3 &rotation = mat3::Identity(),
+               const vec4 &color = vec4(45.0f / 256.0, 137.0f / 256.0f,
                                                 239.0f / 256.0, 1.0f));
 
     ~glPlyModel();
 
-    void render(glShaderProgram &shader, Matrix4f &view,
-                Matrix4f &projection, glShaderProgram* normalsViz = NULL);
+    void render(glShaderProgram &shader, mat4 &view,
+                mat4 &projection, glShaderProgram* normalsViz = NULL);
 
     void printInformation();
 
@@ -48,13 +46,13 @@ public:
 
     void moveCentroidToOrigin();
 
-    unique_ptr<PointsCloud> m_pointsCloud;
+    std::unique_ptr<PointsCloud> m_pointsCloud;
 
-    Matrix4f computeModelMatrix();
+    mat4 computeModelMatrix();
 
     void setICPBase(bool isBase);
     void setSelected(bool isSelected);
-    void setColor(const Vector4f &color);
+    void setColor(const vec4 &color);
     void setWireframe(bool isWireframed);
     void setRenderNormals(bool renderNormals);
     void setShading(bool shading);
@@ -66,18 +64,18 @@ public:
     bool getRenderNormals();
 
 private:
-    vector<pair<float, float>> __m_minMaxBB;
-    Vector4f                   __m_color;
-    Vector4f                   __m_colorNormal;
-    vector<Vector3f>           __m_vertices;
-    vector<GLfloat>            __m_glVertices2;
-    vector<GLuint>             __m_glFaces2;
-    vector<std::set<int>>      __m_neighbors;
-    vector<Vector3f>           __m_normals;
-    vector<GLfloat>            __m_glNormals;
-    vector<GLfloat>            __m_glNormalsLinesData;
+    std::vector<std::pair<float, float>> __m_minMaxBB;
+    vec4                       __m_color;
+    vec4                       __m_colorNormal;
+    std::vector<vec3>           __m_vertices;
+    std::vector<GLfloat>            __m_glVertices2;
+    std::vector<GLuint>             __m_glFaces2;
+    std::vector<std::set<int>>      __m_neighbors;
+    std::vector<vec3>           __m_normals;
+    std::vector<GLfloat>            __m_glNormals;
+    std::vector<GLfloat>            __m_glNormalsLinesData;
     int m_isSelected = 0;
-    string                     __m_path;
+    std::string                     __m_path;
     int                        __m_numberOfVertices = -1;
     int                        __m_numberOfFaces = -1;
     bool                       __m_numberOfVerticesFound = false;
@@ -91,14 +89,14 @@ private:
     GLuint                     __m_vbo, __m_vao, __m_ebo;
     GLuint                     __m_vbo_normals, __m_vao_normals;
     GLuint                     __m_vaoShading, __m_eboShading, __m_vboshading;
-    Vector3f                   __m_initialT;
-    Matrix3f                   __m_InitialR;
+    vec3                   __m_initialT;
+    mat3                   __m_InitialR;
 
-    void loadModel(string &path);
+    void loadModel(std::string &path);
 
     void approximateNormals();
 
-    void loadPointsCloud(const Vector3f &translation, const Matrix3f &rotation);
+    void loadPointsCloud(const vec3 &translation, const mat3 &rotation);
 
     void assignNeighbors(int n1, int n2, int n3);
 

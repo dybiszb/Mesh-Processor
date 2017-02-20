@@ -16,12 +16,6 @@
 #include <GL/glew.h>
 #include "GL/gl.h"
 
-using namespace std;
-
-namespace rendering {
-
-}
-
 class glShaderProgram {
 public:
     /**
@@ -58,7 +52,7 @@ private:
      *
      * @return     Parsed shader code.
      */
-    string loadShaderSourceCode(string path, string type="");
+    std::string loadShaderSourceCode(std::string path, std::string type="");
 
     /**
      * Compile shaders according to provided code and and type;
@@ -70,7 +64,7 @@ private:
      *
      * @return           An ID of compiled shader.
      */
-    GLuint compileShader(string shaderCode, GLenum shaderType);
+    GLuint compileShader(std::string shaderCode, GLenum shaderType);
 
     /**
      * The procedure basically introduces ease interface for calling
@@ -82,7 +76,7 @@ private:
      * @param idType  Additional information for error cause displaying e,g,
      *                "FRAGMENT_SHADER" or "PROGRAM".
      */
-    void getIdStatusInfo(GLuint id, GLenum status, string idType);
+    void getIdStatusInfo(GLuint id, GLenum status, std::string idType);
 
 
 };

@@ -7,14 +7,14 @@
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
+#include "logic/typedefs.h"
 
-using namespace Eigen;
+using namespace Application;
 
 //------------------------------------------------------------------------------
 inline void
-lookAt(Vector3f &position, Vector3f &target,
-       Vector3f &up, Matrix4f &mViewMatrix) {
-    Matrix3f R;
+lookAt(vec3 &position, vec3 &target, vec3 &up, mat4 &mViewMatrix) {
+    mat3 R;
     R.col(2) = (position - target).normalized();
     R.col(0) = up.cross(R.col(2)).normalized();
     R.col(1) = R.col(2).cross(R.col(0));
@@ -26,7 +26,7 @@ lookAt(Vector3f &position, Vector3f &target,
 //------------------------------------------------------------------------------
 inline void
 setPerspective(float fovY, float aspect, float near, float far,
-               Matrix4f &mProjectionMatrix) {
+               mat4 &mProjectionMatrix) {
     float theta = fovY * 0.5;
     float range = far - near;
     float invtan = 1. / tan(theta);
@@ -39,22 +39,22 @@ setPerspective(float fovY, float aspect, float near, float far,
     mProjectionMatrix(3, 3) = 0;
 }
 
-inline Affine3d
-createRotationMatrix(const Vector3f &perAxisAngles) {
-    Affine3d rx =
+inline Eigen::Affine3d
+createRotationMatrix(const vec3 &perAxisAngles) {
+    Eigen::Affine3d rx =
             Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(0), Eigen::Vector3d
                     (1, 0, 0)));
-    Affine3d ry =
+    Eigen::Affine3d ry =
             Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(1),
                                               Eigen::Vector3d(0, 1, 0)));
-    Affine3d rz =
+    Eigen::Affine3d rz =
             Eigen::Affine3d(Eigen::AngleAxisd(perAxisAngles(2),
                                               Eigen::Vector3d(0, 0, 1)));
     return rz * ry * rx;
 }
 
 //------------------------------------------------------------------------------
-inline Matrix3f
+inline mat3
 rotationMatrix(float roll, float yaw, float pitch) {
     Eigen::AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitZ());
     Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitY());
@@ -63,7 +63,7 @@ rotationMatrix(float roll, float yaw, float pitch) {
     Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
 
     Eigen::Matrix3d rotationMatrix = q.matrix();
-    Matrix3f r = rotationMatrix.cast<float>();
+    mat3 r = rotationMatrix.cast<float>();
 
     return r;
 }

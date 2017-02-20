@@ -5,18 +5,18 @@
 #include <GL/gl.h>
 #include <iostream>
 #include <string>
-using namespace std;
+#include "logic/typedefs.h"
 
 //------------------------------------------------------------------------------
 inline void
 glCheckForErrors() {
     GLenum errCode;
-    string errString;
+    std::string errString;
     if ((errCode = glGetError()) !=
         GL_NO_ERROR)
     {
         errString = (const char*)gluErrorString(errCode);
-        cout << "OpenGL Error:" <<  errString << endl;
+        std::cout << "OpenGL Error:" <<  errString << std::endl;
     }
 
 }

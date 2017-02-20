@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include "logic/typedefs.h"
 #include "rendering/gl_shader_program.h"
 #include "rendering/gl_camera.h"
 #include "rendering/gl_eigen.h"
@@ -35,8 +36,7 @@
 #include "logic/icp_algoriithm.h"
 #include "entities/points_cloud.h"
 
-using namespace Eigen;
-using namespace std;
+using namespace Application;
 
 class glPlane : public wxGLCanvas {
     wxGLContext *m_context;
@@ -79,6 +79,24 @@ public:
 
     void deleteMesh(const wxTreeItemId &item);
 
+    /**
+     * @return True if model is selected/highlighted in the viewer, false
+     * otherwise.
+     */
+    bool IsAnyModelSelected();
+
+    /**
+     * Method should be used coupled with EatSelectionChangeNotification
+     * procedure.
+     *
+     * @return True if model selection changed since
+     *         EatSelectionChangeNotification method was called, false otherwise.
+     */
+    bool SelectionChanged();
+
+
+    void EatSelectionChangeNotification();
+
     void setRenderNormals(const wxTreeItemId &item, bool renderNormals);
 
     void setCurrentlySelectedRenderNormals(bool renderNormals);
@@ -93,16 +111,15 @@ public:
     void setCurrentlySelectedRotation(const Matrix3f& rotation);
     void setCurrentlySelectedScale(const Vector3f& scale);
 
-    Vector3f getCurrentlySelectedTranslation();
-
-    Vector3f getCurrentlySelectedRotation();
-
-    Vector3f getCurrentlySelectedScaling();
+    vec3 getCurrentlySelectedTranslation();
+    vec3 getCurrentlySelectedRotation();
+    vec3 getCurrentlySelectedScaling();
 
     bool getCurrentlySelectedShowNormals();
     bool getCurrentlySelectedWireframe();
     bool getCurrentlySelectedICPBase();
-    bool isAnyModelSelected();
+
+
 
     void runICP();
 
@@ -118,9 +135,6 @@ public:
 
     const string getSingleSelection();
 
-    bool selectionChanged();
-
-    void eatSelectionChangeNotification();
 
 private:
     wxTreeItemId m_currentlySelectedId = NULL;
