@@ -26,8 +26,6 @@ class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
-    void OnShow(wxShowEvent &event);
-
 private:
     glPlane *m_glPanel;
     wxTreeItemId m_meshesRoot;
@@ -48,30 +46,31 @@ private:
     void initializeICPBox(wxBoxSizer *parent);
     void initializeMeshOptionsBox(wxBoxSizer *parent);
 
+    /* ----- Events Handlers: General ----- */
+    void __OnIdleWindow(wxIdleEvent &event);
+    void __OnShow(wxShowEvent &event);
+
     /* ----- Events Handlers: Loaded Meshes ----- */
-    void __onMeshesTreeItemClicked(wxTreeEvent &event);
-    void __onLoadMesh(wxCommandEvent &event);
-    void __onDeleteMesh(wxCommandEvent &event);
+    void __OnMeshesTreeItemClicked(wxTreeEvent &event);
+    void __OnLoadMesh(wxCommandEvent &event);
+    void __OnDeleteMesh(wxCommandEvent &event);
 
     /* ----- Events Handlers: ICP Algorithm ----- */
-    void __onPrevFrameICP(wxCommandEvent &event);
-    void __onNextFrameICP(wxCommandEvent &event);
-    void __onICPRun(wxCommandEvent &event);
-    void __onICPReset(wxCommandEvent &event);
-    void __onNearestNeighborsCheckbox(wxCommandEvent &event);
+    void __OnPrevFrameICP(wxCommandEvent &event);
+    void __OnNextFrameICP(wxCommandEvent &event);
+    void __OnICPRun(wxCommandEvent &event);
+    void __OnICPReset(wxCommandEvent &event);
+    void __OnNearestNeighborsCheckbox(wxCommandEvent &event);
 
     /* ----- Events Handlers: Mesh options ----- */
-    void __onTranslationEditing(wxCommandEvent &event);
-    void __onRotationEditing(wxCommandEvent &event);
-    void __onScalingEditing(wxCommandEvent &event);
-    void __onIntroduceNoise(wxCommandEvent &event);
-    void __onMoveCentroidToOrigin(wxCommandEvent &event);
-    void __onNormalsCheckbox(wxCommandEvent &event);
-    void __onWireframe(wxCommandEvent &event);
-    void __onICPBaseCheckbox(wxCommandEvent &event);
-
-    /* ----- Events Handlers: General ----- */
-    void __onIdleWindow(wxIdleEvent &event);
+    void __OnTranslationEditing(wxCommandEvent &event);
+    void __OnRotationEditing(wxCommandEvent &event);
+    void __OnScalingEditing(wxCommandEvent &event);
+    void __OnIntroduceNoise(wxCommandEvent &event);
+    void __OnMoveCentroidToOrigin(wxCommandEvent &event);
+    void __OnNormalsCheckbox(wxCommandEvent &event);
+    void __OnWireframe(wxCommandEvent &event);
+    void __OnICPBaseCheckbox(wxCommandEvent &event);
 
 wxDECLARE_EVENT_TABLE();
 };
@@ -79,8 +78,6 @@ wxDECLARE_EVENT_TABLE();
 enum {
     ID_BUTTON_LOAD_MESH = wxID_HIGHEST + 1,
     ID_BUTTON_DELETE_MESH = wxID_HIGHEST + 2,
-    ID_BUTTON_RUN_ICP = wxID_HIGHEST + 3,
-    ID_BUTTON_NEXT_FRAME = wxID_HIGHEST + 4,
     ID_MESHES_TREE_CTRL = wxID_HIGHEST + 5,
     ID_ICP_SLIDER = wxID_HIGHEST + 6,
 };

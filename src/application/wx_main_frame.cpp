@@ -46,10 +46,10 @@ MainFrame::initializeMeshTree(wxBoxSizer *parent) {
     // Buttons
     auto hBox1 = new wxBoxSizer(wxHORIZONTAL);
     auto loadMeshButton = new wxButton(this, ID_BUTTON_LOAD_MESH,
-                                       wxT("      Load Mesh      "),wxPoint
+                                       wxT("      Load Mesh      "), wxPoint
                                                (-10, 10), wxSize(121, -1));
     auto deleteMeshButton = new wxButton(this, ID_BUTTON_DELETE_MESH,
-                                         wxT("      Delete Mesh    "),wxPoint
+                                         wxT("      Delete Mesh    "), wxPoint
                                                  (-10, 10), wxSize(121, -1));
     hBox1->Add(loadMeshButton, 0, wxEXPAND);
     hBox1->Add(deleteMeshButton, 0, wxEXPAND);
@@ -89,7 +89,7 @@ MainFrame::initializeMeshOptionsBox(wxBoxSizer *parent) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onLoadMesh(wxCommandEvent &event) {
+MainFrame::__OnLoadMesh(wxCommandEvent &event) {
     wxFileDialog *OpenDialog = new wxFileDialog(this,
                                                 _("Choose a file to open"),
                                                 wxEmptyString, wxEmptyString,
@@ -139,7 +139,7 @@ MainFrame::appendMeshToTree(string path) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onDeleteMesh(wxCommandEvent &event) {
+MainFrame::__OnDeleteMesh(wxCommandEvent &event) {
     if (m_glPanel->isAnyModelSelected()) {
         wxTreeItemId glSelected = m_glPanel->getCurrentlySelected();
         m_glPanel->unselectAll();
@@ -154,7 +154,7 @@ MainFrame::__onDeleteMesh(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onMeshesTreeItemClicked(wxTreeEvent &event) {
+MainFrame::__OnMeshesTreeItemClicked(wxTreeEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
 
     // Act only if not a root
@@ -170,13 +170,13 @@ MainFrame::__onMeshesTreeItemClicked(wxTreeEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::OnShow(wxShowEvent &event) {
+MainFrame::__OnShow(wxShowEvent &event) {
 //    loadDefaultMesh();
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onIdleWindow(wxIdleEvent &event) {
+MainFrame::__OnIdleWindow(wxIdleEvent &event) {
     if (m_glPanel->selectionChanged()) {
         if (m_glPanel->isAnyModelSelected()) {
             m_modelPanel->setActive(true);
@@ -219,7 +219,7 @@ MainFrame::__onIdleWindow(wxIdleEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onIntroduceNoise(wxCommandEvent &event) {
+MainFrame::__OnIntroduceNoise(wxCommandEvent &event) {
     wxTreeItemId selected = m_treeCtrl->GetSelection();
     float stdDev = m_modelPanel->getStdDev();
     m_glPanel->introduceNoise(selected, stdDev);
@@ -228,14 +228,14 @@ MainFrame::__onIntroduceNoise(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onNormalsCheckbox(wxCommandEvent &event) {
+MainFrame::__OnNormalsCheckbox(wxCommandEvent &event) {
     wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
     m_glPanel->setCurrentlySelectedRenderNormals(source->IsChecked());
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onICPBaseCheckbox(wxCommandEvent &event) {
+MainFrame::__OnICPBaseCheckbox(wxCommandEvent &event) {
     wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
     m_glPanel->setCurrentlySelectedAsICPBaseMesh(source->IsChecked());
     m_icpPanel->SetActive(false);
@@ -243,14 +243,14 @@ MainFrame::__onICPBaseCheckbox(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onMoveCentroidToOrigin(wxCommandEvent &event) {
+MainFrame::__OnMoveCentroidToOrigin(wxCommandEvent &event) {
     m_glPanel->moveCurrentlySelectedCentroidToOrigin();
     m_icpPanel->SetActive(false);
 };
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onTranslationEditing(wxCommandEvent &event) {
+MainFrame::__OnTranslationEditing(wxCommandEvent &event) {
     Vector3f translation = m_modelPanel->getTranslation();
     m_glPanel->setCurrentlySelectedTranslation(translation);
     m_icpPanel->SetActive(false);
@@ -258,7 +258,7 @@ MainFrame::__onTranslationEditing(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onRotationEditing(wxCommandEvent &event) {
+MainFrame::__OnRotationEditing(wxCommandEvent &event) {
     Matrix3f rotation = m_modelPanel->getRotation();
     m_glPanel->setCurrentlySelectedRotation(rotation);
     m_icpPanel->SetActive(false);
@@ -266,7 +266,7 @@ MainFrame::__onRotationEditing(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onScalingEditing(wxCommandEvent &event) {
+MainFrame::__OnScalingEditing(wxCommandEvent &event) {
     cout << "edit scaling\n";
     Vector3f scale = m_modelPanel->getScale();
     m_glPanel->setCurrentlySelectedScale(scale);
@@ -275,23 +275,23 @@ MainFrame::__onScalingEditing(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onICPRun(wxCommandEvent &event) {
+MainFrame::__OnICPRun(wxCommandEvent &event) {
     wxTreeItemId baseId;
     wxTreeItemId selectedId;
     try {
         baseId = m_glPanel->getCurrentICPBaseMeshId();
-    }catch (string info) {
+    } catch (string info) {
         wxMessageBox(info, "No base Mesh.", wxICON_INFORMATION);
         return;
     }
     try {
         selectedId = m_glPanel->getCurrentlySelected();
-    } catch(string info) {
+    } catch (string info) {
         wxMessageBox(info, "No mesh selected.", wxICON_INFORMATION);
         return;
     }
 
-    if(selectedId.GetID() == baseId.GetID()) {
+    if (selectedId.GetID() == baseId.GetID()) {
         string info = "Base mesh for ICP is the same as selected one. Please "
                 "chage it.";
         wxMessageBox(info, "The same mesh.", wxICON_INFORMATION);
@@ -310,97 +310,84 @@ MainFrame::__onICPRun(wxCommandEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onICPReset(wxCommandEvent &event) {
+MainFrame::__OnICPReset(wxCommandEvent &event) {
     m_glPanel->setCurrentlySelectedToInitialTransformations();
     m_icpPanel->SetActive(false);
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onWireframe(wxCommandEvent &event) {
-    cout << "click"<<endl;
+MainFrame::__OnWireframe(wxCommandEvent &event) {
+    cout << "click" << endl;
     wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
     m_glPanel->setCurrentlySelectedWireframe(!source->IsChecked());
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onPrevFrameICP(wxCommandEvent &event) {
+MainFrame::__OnPrevFrameICP(wxCommandEvent &event) {
     try {
         ICPResults prevFrame = m_icpPanel->PrevFrame();
-        prevFrame.m_t = - prevFrame.m_t;
+        prevFrame.m_t = -prevFrame.m_t;
         prevFrame.m_R = prevFrame.m_R.inverse();
         m_glPanel->setCurrentlySelectedICPResult(prevFrame);
-    } catch(string info) {
+    } catch (string info) {
         return;
     }
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onNextFrameICP(wxCommandEvent &event) {
+MainFrame::__OnNextFrameICP(wxCommandEvent &event) {
     try {
         ICPResults nextFrame = m_icpPanel->NextFrame();
         m_glPanel->setCurrentlySelectedICPResult(nextFrame);
-    } catch(string info) {
+    } catch (string info) {
         return;
     }
 }
 
 //------------------------------------------------------------------------------
 void
-MainFrame::__onNearestNeighborsCheckbox(wxCommandEvent &event) {
+MainFrame::__OnNearestNeighborsCheckbox(wxCommandEvent &event) {
     wxCheckBox *source = (wxCheckBox *) event.GetEventObject();
     m_icpPanel->SetNearestNeighbors(source->IsChecked());
 }
 
 //------------------------------------------------------------------------------
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-                EVT_BUTTON (ID_BUTTON_LOAD_MESH, MainFrame::__onLoadMesh)
-                EVT_BUTTON (ID_BUTTON_DELETE_MESH, MainFrame::__onDeleteMesh)
-                EVT_BUTTON (ID_BUTTON_RUN_ICP, MainFrame::__onICPRun)
-                EVT_BUTTON (ID_BUTTON_NEXT_FRAME, MainFrame::__onICPReset)
-                EVT_BUTTON (ID_RUN_ICP_BUTTON, MainFrame::__onICPRun)
-                EVT_BUTTON (ID_RESET_ICP_BUTTON, MainFrame::__onICPReset)
 
-                EVT_BUTTON (ID_NEXT_FRAME_ICP_BUTTON, MainFrame::__onNextFrameICP)
-                EVT_BUTTON (ID_NEXT_PREV_ICP_BUTTON, MainFrame::__onPrevFrameICP)
+                /* ----- General ----- */
+                EVT_SHOW(MainFrame::__OnShow)
+                EVT_IDLE(MainFrame::__OnIdleWindow)
 
-                // Translation
-                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_X,
-                               MainFrame::__onTranslationEditing)
-                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Y,
-                               MainFrame::__onTranslationEditing)
-                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Z,
-                               MainFrame::__onTranslationEditing)
+                /* ----- Loaded Meshes ----- */
+                EVT_BUTTON               (ID_BUTTON_LOAD_MESH,   MainFrame::__OnLoadMesh)
+                EVT_BUTTON               (ID_BUTTON_DELETE_MESH, MainFrame::__OnDeleteMesh)
+                EVT_TREE_ITEM_ACTIVATED  (ID_MESHES_TREE_CTRL,   MainFrame::__OnMeshesTreeItemClicked)
+                EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,   MainFrame::__OnMeshesTreeItemClicked)
 
-                // Rotation
-                EVT_TEXT_ENTER(ID_TEXT_ROTATION_X,
-                               MainFrame::__onRotationEditing)
-                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Y,
-                               MainFrame::__onRotationEditing)
-                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Z,
-                               MainFrame::__onRotationEditing)
+                /* ----- ICP Algorithm ----- */
+                EVT_BUTTON  (ID_NEXT_FRAME_ICP_BUTTON,       MainFrame::__OnNextFrameICP)
+                EVT_BUTTON  (ID_NEXT_PREV_ICP_BUTTON,        MainFrame::__OnPrevFrameICP)
+                EVT_BUTTON  (ID_RUN_ICP_BUTTON,              MainFrame::__OnICPRun)
+                EVT_BUTTON  (ID_RESET_ICP_BUTTON,            MainFrame::__OnICPReset)
+                EVT_CHECKBOX(ID_NEAREST_NEIGHBOURS_CHECKBOX, MainFrame::__OnNearestNeighborsCheckbox)
 
-                // Scale
-                EVT_TEXT_ENTER(ID_TEXT_SCALING_X,
-                               MainFrame::__onScalingEditing)
-                EVT_TEXT_ENTER(ID_TEXT_SCALING_Y,
-                               MainFrame::__onScalingEditing)
-                EVT_TEXT_ENTER(ID_TEXT_SCALING_Z,
-                               MainFrame::__onScalingEditing)
+                /* ----- Mesh Options ----- */
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_X, MainFrame::__OnTranslationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Y, MainFrame::__OnTranslationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_TRANSLATION_Z, MainFrame::__OnTranslationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_X,    MainFrame::__OnRotationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Y,    MainFrame::__OnRotationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_ROTATION_Z,    MainFrame::__OnRotationEditing)
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_X,     MainFrame::__OnScalingEditing)
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_Y,     MainFrame::__OnScalingEditing)
+                EVT_TEXT_ENTER(ID_TEXT_SCALING_Z,     MainFrame::__OnScalingEditing)
+                EVT_BUTTON    (ID_INTRODUCE_NOISE,    MainFrame::__OnIntroduceNoise)
+                EVT_BUTTON    (ID_MOVE_TO_ORIGIN,     MainFrame::__OnMoveCentroidToOrigin)
+                EVT_CHECKBOX  (ID_CHECKBOX_NORMALS,   MainFrame::__OnNormalsCheckbox)
+                EVT_CHECKBOX  (ID_CHECKBOX_WIREFRAME, MainFrame::__OnWireframe)
+                EVT_CHECKBOX  (ID_CHECKBOX_ICP_BASE,  MainFrame::__OnICPBaseCheckbox)
 
-                EVT_BUTTON (ID_INTRODUCE_NOISE, MainFrame::__onIntroduceNoise)
-                EVT_BUTTON (ID_MOVE_TO_ORIGIN,
-                            MainFrame::__onMoveCentroidToOrigin)
-                EVT_CHECKBOX(ID_CHECKBOX_NORMALS, MainFrame::__onNormalsCheckbox)
-                EVT_CHECKBOX(ID_CHECKBOX_ICP_BASE, MainFrame::__onICPBaseCheckbox)
-                EVT_CHECKBOX(ID_CHECKBOX_WIREFRAME, MainFrame::__onWireframe)
-                EVT_CHECKBOX(ID_NEAREST_NEIGHBOURS_CHECKBOX, MainFrame::__onNearestNeighborsCheckbox)
-                EVT_TREE_ITEM_ACTIVATED(ID_MESHES_TREE_CTRL,
-                                        MainFrame::__onMeshesTreeItemClicked)
-                EVT_TREE_ITEM_RIGHT_CLICK(ID_MESHES_TREE_CTRL,
-                                          MainFrame::__onMeshesTreeItemClicked)
-                EVT_SHOW(MainFrame::OnShow)
-                EVT_IDLE(MainFrame::__onIdleWindow)
 wxEND_EVENT_TABLE()
