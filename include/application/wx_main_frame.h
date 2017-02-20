@@ -26,8 +26,6 @@ class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
-    void loadDefaultMesh();
-
     void OnShow(wxShowEvent &event);
 
 private:
@@ -42,79 +40,39 @@ private:
     wxStaticBitmap *m_icpTitleBitmap;
     wxStaticBitmap *m_titleBitmap;
 
-    void initializeMeshTree(wxBoxSizer *parent);
 
-    void initializeICPBox(wxBoxSizer *parent);
-
-    void initializeMeshOptionsBox(wxBoxSizer *parent);
-
-    /**
-     *
-     * @param path
-     * @return
-     */
+    void loadDefaultMesh();
     wxTreeItemId appendMeshToTree(string path);
 
-    /**
-     * Opens file dialog in order to pick a mesh that should be loaded.
-     *
-     * @param event wxWidgets event.
-     */
-    void OnLoadMesh(wxCommandEvent &event);
+    void initializeMeshTree(wxBoxSizer *parent);
+    void initializeICPBox(wxBoxSizer *parent);
+    void initializeMeshOptionsBox(wxBoxSizer *parent);
 
-    /**
-     *
-     * @param event
-     */
-    void OnDeleteMesh(wxCommandEvent &event);
+    /* ----- Events Handlers: Loaded Meshes ----- */
+    void __onMeshesTreeItemClicked(wxTreeEvent &event);
+    void __onLoadMesh(wxCommandEvent &event);
+    void __onDeleteMesh(wxCommandEvent &event);
 
-    /**
-     *
-     * @param event
-     */
-//    void OnRunICP(wxCommandEvent &event);
+    /* ----- Events Handlers: ICP Algorithm ----- */
+    void __onPrevFrameICP(wxCommandEvent &event);
+    void __onNextFrameICP(wxCommandEvent &event);
+    void __onICPRun(wxCommandEvent &event);
+    void __onICPReset(wxCommandEvent &event);
+    void __onNearestNeighborsCheckbox(wxCommandEvent &event);
 
-    /**
-     *
-     * @param event
-     */
-    void OnMeshesTreeItemClicked(wxTreeEvent &event);
+    /* ----- Events Handlers: Mesh options ----- */
+    void __onTranslationEditing(wxCommandEvent &event);
+    void __onRotationEditing(wxCommandEvent &event);
+    void __onScalingEditing(wxCommandEvent &event);
+    void __onIntroduceNoise(wxCommandEvent &event);
+    void __onMoveCentroidToOrigin(wxCommandEvent &event);
+    void __onNormalsCheckbox(wxCommandEvent &event);
+    void __onWireframe(wxCommandEvent &event);
+    void __onICPBaseCheckbox(wxCommandEvent &event);
 
-    /**
-     *
-     * @param event
-     */
-//    void OnNextFrame(wxCommandEvent &event);
+    /* ----- Events Handlers: General ----- */
+    void __onIdleWindow(wxIdleEvent &event);
 
-    /**
-     *
-     * @param event
-     */
-    void OnIdleWindow(wxIdleEvent &event);
-
-    void OnIntroduceNoise(wxCommandEvent &event);
-
-    void OnNormalsCheckbox(wxCommandEvent& event);
-
-    void OnICPBaseCheckbox(wxCommandEvent& event);
-
-    void OnMoveCentroidToOrigin(wxCommandEvent &event);
-
-    void OnTranslationEditing(wxCommandEvent &event);
-
-    void OnRotationEditing(wxCommandEvent &event);
-
-    void OnScaleEditing(wxCommandEvent &event);
-
-    void OnICPRun(wxCommandEvent &event);
-
-    void OnICPReset(wxCommandEvent &event);
-
-    void OnWireframe(wxCommandEvent &event);
-
-    void OnPrevFrameICP(wxCommandEvent &event);
-    void OnNextFrameICP(wxCommandEvent &event);
-    void OnNearestNeighborsCheckbox(wxCommandEvent &event);
 wxDECLARE_EVENT_TABLE();
 };
 
