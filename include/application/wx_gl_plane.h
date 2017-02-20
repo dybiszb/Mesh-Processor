@@ -42,12 +42,8 @@ class glPlane : public wxGLCanvas {
     wxGLContext *m_context;
     vector<ICPResults> m_results;
 public:
-    map<wxTreeItemId, unique_ptr<glPlyModel>> meshes;
-    bool glReady;
-    glShaderProgram *mainShader;
-    glShaderProgram *__m_normalsVisualizationShader;
-    glPlyModel *mesh;
-    vector<wxTreeItemId> tempModelsIndices;
+    glPlane(wxFrame *parent, int *args);
+
     Matrix4f projection;
     glCoordinatesFrame *coordinates;
     // Camera Stuff
@@ -60,13 +56,12 @@ public:
     GLfloat lastFrame = 0.0f;
     bool m_selectionChanged;
 
-    glPlane(wxFrame *parent, int *args);
+
     const PointsCloud& getMeshCloudById(const wxTreeItemId& id);
     virtual ~glPlane();
 
     void loadICPResult(const wxTreeItemId& id, const ICPResults& result);
-    void setCurrentlySelectedToInitialTransformations();
-    void setCurrentlySelectedICPResult(const ICPResults& result);
+
     void loadMesh(string path, wxTreeItemId id,
                   const Vector3f &translation = Vector3f(0.0, 0.0, 0.0),
                   const Matrix3f &rotation = Matrix3f::Identity());
@@ -102,6 +97,8 @@ public:
     void setCurrentlySelectedRenderNormals(bool renderNormals);
     void setCurrentlySelectedAsICPBaseMesh(bool icpBase);
     void setCurrentlySelectedWireframe(bool wireframe);
+    void setCurrentlySelectedToInitialTransformations();
+    void setCurrentlySelectedICPResult(const ICPResults& result);
 
     void introduceNoise(const wxTreeItemId &item, const float stdDev);
 
@@ -114,61 +111,39 @@ public:
     vec3 getCurrentlySelectedTranslation();
     vec3 getCurrentlySelectedRotation();
     vec3 getCurrentlySelectedScaling();
-
     bool getCurrentlySelectedShowNormals();
     bool getCurrentlySelectedWireframe();
     bool getCurrentlySelectedICPBase();
-
-
-
-    void runICP();
-
     wxTreeItemId getCurrentICPBaseMeshId();
 
-    /**
-     * Initialize OpenGL context.
-     */
-    void initializeGLEW();
-
-    void resized(wxSizeEvent &evt);
-
-
-    const string getSingleSelection();
-
-
 private:
-    wxTreeItemId m_currentlySelectedId = NULL;
-    wxTreeItemId m_currentICPBaseId = NULL;
+    map<wxTreeItemId, unique_ptr<glPlyModel>> __m_meshes;
+    bool __m_glReady;
+    glShaderProgram *__m_mainShader;
+    glShaderProgram *__m_normalsVisualizationShader;
+    wxTreeItemId __m_currentlySelectedId = NULL;
+    wxTreeItemId __m_currentICPBaseId = NULL;
 
-    int getWidth();
+    /* ----- OpenGL Context Initialization ----- */
+    void __InitializeGLEW();
+    void __InitializeGLContextIfNotReady();
 
-    int getHeight();
+    void __Prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
+                             int bottomrigth_y);
 
-    void initializeGLContextIfNotReady();
+    /* ----- Event Handlers: Paint ----- */
+    void __OnRender(wxPaintEvent &evt);
+    void __OnResized(wxSizeEvent &evt);
 
-    void render(wxPaintEvent &evt);
-
-    void prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
-                           int bottomrigth_y);
-
-    // events
-
-
-    void mouseDown(wxMouseEvent &event);
-
-    void mouseWheelMoved(wxMouseEvent &event);
-
-    void mouseMoved(wxMouseEvent &event);
-
-    void mouseReleased(wxMouseEvent &event);
-
-    void rightClick(wxMouseEvent &event);
-
-    void mouseLeftWindow(wxMouseEvent &event);
-
-    void keyPressed(wxKeyEvent &event);
-
-    void keyReleased(wxKeyEvent &event);
+    /* ----- Event Handlers: I/O ----- */
+    void __OnMouseDown(wxMouseEvent &event);
+    void __OnMouseWheelMoved(wxMouseEvent &event);
+    void __OnMouseMoved(wxMouseEvent &event);
+    void __OnMouseReleased(wxMouseEvent &event);
+    void __OnMouseRightClick(wxMouseEvent &event);
+    void __OnMouseLeftWindow(wxMouseEvent &event);
+    void __OnKeyPressed(wxKeyEvent &event);
+    void __OnKeyReleased(wxKeyEvent &event);
 
 DECLARE_EVENT_TABLE()
 };

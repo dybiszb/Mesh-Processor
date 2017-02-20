@@ -44,7 +44,7 @@ Although nanoflann itself doesn't have to be compiled, you can build some exampl
 
   * **Execution time efficiency**: 
     * The power of the original `flann` library comes from the possibility of choosing between different ANN algorithms. The cost of this flexibility is the declaration of pure virtual methods which (in some circumstances) impose [run-time penalties](http://www.cs.cmu.edu/~gilpin/c%2B%2B/performance.html#virtualfunctions). In `nanoflann` all those virtual methods have been replaced by a combination of the [Curiously Recurring Template Pattern](http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern) (CRTP) and inlined methods, which are much faster. 
-    * For `radiusSearch()`, there is no need to make a call to determine the number of points within the radius and then call it again to get the data. By using STL containers for the output data, containers are automatically resized.
+    * For `radiusSearch()`, there is no need to make a call to determine the number of points within the radius and then call it again to get the data. By using STL containers for the output data, containers are automatically __OnResized.
     * Users can (optionally) set the problem dimensionality at compile-time via a template argument, thus allowing the compiler to fully unroll loops.
     * `nanoflann` allows users to provide a precomputed bounding box of the data, if available, to avoid recomputation.
     * Indices of data points have been converted from `int` to `size_t`, which removes a limit when handling very large data sets.

@@ -17,8 +17,7 @@ glPlane::glPlane(wxFrame *parent, int *args) : m_selectionChanged(true),
 
 //------------------------------------------------------------------------------
 glPlane::~glPlane() {
-    delete mesh;
-    delete mainShader;
+    delete __m_mainShader;
     delete __m_normalsVisualizationShader;
     delete coordinates;
     delete camera;
@@ -31,9 +30,8 @@ glPlane::loadMesh(string path,
                   wxTreeItemId id,
                   const Vector3f &translation,
                   const Matrix3f &rotation) {
-    if (meshes.find(id.GetID()) == meshes.end()) {
-        tempModelsIndices.push_back(id.GetID());
-        meshes[id.GetID()] = unique_ptr
+    if (__m_meshes.find(id.GetID()) == __m_meshes.end()) {
+        __m_meshes[id.GetID()] = unique_ptr
                 <glPlyModel>(new glPlyModel(path, translation, rotation));
     } else {
         cout << "Warning: mesh assignment to existing id." << endl;
@@ -43,12 +41,12 @@ glPlane::loadMesh(string path,
 //------------------------------------------------------------------------------
 void
 glPlane::setSelected(const wxTreeItemId &id, bool isSelected) {
-    if (meshes.count(id.GetID()) != 0) {
-        if (m_currentlySelectedId != NULL) {
-            (meshes[m_currentlySelectedId.GetID()])->setSelected(!isSelected);
+    if (__m_meshes.count(id.GetID()) != 0) {
+        if (__m_currentlySelectedId != NULL) {
+            (__m_meshes[__m_currentlySelectedId.GetID()])->setSelected(!isSelected);
         }
-        (meshes[id.GetID()])->setSelected(isSelected);
-        m_currentlySelectedId = id;
+        (__m_meshes[id.GetID()])->setSelected(isSelected);
+        __m_currentlySelectedId = id;
         m_selectionChanged = true;
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
@@ -58,35 +56,35 @@ glPlane::setSelected(const wxTreeItemId &id, bool isSelected) {
 //------------------------------------------------------------------------------
 wxTreeItemId
 glPlane::getCurrentlySelected() {
-    if(!m_currentlySelectedId) {
+    if(!__m_currentlySelectedId) {
         string errorInfo = "No mesh selected. Please right click on one of "
                 "the mesh in the tree view. Please do not select the one that"
                 " was selected as a base for ICP algorithm.";
         throw errorInfo;
     }
-    return m_currentlySelectedId;
+    return __m_currentlySelectedId;
 }
 
 //------------------------------------------------------------------------------
 void
 glPlane::unselectAll() {
-    if (m_currentlySelectedId != NULL) {
-        (meshes[m_currentlySelectedId.GetID()])->setSelected(false);
+    if (__m_currentlySelectedId != NULL) {
+        (__m_meshes[__m_currentlySelectedId.GetID()])->setSelected(false);
     }
-    m_currentlySelectedId = NULL;
+    __m_currentlySelectedId = NULL;
     m_selectionChanged = true;
 }
 
 void glPlane::loadICPResult(const wxTreeItemId& id, const ICPResults& result) {
-    (meshes[id.GetID()])->m_pointsCloud->accumulateRotation(result.m_R);
-    (meshes[id.GetID()])->m_pointsCloud->accumulateTranslation(result.m_t);
+    (__m_meshes[id.GetID()])->m_pointsCloud->accumulateRotation(result.m_R);
+    (__m_meshes[id.GetID()])->m_pointsCloud->accumulateTranslation(result.m_t);
 }
 //------------------------------------------------------------------------------
 void
 glPlane::setCurrentlySelectedToInitialTransformations() {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->resetToInitialTransform();
 }
@@ -95,25 +93,11 @@ glPlane::setCurrentlySelectedToInitialTransformations() {
 void
 glPlane::setCurrentlySelectedICPResult(const ICPResults& result) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->m_pointsCloud->accumulateRotation(result.m_R);
     selectedModel->m_pointsCloud->accumulateTranslation(result.m_t);
-}
-
-//------------------------------------------------------------------------------
-void // TODO: move this to main frame and from gl plane take only meshes points
-glPlane::runICP() {
-    // Align M2 -> M1
-    wxTreeItemId m1ID = tempModelsIndices[0];
-    wxTreeItemId m2ID = tempModelsIndices[1];
-
-    PointsCloud m1_pc = *meshes[m1ID]->m_pointsCloud;
-    PointsCloud m2_pc = *meshes[m2ID]->m_pointsCloud;
-
-    ICPAlgorithm icp;
-    m_results = icp.pointToPointsICP(m1_pc, m2_pc);
 }
 
 
@@ -121,7 +105,7 @@ glPlane::runICP() {
 wxTreeItemId
 glPlane::getCurrentICPBaseMeshId() {
     // For all meshes check if any is a base and return
-    for(const auto& pair: meshes) {
+    for(const auto& pair: __m_meshes) {
         if(pair.second->getICPBase()) {
             return pair.first;
         }
@@ -138,14 +122,14 @@ glPlane::getCurrentICPBaseMeshId() {
 //------------------------------------------------------------------------------
 void
 glPlane::deleteMesh(const wxTreeItemId &item) {
-    meshes.erase(item);
+    __m_meshes.erase(item);
 }
 
 //------------------------------------------------------------------------------
 void
 glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
-    if (meshes.count(item.GetID()) != 0) {
-        (meshes[item.GetID()])->setRenderNormals(renderNormals);
+    if (__m_meshes.count(item.GetID()) != 0) {
+        (__m_meshes[item.GetID()])->setRenderNormals(renderNormals);
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
     }
@@ -155,8 +139,8 @@ glPlane::setRenderNormals(const wxTreeItemId &item, bool renderNormals) {
 void
 glPlane::setCurrentlySelectedRenderNormals(bool renderNormals) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->setRenderNormals(renderNormals);
 }
@@ -165,19 +149,19 @@ glPlane::setCurrentlySelectedRenderNormals(bool renderNormals) {
 void  // TODO: rewrite or split <== too complicated
 glPlane::setCurrentlySelectedAsICPBaseMesh(bool icpBase) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
 
         // Inform current base that it is no longer a base
-        if(m_currentICPBaseId != NULL) {
+        if(__m_currentICPBaseId != NULL) {
             glPlyModel *currentICPBase
-                    = (meshes[m_currentICPBaseId.GetID()]).get();
+                    = (__m_meshes[__m_currentICPBaseId.GetID()]).get();
             currentICPBase->setICPBase(false);
         }
 
         // Store new base id if requested
         if(icpBase) {
-            m_currentICPBaseId = m_currentlySelectedId;
+            __m_currentICPBaseId = __m_currentlySelectedId;
         }
     } else {
         string errorInfo = "No mesh currently selected.";
@@ -194,8 +178,8 @@ glPlane::setCurrentlySelectedAsICPBaseMesh(bool icpBase) {
 void
 glPlane::setCurrentlySelectedWireframe(bool wireframe) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->setWireframe(wireframe);
 }
@@ -203,8 +187,8 @@ glPlane::setCurrentlySelectedWireframe(bool wireframe) {
 //------------------------------------------------------------------------------
 void
 glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
-    if (meshes.count(item.GetID()) != 0) {
-        (meshes[item.GetID()])->introduceGaussianNoise(0.0f, stdDev);
+    if (__m_meshes.count(item.GetID()) != 0) {
+        (__m_meshes[item.GetID()])->introduceGaussianNoise(0.0f, stdDev);
     } else {
         cout << "Warning: Cannot find mesh id." << endl;
     }
@@ -214,8 +198,8 @@ glPlane::introduceNoise(const wxTreeItemId &item, const float stdDev) {
 void
 glPlane::moveCurrentlySelectedCentroidToOrigin() {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->moveCentroidToOrigin();
 }
@@ -224,8 +208,8 @@ glPlane::moveCurrentlySelectedCentroidToOrigin() {
 void
 glPlane::setCurrentlySelectedTranslation(const Vector3f& translation) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->m_pointsCloud->setTranslation(translation);
 }
@@ -234,8 +218,8 @@ glPlane::setCurrentlySelectedTranslation(const Vector3f& translation) {
 void
 glPlane::setCurrentlySelectedRotation(const Matrix3f& rotation) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->m_pointsCloud->setRotation(rotation);
 }
@@ -244,8 +228,8 @@ glPlane::setCurrentlySelectedRotation(const Matrix3f& rotation) {
 void
 glPlane::setCurrentlySelectedScale(const Vector3f& scale) {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return;
     selectedModel->m_pointsCloud->setScale(scale);
 }
@@ -254,8 +238,8 @@ glPlane::setCurrentlySelectedScale(const Vector3f& scale) {
 Vector3f
 glPlane::getCurrentlySelectedTranslation() {
     const glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getTranslation();
 }
@@ -264,8 +248,8 @@ glPlane::getCurrentlySelectedTranslation() {
 Vector3f
 glPlane::getCurrentlySelectedRotation() {
     const glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getRotationAngles();
 }
@@ -274,8 +258,8 @@ glPlane::getCurrentlySelectedRotation() {
 Vector3f
 glPlane::getCurrentlySelectedScaling() {
     const glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else return Vector3f(0.0, 0.0, 0.0);
     return selectedModel->m_pointsCloud->getScale();
 }
@@ -284,8 +268,8 @@ glPlane::getCurrentlySelectedScaling() {
 bool
 glPlane::getCurrentlySelectedShowNormals() {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else false;
     return selectedModel->getRenderNormals();
 }
@@ -294,8 +278,8 @@ glPlane::getCurrentlySelectedShowNormals() {
 bool
 glPlane::getCurrentlySelectedWireframe() {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else false;
     return selectedModel->getWireframe();
 }
@@ -304,8 +288,8 @@ glPlane::getCurrentlySelectedWireframe() {
 bool
 glPlane::getCurrentlySelectedICPBase() {
     glPlyModel *selectedModel;
-    if (m_currentlySelectedId != NULL) {
-        selectedModel = (meshes[m_currentlySelectedId.GetID()]).get();
+    if (__m_currentlySelectedId != NULL) {
+        selectedModel = (__m_meshes[__m_currentlySelectedId.GetID()]).get();
     } else false;
     return selectedModel->getICPBase();
 }
@@ -313,14 +297,14 @@ glPlane::getCurrentlySelectedICPBase() {
 //------------------------------------------------------------------------------
 bool
 glPlane::IsAnyModelSelected() {
-    return (m_currentlySelectedId != NULL);
+    return (__m_currentlySelectedId != NULL);
 }
 
 //------------------------------------------------------------------------------
 const PointsCloud&
 glPlane::getMeshCloudById(const wxTreeItemId& id) {
-    if (meshes.count(id.GetID()) != 0) {
-        return *(meshes[id.GetID()])->m_pointsCloud.get();
+    if (__m_meshes.count(id.GetID()) != 0) {
+        return *(__m_meshes[id.GetID()])->m_pointsCloud.get();
     } else {
         string errorInfo = "No mesh with provided id found.";
         throw errorInfo;
@@ -329,7 +313,7 @@ glPlane::getMeshCloudById(const wxTreeItemId& id) {
 
 //------------------------------------------------------------------------------
 void
-glPlane::initializeGLEW() {
+glPlane::__InitializeGLEW() {
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (err != GLEW_OK) {
@@ -345,12 +329,12 @@ glPlane::initializeGLEW() {
 
 //------------------------------------------------------------------------------
 void
-glPlane::initializeGLContextIfNotReady() {
-    if (!glReady) {
+glPlane::__InitializeGLContextIfNotReady() {
+    if (!__m_glReady) {
         wxGLCanvas::SetCurrent(*m_context);
-        initializeGLEW();
+        __InitializeGLEW();
 
-        mainShader = new glShaderProgram
+        __m_mainShader = new glShaderProgram
                 ("./res/shaders/default_shader.vert",
                  "./res/shaders/default_shader.frag");
 
@@ -367,23 +351,16 @@ glPlane::initializeGLContextIfNotReady() {
         float far = 1000.0f;
         setPerspective(fovY, aspect, near, far, projection);
 
-        glReady = true;
+        __m_glReady = true;
     }
 };
 
 //------------------------------------------------------------------------------
 void
-glPlane::resized(wxSizeEvent &evt) {
+glPlane::__OnResized(wxSizeEvent &evt) {
 //	wxGLCanvas::OnSize(evt);
-    prepare3DViewport(0, 0, getWidth(), getHeight() / 2);
+    __Prepare3DViewport(0, 0,  GetSize().x,  GetSize().y);
     Refresh();
-}
-
-//------------------------------------------------------------------------------
-const string
-glPlane::getSingleSelection() {
-    m_selectionChanged = false;
-    return "test";
 }
 
 //------------------------------------------------------------------------------
@@ -400,8 +377,8 @@ glPlane::EatSelectionChangeNotification() {
 
 //------------------------------------------------------------------------------
 void
-glPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
-                           int bottomrigth_y) {
+glPlane::__Prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
+                             int bottomrigth_y) {
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClearDepth(1.0f);
@@ -412,33 +389,22 @@ glPlane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x,
 }
 
 //------------------------------------------------------------------------------
-int
-glPlane::getWidth() {
-    return GetSize().x;
-}
-
-//------------------------------------------------------------------------------
-int
-glPlane::getHeight() {
-    return GetSize().y;
-}
-
-//------------------------------------------------------------------------------
 void
-glPlane::render(wxPaintEvent &evt) {
+glPlane::__OnRender(wxPaintEvent &evt) {
     if (!IsShown()) return;
-    initializeGLContextIfNotReady();
+    __InitializeGLContextIfNotReady();
 
-    prepare3DViewport(0, 0, getWidth(), getHeight());
+    __Prepare3DViewport(0, 0, GetSize().x, GetSize().y);
     wxPaintDC(this);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // Render Coordinates
-    coordinates->render(*mainShader, camera->getViewMatrix(), projection);
+    coordinates->render(*__m_mainShader, camera->getViewMatrix(), projection);
 
     // Render Meshes
-    for (auto const &mesh : meshes) {
-        (mesh.second)->render(*mainShader,
+    for (auto const &mesh : __m_meshes) {
+        (mesh.second)->render(*__m_mainShader,
                               camera->getViewMatrix(),
                               projection,
                               __m_normalsVisualizationShader);
@@ -450,7 +416,7 @@ glPlane::render(wxPaintEvent &evt) {
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseDown(wxMouseEvent &event) {
+glPlane::__OnMouseDown(wxMouseEvent &event) {
     dragging = true;
     dragXOrigin = event.GetX();
     dragYOrigin = event.GetY();
@@ -458,20 +424,20 @@ glPlane::mouseDown(wxMouseEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseReleased(wxMouseEvent &event) {
+glPlane::__OnMouseReleased(wxMouseEvent &event) {
     dragging = false;
 }
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseWheelMoved(wxMouseEvent &event) {
+glPlane::__OnMouseWheelMoved(wxMouseEvent &event) {
     float sign = event.GetWheelRotation() / abs(event.GetWheelRotation());
     camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.001f);
 }
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseMoved(wxMouseEvent &event) {
+glPlane::__OnMouseMoved(wxMouseEvent &event) {
     if (dragging) {
         float eventX = event.GetX();
         float eventY = event.GetY();
@@ -486,32 +452,32 @@ glPlane::mouseMoved(wxMouseEvent &event) {
 
 //------------------------------------------------------------------------------
 void
-glPlane::rightClick(wxMouseEvent &event) {
+glPlane::__OnMouseRightClick(wxMouseEvent &event) {
 
 }
 
 //------------------------------------------------------------------------------
 void
-glPlane::mouseLeftWindow(wxMouseEvent &event) {}
+glPlane::__OnMouseLeftWindow(wxMouseEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-glPlane::keyPressed(wxKeyEvent &event) {}
+glPlane::__OnKeyPressed(wxKeyEvent &event) {}
 
 //------------------------------------------------------------------------------
 void
-glPlane::keyReleased(wxKeyEvent &event) {}
+glPlane::__OnKeyReleased(wxKeyEvent &event) {}
 
 //------------------------------------------------------------------------------
 BEGIN_EVENT_TABLE(glPlane, wxGLCanvas)
-                EVT_MOTION(glPlane::mouseMoved)
-                EVT_LEFT_DOWN(glPlane::mouseDown)
-                EVT_LEFT_UP(glPlane::mouseReleased)
-                EVT_RIGHT_DOWN(glPlane::rightClick)
-                EVT_LEAVE_WINDOW(glPlane::mouseLeftWindow)
-                EVT_SIZE(glPlane::resized)
-                EVT_KEY_DOWN(glPlane::keyPressed)
-                EVT_KEY_UP(glPlane::keyReleased)
-                EVT_MOUSEWHEEL(glPlane::mouseWheelMoved)
-                EVT_PAINT(glPlane::render)
+                EVT_MOTION(glPlane::__OnMouseMoved)
+                EVT_LEFT_DOWN(glPlane::__OnMouseDown)
+                EVT_LEFT_UP(glPlane::__OnMouseReleased)
+                EVT_RIGHT_DOWN(glPlane::__OnMouseRightClick)
+                EVT_LEAVE_WINDOW(glPlane::__OnMouseLeftWindow)
+                EVT_SIZE(glPlane::__OnResized)
+                EVT_KEY_DOWN(glPlane::__OnKeyPressed)
+                EVT_KEY_UP(glPlane::__OnKeyReleased)
+                EVT_MOUSEWHEEL(glPlane::__OnMouseWheelMoved)
+                EVT_PAINT(glPlane::__OnRender)
 END_EVENT_TABLE()
