@@ -15,7 +15,10 @@ void main()
         color = vec4(255.0f / 256.0f, 163.0f/256.0f, 26.0f/256.0f, 1.0f);
     } else {
         vec3 N = normalize(fragmentNormal);
-        vec3 lightDirection = -lightPosition;
-        color = vec4(N, 1.0);
+        vec3 lightDirection = -normalize(lightPosition);
+        float NdotL = max(dot(N, lightDirection), 0.0);
+        vec3 diffuse = vec3(0.5, 0.5, 0.5);
+        vec3 colorInter = vec3(u_color);
+        color = vec4( (diffuse * NdotL) + colorInter, 1.0);
     }
 }

@@ -405,10 +405,7 @@ glPlyModel::loadOpenGLData() {
     // Init Vertices/Indices
     glBindVertexArray(__m_vaoShading);
     glBindBuffer(GL_ARRAY_BUFFER, __m_vboshading);
-    glBufferData(GL_ARRAY_BUFFER,
-                 __m_glNormalsLinesData.size() * sizeof(GLfloat),
-                 &__m_glNormalsLinesData[0],
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, __m_glNormalsLinesData.size() * sizeof(GLfloat), &__m_glNormalsLinesData[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     // Normal attribute

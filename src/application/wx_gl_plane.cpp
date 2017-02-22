@@ -432,7 +432,7 @@ glPlane::__OnMouseReleased(wxMouseEvent &event) {
 void
 glPlane::__OnMouseWheelMoved(wxMouseEvent &event) {
     float sign = event.GetWheelRotation() / abs(event.GetWheelRotation());
-    camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.001f);
+    camera->changeRadiusBy(sign * event.GetWheelDelta() * 0.0001f);
 }
 
 //------------------------------------------------------------------------------
